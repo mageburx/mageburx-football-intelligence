@@ -38,6 +38,16 @@ class ReliabilityTests(unittest.TestCase):
         b=audit_league({**seasons,'2026-2027':{'events':games('2026-2027',200),'complete':True}})
         self.assertEqual(a,b)  # future season never informs historical evaluation
 
+    def test_holdout_includes_january_to_june_of_following_year(self):
+        old=games('2024-2025',180)
+        test=games('2025-2026',200)
+        extra={'id':'jan-extra','date':'2026-01-15','home':'Home','away':'Away',
+               'home_score':1,'away_score':1,'finished':True}
+        seasons={'2024-2025':{'events':old,'complete':True,'expected_games':180},
+                 '2025-2026':{'events':test+[extra],'complete':True,'expected_games':201}}
+        audit=audit_league(seasons)
+        self.assertEqual(audit['metrics']['over_2_5']['n'],201)
+
     def test_partial_danish_history_cannot_be_trusted(self):
         seasons={'2023-2024':{'events':games('2023-2024',180),'complete':True},
                  '2024-2025':{'events':games('2024-2025',192),'complete':False,'expected_games':193}}

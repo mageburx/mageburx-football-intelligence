@@ -85,7 +85,7 @@ def audit_league(seasons):
     if selected is None:
         return {'coverage':coverage,'holdout':None,'metrics':{},'warning':'Sem épocas anteriores suficientes para testar outra época.'}
     holdout=selected['season']
-    holdout_games=[e for e in all_events if e['date'][:4]==holdout[:4] and e['date']>=holdout[:4]+'-07-01' and e['date']<(str(int(holdout[:4])+1))+'-07-01']
+    holdout_games=[e for e in all_events if e['date']>=holdout[:4]+'-07-01' and e['date']<(str(int(holdout[:4])+1))+'-07-01']
     # The date boundary, not a mutable season label, identifies the test set.
     # Deduplicate source records by season/id.
     holdout_games=sorted(holdout_games,key=lambda e:(e['date'],str(e.get('id'))))
