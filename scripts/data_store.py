@@ -37,7 +37,10 @@ def restore(root=ROOT):
     fetch = git('fetch', '--no-tags', 'origin', f'+refs/heads/{BRANCH}:refs/remotes/origin/{BRANCH}', check=False)
     if fetch.returncode:
         raise RuntimeError('Could not fetch persistent state branch: ' + fetch.stderr[-500:])
-    from scripts.restore_published_state import merge_history, merge_ledger
+    try:
+        from scripts.restore_published_state import merge_history, merge_ledger
+    except ModuleNotFoundError:
+        from restore_published_state import merge_history, merge_ledger
     for name, merger in (('history.json', merge_history), ('ledger.json', merge_ledger)):
         prior = read_remote(name)
         if prior is None:
