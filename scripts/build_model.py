@@ -197,9 +197,127 @@ def evaluate(events):
             selected = best
     return summary, selected
 
+
+# Binary market definitions for end-of-match scores. Push/handicap markets are not
+# scored here because their settlement needs a three-way (win/push/loss) model.
+MARKET_LABELS = {
+    'double_1x': 'Dupla oportunidade 1X',
+    'double_x2': 'Dupla oportunidade X2',
+    'double_12': 'Dupla oportunidade 12',
+    'over_0_5': 'Over 0.5 golos',
+    'under_0_5': 'Under 0.5 golos',
+    'over_1_5': 'Over 1.5 golos',
+    'under_1_5': 'Under 1.5 golos',
+    'over_2_5': 'Over 2.5 golos',
+    'under_2_5': 'Under 2.5 golos',
+    'over_3_5': 'Over 3.5 golos',
+    'under_3_5': 'Under 3.5 golos',
+    'btts_yes': 'Ambas marcam — Sim',
+    'btts_no': 'Ambas marcam — Não',
+    'home_over_0_5': 'Casa Over 0.5 golos',
+    'home_over_1_5': 'Casa Over 1.5 golos',
+    'away_over_0_5': 'Fora Over 0.5 golos',
+    'away_over_1_5': 'Fora Over 1.5 golos',
+}
+
+def market_settles(event, key):
+    """Return a binary observed result, never probabilities or future match data."""
+    h, a = event['home_score'], event['away_score']
+    if key == 'double_1x':
+        return int(h >= a)
+    if key == 'double_x2':
+        return int(h <= a)
+    if key == 'double_12':
+        return int(h != a)
+    if key == 'btts_yes':
+        return int(h > 0 and a > 0)
+    if key == 'btts_no':
+        return int(h == 0 or a == 0)
+    for prefix, goals in (('over_', h + a), ('under_', h + a),
+                          ('home_over_', h), ('away_over_', a)):
+        if key.startswith(prefix):
+            suffix = key[len(prefix):]
+            if suffix not in ('0_5', '1_5', '2_5', '3_5'):
+                break
+            threshold = int(suffix[0]) + .5
+            return int(goals > threshold) if prefix != 'under_' else int(goals < threshold)
+    raise ValueError(f'Mercado desconhecido: {key}')
+
+def evaluate_binary_markets(events, asof=None):
+    """Walk-forward Brier, log loss, baseline and calibration, per market.
+
+    Events at the same calendar date are excluded from training for *every*
+    prediction on that date. The fixed DC scoring model is intentionally used:
+    historical choice of a best model would otherwise leak future outcomes.
+    The 1X2 selector may choose another model for future forecasts; its
+    double-chance prices therefore are NOT validated by these DC-only scores.
+    """
+    cutoff = asof or TODAY.isoformat()
+    played = [e for e in usable(events) if finished(e) and e['date'] < cutoff]
+    records = defaultdict(list)
+    for match in played:
+        before = [e for e in played if e['date'] < match['date']]
+        rates = goal_rates(before, match['date'], match['home'], match['away'])
+        if rates is None:
+            continue
+        dc = score_probs(*rates, dc=True)
+        m = dict(dc['markets'])
+        m['double_1x'] = dc['p'][0] + dc['p'][1]
+        m['double_x2'] = dc['p'][1] + dc['p'][2]
+        m['double_12'] = dc['p'][0] + dc['p'][2]
+        for key in MARKET_LABELS:
+            if key not in m:
+                continue
+            probability = min(1 - 1e-9, max(1e-9, float(m[key])))
+            observed = market_settles(match, key)
+            # Smoothed unconditional prior for the *same market*, based on
+            # earlier league fixtures only. Prevents a trivial straw baseline.
+            prior = (1 + sum(market_settles(e, key) for e in before)) / (2 + len(before))
+            records[key].append((probability, observed, prior))
+    output = {}
+    for key in MARKET_LABELS:
+        values = records.get(key, [])
+        n = len(values)
+        if not n:
+            output[key] = {'n': 0, 'status': 'amostra_insuficiente'}
+            continue
+        brier_score = sum((p - y) ** 2 for p, y, _ in values) / n
+        baseline_brier = sum((p0 - y) ** 2 for _, y, p0 in values) / n
+        ll = -sum(y * math.log(p) + (1-y) * math.log1p(-p) for p, y, _ in values) / n
+        bins = []
+        for i in range(5):
+            sample = [(p, y) for p, y, _ in values
+                      if (i / 5) <= p < ((i+1)/5) or (i == 4 and p == 1)]
+            if sample:
+                bins.append({'range': f'{i*20}-{(i+1)*20}%',
+                             'n': len(sample),
+                             'mean_prediction': round(sum(p for p, _ in sample) / len(sample), 4),
+                             'observed_frequency': round(sum(y for _, y in sample) / len(sample), 4)})
+        calibration_error = sum(
+            b['n'] / n * abs(b['mean_prediction'] - b['observed_frequency'])
+            for b in bins)
+        skill = 1 - brier_score / baseline_brier if baseline_brier > 0 else None
+        # In-sample model comparisons, even walk-forward, are exploratory.
+        status = ('amostra_insuficiente' if n < 100 else
+                  'nao_supera_baseline' if skill is None or skill <= 0 else
+                  'exploratorio_sem_validacao_externa')
+        output[key] = {'n': n, 'brier': round(brier_score, 4),
+                       'log_loss': round(ll, 4),
+                       'baseline_brier': round(baseline_brier, 4),
+                       'brier_skill': round(skill, 4) if skill is not None else None,
+                       'calibration_error': round(calibration_error, 4),
+                       'event_frequency': round(sum(y for _, y, _ in values) / n, 4),
+                       'calibration_bins': bins, 'status': status}
+    return {
+        'method': 'Dixon-Coles fixo para os mercados binários; baseline histórico causal com suavização de Laplace',
+        'sample_policy': 'Amostras abaixo de 100 previsões são insuficientes; acima disso continua a faltar validação independente.',
+        'double_chance_note': 'Os backtests de dupla oportunidade usam Dixon-Coles fixo, não o modelo 1X2 selecionado no presente.',
+        'metrics': output
+    }
+
 def build(data, asof=None):
     asof = asof or TODAY.isoformat()
-    result = {'schema': 3, 'method': 'Poisson independente; Dixon-Coles (rho fixo); Elo; mistura 80/20',
+    result = {'schema': 4, 'method': 'Poisson independente; Dixon-Coles (rho fixo); Elo; mistura 80/20',
               'generated_at': dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
               'note': 'Avaliação walk-forward na época atual; seleção exploratória, não teste independente. Sem xG, lesões ou notícias quantificados.',
               'leagues': {}}
@@ -229,8 +347,10 @@ def build(data, asof=None):
                                         'leagueMatches': len(played),
                                         'model': chosen,
                                         'note': 'Modelo experimental: sem validação independente fora da amostra.'}
+        market_audit = evaluate_binary_markets(events, asof)
         result['leagues'][lid] = {'played': len(played), 'evaluations': stats,
                                    'selected': chosen, 'predictions': forecasts,
+                                   'market_audit': market_audit,
                                    'sample_warning': len(played) < 150,
                                    'data_partial': bool(info.get('partial', True))}
     return result
