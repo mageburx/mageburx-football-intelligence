@@ -6,7 +6,7 @@
     "url": "https://www.thesportsdb.com/",
     "api": "v1 gratuita"
   },
-  "updated_at": "2026-11-05T20:03:12+00:00",
+  "updated_at": "2026-11-05T22:40:00+00:00",
   "leagues": {
     "pt": {
       "name": "Liga Portugal Betclic",
@@ -1006,7 +1006,7 @@
         {
           "id": "2514030",
           "date": "2026-11-06",
-          "utc": "",
+          "utc": "2026-11-06T20:45:00",
           "round": 11,
           "home": "Famalicao",
           "away": "Arouca",
@@ -1017,7 +1017,7 @@
         {
           "id": "2514025",
           "date": "2026-11-07",
-          "utc": "",
+          "utc": "2026-11-07T15:30:00",
           "round": 11,
           "home": "Nacional de Madeira",
           "away": "Académico de Viseu",
@@ -1026,20 +1026,9 @@
           "finished": false
         },
         {
-          "id": "2514028",
-          "date": "2026-11-07",
-          "utc": "",
-          "round": 11,
-          "home": "Sporting CP",
-          "away": "Moreirense",
-          "home_score": null,
-          "away_score": null,
-          "finished": false
-        },
-        {
           "id": "2514031",
           "date": "2026-11-07",
-          "utc": "",
+          "utc": "2026-11-07T18:00:00",
           "round": 11,
           "home": "Alverca",
           "away": "Casa Pia",
@@ -1048,23 +1037,12 @@
           "finished": false
         },
         {
-          "id": "2514024",
-          "date": "2026-11-08",
-          "utc": "",
+          "id": "2514028",
+          "date": "2026-11-07",
+          "utc": "2026-11-07T20:30:00",
           "round": 11,
-          "home": "Vitória de Guimarães",
-          "away": "Porto",
-          "home_score": null,
-          "away_score": null,
-          "finished": false
-        },
-        {
-          "id": "2514026",
-          "date": "2026-11-08",
-          "utc": "",
-          "round": 11,
-          "home": "Rio Ave",
-          "away": "Braga",
+          "home": "Sporting CP",
+          "away": "Moreirense",
           "home_score": null,
           "away_score": null,
           "finished": false
@@ -1072,7 +1050,7 @@
         {
           "id": "2514027",
           "date": "2026-11-08",
-          "utc": "",
+          "utc": "2026-11-08T15:30:00",
           "round": 11,
           "home": "Santa Clara",
           "away": "Gil Vicente",
@@ -1083,7 +1061,7 @@
         {
           "id": "2514029",
           "date": "2026-11-08",
-          "utc": "",
+          "utc": "2026-11-08T15:30:00",
           "round": 11,
           "home": "Estoril Praia",
           "away": "Marítimo",
@@ -1092,12 +1070,133 @@
           "finished": false
         },
         {
+          "id": "2514024",
+          "date": "2026-11-08",
+          "utc": "2026-11-08T18:00:00",
+          "round": 11,
+          "home": "Vitória de Guimarães",
+          "away": "Porto",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514026",
+          "date": "2026-11-08",
+          "utc": "2026-11-08T20:30:00",
+          "round": 11,
+          "home": "Rio Ave",
+          "away": "Braga",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
           "id": "2514032",
           "date": "2026-11-08",
-          "utc": "",
+          "utc": "2026-11-08T20:30:00",
           "round": 11,
           "home": "Estrela Amadora",
           "away": "Benfica",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514035",
+          "date": "2026-11-27",
+          "utc": "2026-11-27T20:15:00",
+          "round": 12,
+          "home": "Marítimo",
+          "away": "Nacional de Madeira",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514036",
+          "date": "2026-11-28",
+          "utc": "2026-11-28T15:30:00",
+          "round": 12,
+          "home": "Moreirense",
+          "away": "Santa Clara",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514039",
+          "date": "2026-11-28",
+          "utc": "2026-11-28T15:30:00",
+          "round": 12,
+          "home": "Arouca",
+          "away": "Rio Ave",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514038",
+          "date": "2026-11-28",
+          "utc": "2026-11-28T18:00:00",
+          "round": 12,
+          "home": "Académico de Viseu",
+          "away": "Alverca",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514037",
+          "date": "2026-11-28",
+          "utc": "2026-11-28T20:30:00",
+          "round": 12,
+          "home": "Vitória de Guimarães",
+          "away": "Estrela Amadora",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514040",
+          "date": "2026-11-29",
+          "utc": "2026-11-29T18:00:00",
+          "round": 12,
+          "home": "Gil Vicente",
+          "away": "Estoril Praia",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514034",
+          "date": "2026-11-29",
+          "utc": "2026-11-29T20:30:00",
+          "round": 12,
+          "home": "Porto",
+          "away": "Sporting CP",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514033",
+          "date": "2026-11-30",
+          "utc": "2026-11-30T20:15:00",
+          "round": 12,
+          "home": "Benfica",
+          "away": "Famalicao",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514041",
+          "date": "2026-11-30",
+          "utc": "2026-11-30T20:15:00",
+          "round": 12,
+          "home": "Casa Pia",
+          "away": "Braga",
           "home_score": null,
           "away_score": null,
           "finished": false
@@ -2490,20 +2589,10 @@
         }
       ],
       "rounds_ok": 24,
-      "rounds_failed": [
-        11,
-        12,
-        13,
-        14,
-        15,
-        28,
-        29,
-        30,
-        31,
-        32
-      ],
-      "partial": true,
-      "last_attempt_at": "2026-11-05T20:03:12+00:00"
+      "rounds_failed": [],
+      "partial": false,
+      "last_attempt_at": "2026-11-05T20:03:12+00:00",
+      "missing_past_rounds": []
     },
     "dk": {
       "name": "3F Superliga",
@@ -3035,6 +3124,270 @@
           "home": "FC Midtjylland",
           "away": "Brøndby",
           "home_score": 4,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481844",
+          "date": "2026-09-18",
+          "utc": "2026-09-18T17:00:00",
+          "round": 9,
+          "home": "Lyngby",
+          "away": "Silkeborg IF",
+          "home_score": 0,
+          "away_score": 4,
+          "finished": true
+        },
+        {
+          "id": "2481842",
+          "date": "2026-09-19",
+          "utc": "2026-09-19T16:00:00",
+          "round": 9,
+          "home": "Odense BK",
+          "away": "FC Midtjylland",
+          "home_score": 1,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481840",
+          "date": "2026-09-20",
+          "utc": "2026-09-20T12:00:00",
+          "round": 9,
+          "home": "Sønderjyske",
+          "away": "Randers FC",
+          "home_score": 4,
+          "away_score": 2,
+          "finished": true
+        },
+        {
+          "id": "2481843",
+          "date": "2026-09-20",
+          "utc": "2026-09-20T12:00:00",
+          "round": 9,
+          "home": "Brøndby",
+          "away": "FC Copenhagen",
+          "home_score": 0,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481841",
+          "date": "2026-09-20",
+          "utc": "2026-09-20T14:00:00",
+          "round": 9,
+          "home": "AC Horsens",
+          "away": "AGF Aarhus",
+          "home_score": 2,
+          "away_score": 2,
+          "finished": true
+        },
+        {
+          "id": "2481845",
+          "date": "2026-09-20",
+          "utc": "2026-09-20T16:00:00",
+          "round": 9,
+          "home": "Viborg",
+          "away": "FC Nordsjælland",
+          "home_score": 4,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481847",
+          "date": "2026-10-09",
+          "utc": "2026-10-09T17:00:00",
+          "round": 10,
+          "home": "FC Nordsjælland",
+          "away": "Odense BK",
+          "home_score": 0,
+          "away_score": 0,
+          "finished": true
+        },
+        {
+          "id": "2481848",
+          "date": "2026-10-11",
+          "utc": "2026-10-11T12:00:00",
+          "round": 10,
+          "home": "Randers FC",
+          "away": "Viborg",
+          "home_score": 0,
+          "away_score": 2,
+          "finished": true
+        },
+        {
+          "id": "2481851",
+          "date": "2026-10-11",
+          "utc": "2026-10-11T12:00:00",
+          "round": 10,
+          "home": "Silkeborg IF",
+          "away": "AC Horsens",
+          "home_score": 3,
+          "away_score": 3,
+          "finished": true
+        },
+        {
+          "id": "2481850",
+          "date": "2026-10-11",
+          "utc": "2026-10-11T14:00:00",
+          "round": 10,
+          "home": "Brøndby",
+          "away": "Lyngby",
+          "home_score": 5,
+          "away_score": 2,
+          "finished": true
+        },
+        {
+          "id": "2481846",
+          "date": "2026-10-11",
+          "utc": "2026-10-11T16:00:00",
+          "round": 10,
+          "home": "FC Midtjylland",
+          "away": "FC Copenhagen",
+          "home_score": 2,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481849",
+          "date": "2026-10-12",
+          "utc": "2026-10-12T17:00:00",
+          "round": 10,
+          "home": "AGF Aarhus",
+          "away": "Sønderjyske",
+          "home_score": 3,
+          "away_score": 0,
+          "finished": true
+        },
+        {
+          "id": "2481854",
+          "date": "2026-10-16",
+          "utc": "2026-10-16T17:00:00",
+          "round": 11,
+          "home": "AC Horsens",
+          "away": "Randers FC",
+          "home_score": 0,
+          "away_score": 0,
+          "finished": true
+        },
+        {
+          "id": "2481852",
+          "date": "2026-10-18",
+          "utc": "2026-10-18T12:00:00",
+          "round": 11,
+          "home": "Sønderjyske",
+          "away": "Silkeborg IF",
+          "home_score": 4,
+          "away_score": 0,
+          "finished": true
+        },
+        {
+          "id": "2481856",
+          "date": "2026-10-18",
+          "utc": "2026-10-18T12:00:00",
+          "round": 11,
+          "home": "Lyngby",
+          "away": "FC Nordsjælland",
+          "home_score": 3,
+          "away_score": 3,
+          "finished": true
+        },
+        {
+          "id": "2481855",
+          "date": "2026-10-18",
+          "utc": "2026-10-18T14:00:00",
+          "round": 11,
+          "home": "Odense BK",
+          "away": "Brøndby",
+          "home_score": 2,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481853",
+          "date": "2026-10-18",
+          "utc": "2026-10-18T16:00:00",
+          "round": 11,
+          "home": "FC Copenhagen",
+          "away": "AGF Aarhus",
+          "home_score": 1,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481857",
+          "date": "2026-10-19",
+          "utc": "2026-10-19T17:00:00",
+          "round": 11,
+          "home": "Viborg",
+          "away": "FC Midtjylland",
+          "home_score": 1,
+          "away_score": 2,
+          "finished": true
+        },
+        {
+          "id": "2481860",
+          "date": "2026-10-23",
+          "utc": "2026-10-23T17:00:00",
+          "round": 12,
+          "home": "Randers FC",
+          "away": "Brøndby",
+          "home_score": 1,
+          "away_score": 3,
+          "finished": true
+        },
+        {
+          "id": "2481858",
+          "date": "2026-10-25",
+          "utc": "2026-10-25T13:00:00",
+          "round": 12,
+          "home": "FC Midtjylland",
+          "away": "Lyngby",
+          "home_score": 3,
+          "away_score": 2,
+          "finished": true
+        },
+        {
+          "id": "2481863",
+          "date": "2026-10-25",
+          "utc": "2026-10-25T13:00:00",
+          "round": 12,
+          "home": "Silkeborg IF",
+          "away": "FC Nordsjælland",
+          "home_score": 1,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481861",
+          "date": "2026-10-25",
+          "utc": "2026-10-25T15:00:00",
+          "round": 12,
+          "home": "AC Horsens",
+          "away": "Sønderjyske",
+          "home_score": 5,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481862",
+          "date": "2026-10-25",
+          "utc": "2026-10-25T17:00:00",
+          "round": 12,
+          "home": "AGF Aarhus",
+          "away": "Viborg",
+          "home_score": 2,
+          "away_score": 1,
+          "finished": true
+        },
+        {
+          "id": "2481859",
+          "date": "2026-10-26",
+          "utc": "2026-10-26T18:00:00",
+          "round": 12,
+          "home": "FC Copenhagen",
+          "away": "Odense BK",
+          "home_score": 1,
           "away_score": 1,
           "finished": true
         },
@@ -3700,20 +4053,10 @@
         }
       ],
       "rounds_ok": 17,
-      "rounds_failed": [
-        9,
-        10,
-        11,
-        12,
-        13,
-        26,
-        27,
-        28,
-        29,
-        30
-      ],
-      "partial": true,
-      "last_attempt_at": "2026-11-05T20:03:12+00:00"
+      "rounds_failed": [],
+      "partial": false,
+      "last_attempt_at": "2026-11-05T20:03:12+00:00",
+      "missing_past_rounds": []
     }
   }
 }
