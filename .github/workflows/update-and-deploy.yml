@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - 'data/**'
   schedule:
-    - cron: '17 7,19 * * *'
+    - cron: '17 */3 * * *'
 permissions:
   contents: write
   pages: write
@@ -27,6 +27,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Recuperar histórico e previsões publicados
+        run: python scripts/restore_published_state.py
+      - name: Importar incrementalmente épocas dinamarquesas
+        run: python scripts/backfill_history.py --max-calls 18 --pause 3.5
       - name: Recolher jogos das duas ligas
         run: python scripts/update_data.py
       - name: Recolher notícias e ausências documentadas
@@ -41,15 +45,20 @@ jobs:
         run: python scripts/build_reliability.py
       - name: Testar motor e painel de fiabilidade
         run: python -m unittest discover -s tests -p 'test_*.py' -v
-      - name: Guardar resultados recolhidos
+      - name: Verificar ficheiros estatísticos
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'data: atualizar resultados e calendário'
-            git push origin HEAD:main
-          fi
+          test -s data/history.json
+          test -s data/ledger.json
+          test -s data/reliability.json
+      - name: Arquivar estado para recuperação
+        uses: actions/upload-artifact@v4
+        with:
+          name: football-reliability-state
+          path: |
+            data/history.json
+            data/ledger.json
+            data/reliability.json
+          retention-days: 90
       - name: Validar sintaxe do dashboard
         run: node --check app/app.js
       - name: Preparar dashboard estático
