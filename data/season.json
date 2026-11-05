@@ -6,7 +6,7 @@
     "url": "https://www.thesportsdb.com/",
     "api": "v1 gratuita"
   },
-  "updated_at": "2026-11-05T22:58:37+00:00",
+  "updated_at": "2026-11-05T23:03:31+00:00",
   "leagues": {
     "pt": {
       "name": "Liga Portugal Betclic",
@@ -2592,7 +2592,7 @@
       "rounds_failed": [],
       "missing_past_rounds": [],
       "partial": false,
-      "last_attempt_at": "2026-11-05T22:58:37+00:00"
+      "last_attempt_at": "2026-11-05T23:03:31+00:00"
     },
     "dk": {
       "name": "3F Superliga",
@@ -4056,7 +4056,7 @@
       "rounds_failed": [],
       "missing_past_rounds": [],
       "partial": false,
-      "last_attempt_at": "2026-11-05T22:58:37+00:00"
+      "last_attempt_at": "2026-11-05T23:03:31+00:00"
     }
   }
 }

@@ -1,7 +1,7 @@
 {
-  "schema": 3,
+  "schema": 4,
   "method": "Poisson independente; Dixon-Coles (rho fixo); Elo; mistura 80/20",
-  "generated_at": "2026-11-05T22:58:57+00:00",
+  "generated_at": "2026-11-05T23:03:51+00:00",
   "note": "Avaliação walk-forward na época atual; seleção exploratória, não teste independente. Sem xG, lesões ou notícias quantificados.",
   "leagues": {
     "pt": {
@@ -4922,6 +4922,511 @@
           "note": "Modelo experimental: sem validação independente fora da amostra."
         }
       },
+      "market_audit": {
+        "method": "Dixon-Coles fixo para os mercados binários; baseline histórico causal com suavização de Laplace",
+        "sample_policy": "Amostras abaixo de 100 previsões são insuficientes; acima disso continua a faltar validação independente.",
+        "double_chance_note": "Os backtests de dupla oportunidade usam Dixon-Coles fixo, não o modelo 1X2 selecionado no presente.",
+        "metrics": {
+          "double_1x": {
+            "n": 58,
+            "brier": 0.2181,
+            "log_loss": 0.623,
+            "baseline_brier": 0.254,
+            "brier_skill": 0.1414,
+            "calibration_error": 0.1225,
+            "event_frequency": 0.569,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 6,
+                "mean_prediction": 0.3049,
+                "observed_frequency": 0.1667
+              },
+              {
+                "range": "40-60%",
+                "n": 14,
+                "mean_prediction": 0.4971,
+                "observed_frequency": 0.6429
+              },
+              {
+                "range": "60-80%",
+                "n": 36,
+                "mean_prediction": 0.6917,
+                "observed_frequency": 0.5833
+              },
+              {
+                "range": "80-100%",
+                "n": 2,
+                "mean_prediction": 0.8347,
+                "observed_frequency": 1.0
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "double_x2": {
+            "n": 58,
+            "brier": 0.2251,
+            "log_loss": 0.6379,
+            "baseline_brier": 0.2436,
+            "brier_skill": 0.0761,
+            "calibration_error": 0.0462,
+            "event_frequency": 0.6034,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 1,
+                "mean_prediction": 0.3873,
+                "observed_frequency": 0.0
+              },
+              {
+                "range": "40-60%",
+                "n": 19,
+                "mean_prediction": 0.5263,
+                "observed_frequency": 0.4737
+              },
+              {
+                "range": "60-80%",
+                "n": 30,
+                "mean_prediction": 0.6803,
+                "observed_frequency": 0.6667
+              },
+              {
+                "range": "80-100%",
+                "n": 8,
+                "mean_prediction": 0.8608,
+                "observed_frequency": 0.75
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "double_12": {
+            "n": 58,
+            "brier": 0.1451,
+            "log_loss": 0.4668,
+            "baseline_brier": 0.1503,
+            "brier_skill": 0.0349,
+            "calibration_error": 0.0869,
+            "event_frequency": 0.8276,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 54,
+                "mean_prediction": 0.7341,
+                "observed_frequency": 0.8148
+              },
+              {
+                "range": "80-100%",
+                "n": 4,
+                "mean_prediction": 0.8293,
+                "observed_frequency": 1.0
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "over_0_5": {
+            "n": 58,
+            "brier": 0.0606,
+            "log_loss": 0.2288,
+            "baseline_brier": 0.0653,
+            "brier_skill": 0.0719,
+            "calibration_error": 0.0079,
+            "event_frequency": 0.931,
+            "calibration_bins": [
+              {
+                "range": "80-100%",
+                "n": 58,
+                "mean_prediction": 0.9231,
+                "observed_frequency": 0.931
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "under_0_5": {
+            "n": 58,
+            "brier": 0.0606,
+            "log_loss": 0.2288,
+            "baseline_brier": 0.0653,
+            "brier_skill": 0.0719,
+            "calibration_error": 0.0079,
+            "event_frequency": 0.069,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 58,
+                "mean_prediction": 0.0769,
+                "observed_frequency": 0.069
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "over_1_5": {
+            "n": 58,
+            "brier": 0.1952,
+            "log_loss": 0.5835,
+            "baseline_brier": 0.195,
+            "brier_skill": -0.0009,
+            "calibration_error": 0.0319,
+            "event_frequency": 0.7414,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 1,
+                "mean_prediction": 0.526,
+                "observed_frequency": 1.0
+              },
+              {
+                "range": "60-80%",
+                "n": 35,
+                "mean_prediction": 0.7154,
+                "observed_frequency": 0.7143
+              },
+              {
+                "range": "80-100%",
+                "n": 22,
+                "mean_prediction": 0.8336,
+                "observed_frequency": 0.7727
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "under_1_5": {
+            "n": 58,
+            "brier": 0.1952,
+            "log_loss": 0.5835,
+            "baseline_brier": 0.195,
+            "brier_skill": -0.0009,
+            "calibration_error": 0.0319,
+            "event_frequency": 0.2586,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 22,
+                "mean_prediction": 0.1664,
+                "observed_frequency": 0.2273
+              },
+              {
+                "range": "20-40%",
+                "n": 35,
+                "mean_prediction": 0.2846,
+                "observed_frequency": 0.2857
+              },
+              {
+                "range": "40-60%",
+                "n": 1,
+                "mean_prediction": 0.474,
+                "observed_frequency": 0.0
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "over_2_5": {
+            "n": 58,
+            "brier": 0.2564,
+            "log_loss": 0.7074,
+            "baseline_brier": 0.2509,
+            "brier_skill": -0.0216,
+            "calibration_error": 0.1075,
+            "event_frequency": 0.5862,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 8,
+                "mean_prediction": 0.3454,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "40-60%",
+                "n": 36,
+                "mean_prediction": 0.5001,
+                "observed_frequency": 0.6111
+              },
+              {
+                "range": "60-80%",
+                "n": 14,
+                "mean_prediction": 0.643,
+                "observed_frequency": 0.5714
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "under_2_5": {
+            "n": 58,
+            "brier": 0.2564,
+            "log_loss": 0.7074,
+            "baseline_brier": 0.2509,
+            "brier_skill": -0.0216,
+            "calibration_error": 0.1075,
+            "event_frequency": 0.4138,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 14,
+                "mean_prediction": 0.357,
+                "observed_frequency": 0.4286
+              },
+              {
+                "range": "40-60%",
+                "n": 36,
+                "mean_prediction": 0.4999,
+                "observed_frequency": 0.3889
+              },
+              {
+                "range": "60-80%",
+                "n": 8,
+                "mean_prediction": 0.6546,
+                "observed_frequency": 0.5
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "over_3_5": {
+            "n": 58,
+            "brier": 0.2183,
+            "log_loss": 0.6289,
+            "baseline_brier": 0.2189,
+            "brier_skill": 0.0028,
+            "calibration_error": 0.0447,
+            "event_frequency": 0.3103,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 8,
+                "mean_prediction": 0.1589,
+                "observed_frequency": 0.25
+              },
+              {
+                "range": "20-40%",
+                "n": 41,
+                "mean_prediction": 0.2957,
+                "observed_frequency": 0.3171
+              },
+              {
+                "range": "40-60%",
+                "n": 9,
+                "mean_prediction": 0.4429,
+                "observed_frequency": 0.3333
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "under_3_5": {
+            "n": 58,
+            "brier": 0.2183,
+            "log_loss": 0.6289,
+            "baseline_brier": 0.2189,
+            "brier_skill": 0.0028,
+            "calibration_error": 0.0447,
+            "event_frequency": 0.6897,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 9,
+                "mean_prediction": 0.5571,
+                "observed_frequency": 0.6667
+              },
+              {
+                "range": "60-80%",
+                "n": 41,
+                "mean_prediction": 0.7043,
+                "observed_frequency": 0.6829
+              },
+              {
+                "range": "80-100%",
+                "n": 8,
+                "mean_prediction": 0.8411,
+                "observed_frequency": 0.75
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "btts_yes": {
+            "n": 58,
+            "brier": 0.2651,
+            "log_loss": 0.7248,
+            "baseline_brier": 0.2574,
+            "brier_skill": -0.03,
+            "calibration_error": 0.0831,
+            "event_frequency": 0.5,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 2,
+                "mean_prediction": 0.3721,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "40-60%",
+                "n": 41,
+                "mean_prediction": 0.5092,
+                "observed_frequency": 0.5366
+              },
+              {
+                "range": "60-80%",
+                "n": 15,
+                "mean_prediction": 0.6295,
+                "observed_frequency": 0.4
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "btts_no": {
+            "n": 58,
+            "brier": 0.2651,
+            "log_loss": 0.7248,
+            "baseline_brier": 0.2574,
+            "brier_skill": -0.03,
+            "calibration_error": 0.0831,
+            "event_frequency": 0.5,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 15,
+                "mean_prediction": 0.3705,
+                "observed_frequency": 0.6
+              },
+              {
+                "range": "40-60%",
+                "n": 41,
+                "mean_prediction": 0.4908,
+                "observed_frequency": 0.4634
+              },
+              {
+                "range": "60-80%",
+                "n": 2,
+                "mean_prediction": 0.6279,
+                "observed_frequency": 0.5
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "home_over_0_5": {
+            "n": 58,
+            "brier": 0.1993,
+            "log_loss": 0.5851,
+            "baseline_brier": 0.2109,
+            "brier_skill": 0.0548,
+            "calibration_error": 0.0261,
+            "event_frequency": 0.7069,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 6,
+                "mean_prediction": 0.5644,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "60-80%",
+                "n": 43,
+                "mean_prediction": 0.7148,
+                "observed_frequency": 0.6977
+              },
+              {
+                "range": "80-100%",
+                "n": 9,
+                "mean_prediction": 0.8451,
+                "observed_frequency": 0.8889
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "home_over_1_5": {
+            "n": 58,
+            "brier": 0.2248,
+            "log_loss": 0.6385,
+            "baseline_brier": 0.235,
+            "brier_skill": 0.0437,
+            "calibration_error": 0.0914,
+            "event_frequency": 0.3448,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 2,
+                "mean_prediction": 0.1708,
+                "observed_frequency": 0.0
+              },
+              {
+                "range": "20-40%",
+                "n": 33,
+                "mean_prediction": 0.3105,
+                "observed_frequency": 0.3636
+              },
+              {
+                "range": "40-60%",
+                "n": 22,
+                "mean_prediction": 0.4817,
+                "observed_frequency": 0.3636
+              },
+              {
+                "range": "60-80%",
+                "n": 1,
+                "mean_prediction": 0.6084,
+                "observed_frequency": 0.0
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "away_over_0_5": {
+            "n": 58,
+            "brier": 0.1854,
+            "log_loss": 0.548,
+            "baseline_brier": 0.2049,
+            "brier_skill": 0.0954,
+            "calibration_error": 0.0224,
+            "event_frequency": 0.7241,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 6,
+                "mean_prediction": 0.5715,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "60-80%",
+                "n": 35,
+                "mean_prediction": 0.7082,
+                "observed_frequency": 0.7143
+              },
+              {
+                "range": "80-100%",
+                "n": 17,
+                "mean_prediction": 0.8623,
+                "observed_frequency": 0.8235
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "away_over_1_5": {
+            "n": 58,
+            "brier": 0.2234,
+            "log_loss": 0.6374,
+            "baseline_brier": 0.2465,
+            "brier_skill": 0.0934,
+            "calibration_error": 0.0799,
+            "event_frequency": 0.4138,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 31,
+                "mean_prediction": 0.2969,
+                "observed_frequency": 0.3226
+              },
+              {
+                "range": "40-60%",
+                "n": 19,
+                "mean_prediction": 0.4831,
+                "observed_frequency": 0.3684
+              },
+              {
+                "range": "60-80%",
+                "n": 8,
+                "mean_prediction": 0.6674,
+                "observed_frequency": 0.875
+              }
+            ],
+            "status": "amostra_insuficiente"
+          }
+        }
+      },
       "sample_warning": true,
       "data_partial": false
     },
@@ -6781,6 +7286,463 @@
           "leagueMatches": 78,
           "model": "blend",
           "note": "Modelo experimental: sem validação independente fora da amostra."
+        }
+      },
+      "market_audit": {
+        "method": "Dixon-Coles fixo para os mercados binários; baseline histórico causal com suavização de Laplace",
+        "sample_policy": "Amostras abaixo de 100 previsões são insuficientes; acima disso continua a faltar validação independente.",
+        "double_chance_note": "Os backtests de dupla oportunidade usam Dixon-Coles fixo, não o modelo 1X2 selecionado no presente.",
+        "metrics": {
+          "double_1x": {
+            "n": 45,
+            "brier": 0.215,
+            "log_loss": 0.6267,
+            "baseline_brier": 0.2122,
+            "brier_skill": -0.013,
+            "calibration_error": 0.1128,
+            "event_frequency": 0.7111,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 11,
+                "mean_prediction": 0.5269,
+                "observed_frequency": 0.7273
+              },
+              {
+                "range": "60-80%",
+                "n": 30,
+                "mean_prediction": 0.6817,
+                "observed_frequency": 0.7333
+              },
+              {
+                "range": "80-100%",
+                "n": 4,
+                "mean_prediction": 0.8307,
+                "observed_frequency": 0.5
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "double_x2": {
+            "n": 45,
+            "brier": 0.2499,
+            "log_loss": 0.6946,
+            "baseline_brier": 0.252,
+            "brier_skill": 0.0085,
+            "calibration_error": 0.0665,
+            "event_frequency": 0.5778,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 3,
+                "mean_prediction": 0.3673,
+                "observed_frequency": 0.6667
+              },
+              {
+                "range": "40-60%",
+                "n": 19,
+                "mean_prediction": 0.5379,
+                "observed_frequency": 0.5263
+              },
+              {
+                "range": "60-80%",
+                "n": 22,
+                "mean_prediction": 0.6675,
+                "observed_frequency": 0.5909
+              },
+              {
+                "range": "80-100%",
+                "n": 1,
+                "mean_prediction": 0.8134,
+                "observed_frequency": 1.0
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "double_12": {
+            "n": 45,
+            "brier": 0.2041,
+            "log_loss": 0.5977,
+            "baseline_brier": 0.2086,
+            "brier_skill": 0.0214,
+            "calibration_error": 0.0358,
+            "event_frequency": 0.7111,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 45,
+                "mean_prediction": 0.7469,
+                "observed_frequency": 0.7111
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "over_0_5": {
+            "n": 45,
+            "brier": 0.0419,
+            "log_loss": 0.1778,
+            "baseline_brier": 0.0433,
+            "brier_skill": 0.0322,
+            "calibration_error": 0.0185,
+            "event_frequency": 0.9556,
+            "calibration_bins": [
+              {
+                "range": "80-100%",
+                "n": 45,
+                "mean_prediction": 0.9371,
+                "observed_frequency": 0.9556
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "under_0_5": {
+            "n": 45,
+            "brier": 0.0419,
+            "log_loss": 0.1778,
+            "baseline_brier": 0.0433,
+            "brier_skill": 0.0322,
+            "calibration_error": 0.0185,
+            "event_frequency": 0.0444,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 45,
+                "mean_prediction": 0.0629,
+                "observed_frequency": 0.0444
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "over_1_5": {
+            "n": 45,
+            "brier": 0.1029,
+            "log_loss": 0.3759,
+            "baseline_brier": 0.0953,
+            "brier_skill": -0.0796,
+            "calibration_error": 0.1192,
+            "event_frequency": 0.9111,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 23,
+                "mean_prediction": 0.7485,
+                "observed_frequency": 0.9565
+              },
+              {
+                "range": "80-100%",
+                "n": 22,
+                "mean_prediction": 0.8372,
+                "observed_frequency": 0.8636
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "under_1_5": {
+            "n": 45,
+            "brier": 0.1029,
+            "log_loss": 0.3759,
+            "baseline_brier": 0.0953,
+            "brier_skill": -0.0796,
+            "calibration_error": 0.1192,
+            "event_frequency": 0.0889,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 22,
+                "mean_prediction": 0.1628,
+                "observed_frequency": 0.1364
+              },
+              {
+                "range": "20-40%",
+                "n": 23,
+                "mean_prediction": 0.2515,
+                "observed_frequency": 0.0435
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "over_2_5": {
+            "n": 45,
+            "brier": 0.2692,
+            "log_loss": 0.7349,
+            "baseline_brier": 0.248,
+            "brier_skill": -0.0852,
+            "calibration_error": 0.1927,
+            "event_frequency": 0.6,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 1,
+                "mean_prediction": 0.376,
+                "observed_frequency": 1.0
+              },
+              {
+                "range": "40-60%",
+                "n": 33,
+                "mean_prediction": 0.5264,
+                "observed_frequency": 0.6667
+              },
+              {
+                "range": "60-80%",
+                "n": 11,
+                "mean_prediction": 0.6743,
+                "observed_frequency": 0.3636
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "under_2_5": {
+            "n": 45,
+            "brier": 0.2692,
+            "log_loss": 0.7349,
+            "baseline_brier": 0.248,
+            "brier_skill": -0.0852,
+            "calibration_error": 0.1927,
+            "event_frequency": 0.4,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 11,
+                "mean_prediction": 0.3257,
+                "observed_frequency": 0.6364
+              },
+              {
+                "range": "40-60%",
+                "n": 33,
+                "mean_prediction": 0.4736,
+                "observed_frequency": 0.3333
+              },
+              {
+                "range": "60-80%",
+                "n": 1,
+                "mean_prediction": 0.624,
+                "observed_frequency": 0.0
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "over_3_5": {
+            "n": 45,
+            "brier": 0.2687,
+            "log_loss": 0.7367,
+            "baseline_brier": 0.2513,
+            "brier_skill": -0.0693,
+            "calibration_error": 0.1822,
+            "event_frequency": 0.4222,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 1,
+                "mean_prediction": 0.1797,
+                "observed_frequency": 1.0
+              },
+              {
+                "range": "20-40%",
+                "n": 35,
+                "mean_prediction": 0.311,
+                "observed_frequency": 0.4571
+              },
+              {
+                "range": "40-60%",
+                "n": 9,
+                "mean_prediction": 0.4741,
+                "observed_frequency": 0.2222
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "under_3_5": {
+            "n": 45,
+            "brier": 0.2687,
+            "log_loss": 0.7367,
+            "baseline_brier": 0.2513,
+            "brier_skill": -0.0693,
+            "calibration_error": 0.1822,
+            "event_frequency": 0.5778,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 9,
+                "mean_prediction": 0.5259,
+                "observed_frequency": 0.7778
+              },
+              {
+                "range": "60-80%",
+                "n": 35,
+                "mean_prediction": 0.689,
+                "observed_frequency": 0.5429
+              },
+              {
+                "range": "80-100%",
+                "n": 1,
+                "mean_prediction": 0.8203,
+                "observed_frequency": 0.0
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "btts_yes": {
+            "n": 45,
+            "brier": 0.2564,
+            "log_loss": 0.709,
+            "baseline_brier": 0.2393,
+            "brier_skill": -0.0714,
+            "calibration_error": 0.2015,
+            "event_frequency": 0.6222,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 27,
+                "mean_prediction": 0.5397,
+                "observed_frequency": 0.7407
+              },
+              {
+                "range": "60-80%",
+                "n": 18,
+                "mean_prediction": 0.6467,
+                "observed_frequency": 0.4444
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "btts_no": {
+            "n": 45,
+            "brier": 0.2564,
+            "log_loss": 0.709,
+            "baseline_brier": 0.2393,
+            "brier_skill": -0.0714,
+            "calibration_error": 0.2015,
+            "event_frequency": 0.3778,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 18,
+                "mean_prediction": 0.3533,
+                "observed_frequency": 0.5556
+              },
+              {
+                "range": "40-60%",
+                "n": 27,
+                "mean_prediction": 0.4603,
+                "observed_frequency": 0.2593
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "home_over_0_5": {
+            "n": 45,
+            "brier": 0.1782,
+            "log_loss": 0.5433,
+            "baseline_brier": 0.1796,
+            "brier_skill": 0.0083,
+            "calibration_error": 0.044,
+            "event_frequency": 0.7778,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 32,
+                "mean_prediction": 0.7503,
+                "observed_frequency": 0.7812
+              },
+              {
+                "range": "80-100%",
+                "n": 13,
+                "mean_prediction": 0.8454,
+                "observed_frequency": 0.7692
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "home_over_1_5": {
+            "n": 45,
+            "brier": 0.2701,
+            "log_loss": 0.7347,
+            "baseline_brier": 0.2586,
+            "brier_skill": -0.0446,
+            "calibration_error": 0.1462,
+            "event_frequency": 0.5556,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 11,
+                "mean_prediction": 0.3432,
+                "observed_frequency": 0.6364
+              },
+              {
+                "range": "40-60%",
+                "n": 31,
+                "mean_prediction": 0.4707,
+                "observed_frequency": 0.5484
+              },
+              {
+                "range": "60-80%",
+                "n": 3,
+                "mean_prediction": 0.648,
+                "observed_frequency": 0.3333
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "away_over_0_5": {
+            "n": 45,
+            "brier": 0.1744,
+            "log_loss": 0.5384,
+            "baseline_brier": 0.1693,
+            "brier_skill": -0.0301,
+            "calibration_error": 0.0939,
+            "event_frequency": 0.8,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 4,
+                "mean_prediction": 0.5811,
+                "observed_frequency": 0.75
+              },
+              {
+                "range": "60-80%",
+                "n": 33,
+                "mean_prediction": 0.7349,
+                "observed_frequency": 0.8182
+              },
+              {
+                "range": "80-100%",
+                "n": 8,
+                "mean_prediction": 0.8504,
+                "observed_frequency": 0.75
+              }
+            ],
+            "status": "amostra_insuficiente"
+          },
+          "away_over_1_5": {
+            "n": 45,
+            "brier": 0.2735,
+            "log_loss": 0.7456,
+            "baseline_brier": 0.2567,
+            "brier_skill": -0.0654,
+            "calibration_error": 0.1481,
+            "event_frequency": 0.4444,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 24,
+                "mean_prediction": 0.3237,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "40-60%",
+                "n": 18,
+                "mean_prediction": 0.4731,
+                "observed_frequency": 0.3889
+              },
+              {
+                "range": "60-80%",
+                "n": 3,
+                "mean_prediction": 0.6385,
+                "observed_frequency": 0.3333
+              }
+            ],
+            "status": "amostra_insuficiente"
+          }
         }
       },
       "sample_warning": true,
