@@ -138,8 +138,49 @@
     const next = fresh ? state.model?.leagues?.[lid]?.predictions?.[String(event.id)] : null;
     return {event,pred: next || predict(event,rows(lid)),lid, v3:!!next};}
   function probMarkup(p){return [['Vitória casa',p.p1],['Empate',p.px],['Vitória fora',p.p2]].map(([n,v])=>`<div class="prob-row"><span>${n}</span><div class="prob-bar"><span style="width:${Math.min(100,Math.max(0,v*100))}%"></span></div><b>${percent(v)}</b></div>`).join('');}
+  function probabilityStrip(p){
+    const values=[Number(p.p1),Number(p.px),Number(p.p2)];
+    if(values.some(v=>!Number.isFinite(v)||v<0))return '';
+    const sum=values.reduce((a,b)=>a+b,0);
+    if(sum<=0)return '';
+    const widths=values.map(v=>100*v/sum);
+    return '<div class="fi-prob-section" aria-label="Probabilidades de vitória casa, empate e vitória visitante">'+
+      '<div class="fi-prob-legend"><span><i class="fi-dot fi-home"></i>1 · Casa <strong>'+percent(values[0]/sum)+'</strong></span>'+
+      '<span><i class="fi-dot fi-draw"></i>X · Empate <strong>'+percent(values[1]/sum)+'</strong></span>'+
+      '<span><i class="fi-dot fi-away"></i>2 · Fora <strong>'+percent(values[2]/sum)+'</strong></span></div>'+
+      '<div class="fi-prob-strip" role="img" aria-label="Casa '+percent(widths[0]/100)+', empate '+percent(widths[1]/100)+', fora '+percent(widths[2]/100)+'">'+
+      '<span class="fi-home" style="width:'+widths[0].toFixed(4)+'%"></span>'+
+      '<span class="fi-draw" style="width:'+widths[1].toFixed(4)+'%"></span>'+
+      '<span class="fi-away" style="width:'+widths[2].toFixed(4)+'%"></span></div></div>';
+  }
+  function marketSuggestion(m){
+    if(!m?.pred||!m.v3)return {text:'Sem sugestão: é necessário um modelo v3 atualizado.',odd:null};
+    const p=m.pred;
+    const league=state.model?.leagues?.[m.lid];
+    if(league?.data_partial || state.data?.leagues?.[m.lid]?.partial)
+      return {text:'Sem sugestão: a cobertura dos resultados desta liga está incompleta.',odd:null};
+    if(!Number.isFinite(p.leagueMatches)||p.leagueMatches<60)
+      return {text:'Sem sugestão: amostra histórica insuficiente (mínimo operacional: 60 jogos).',odd:null};
+    const choices=[
+      {name:'Vitória da equipa da casa (1)',prob:Number(p.p1)},
+      {name:'Empate (X)',prob:Number(p.px)},
+      {name:'Vitória da equipa visitante (2)',prob:Number(p.p2)}
+    ].filter(c=>Number.isFinite(c.prob)&&c.prob>0&&c.prob<1);
+    choices.sort((a,b)=>b.prob-a.prob);
+    const best=choices[0];
+    if(!best||best.prob<.65)return {text:'Sem aposta sugerida: nenhuma seleção 1X2 atinge o limiar exploratório de 65%.',odd:null};
+    return {text:best.name,prob:best.prob,odd:1/best.prob};
+  }
+  function suggestionMarkup(m){
+    const bet=marketSuggestion(m);
+    const selected=bet.odd!==null;
+    return '<div class="fi-market-card"><div class="fi-market-title"><span>Mercado para análise</span><span class="fi-market-tag">'+(selected?'SINAL ESTATÍSTICO':'SEM SINAL')+'</span></div>'+
+      '<strong>'+safe(bet.text)+'</strong>'+
+      (selected?'<div class="fi-market-details">Probabilidade estimada: <b>'+percent(bet.prob)+'</b> · Odd justa teórica: <b>'+numberPT.format(bet.odd)+'</b></div>':'')+
+      '<p>Não é garantia nem demonstra vantagem económica. Sem odds reais verificadas e calibração independente, não é possível afirmar que existe uma aposta de valor. Não executar apostas automaticamente.</p></div>';
+  }
   function modelResult(){const m=currentModel();if(!m||!m.pred)return `<div class="empty"><b>Modelo sem dados suficientes</b>É necessário pelo menos um jogo concluído e informação das duas equipas.</div>`;
-    const {event:e,pred:p}=m;return `<div class="detail-stack"><span class="pill-label">${safe(leagueNames[m.lid])}</span><span class="tag">${formatDate(e.date)} · Jornada ${e.round}</span></div><h3 class="subhead" style="font-size:18px;margin-top:15px">${safe(e.home)} <span style="color:#7896a8">vs</span> ${safe(e.away)}</h3><div class="stat-caption">Golos esperados estimados: ${numberPT.format(p.lambdaH)} — ${numberPT.format(p.lambdaA)} · ${m.v3?"Motor v3 ("+safe(p.model)+")":"Poisson legado — v3 indisponível"}</div>${probMarkup(p)}
+    const {event:e,pred:p}=m;return `<div class="detail-stack"><span class="pill-label">${safe(leagueNames[m.lid])}</span><span class="tag">${formatDate(e.date)} · Jornada ${e.round}</span></div><h3 class="subhead" style="font-size:18px;margin-top:15px">${safe(e.home)} <span style="color:#7896a8">vs</span> ${safe(e.away)}</h3><div class="stat-caption">Golos esperados estimados: ${numberPT.format(p.lambdaH)} — ${numberPT.format(p.lambdaA)} · ${m.v3?"Motor v3 ("+safe(p.model)+")":"Poisson legado — v3 indisponível"}</div>${probabilityStrip(p)}${probMarkup(p)}${suggestionMarkup(m)}
       <div class="big-prob"><div><b>${percent(p.over)}</b><small>Mais de 2,5 golos</small></div><div><b>${percent(p.btts)}</b><small>Ambas marcam</small></div></div><div class="limit-note"><b>${safe(p.note)}.</b> As probabilidades NÃO são ajustadas por ausências, notícias ou descanso, porque ainda não existe calibração histórica. Consulta o dossiê pré-jogo.</div>`;
   }
   function modelView(){
@@ -190,6 +231,7 @@
     const p=m.pred;
     return `<div class="brief-head"><span class="pill-label">${safe(leagueNames[lid])}</span><span class="muted">Jornada ${e.round} · ${formatDate(e.date)}</span><h2>${safe(e.home)} <span class="versus">vs</span> ${safe(e.away)}</h2><div class="muted">Dossiê baseado nos dados disponíveis, não uma previsão garantida.</div></div>
     ${state.data?.leagues?.[lid]?.partial?'<div class="limit-note" style="margin-bottom:18px">Dados desta liga <b>incompletos</b>: forma, descanso e probabilidades podem estar incorretos até à recolha integral.</div>':''}
+    ${p?`<section class="panel" style="margin-bottom:18px"><div class="panel-header"><div><h2>Probabilidades e mercado</h2><p>Modelo pré-jogo · sem garantia de valor</p></div></div><div class="body-pad">${probabilityStrip(p)}${suggestionMarkup(m)}</div></section>`:''}
     <div class="snapshot-pair">${teamSnapshot(e.home,lid,e.date)}${teamSnapshot(e.away,lid,e.date)}</div>
     <div class="grid-2"><section class="panel"><div class="panel-header"><div><h2>⊘ Ausências reportadas</h2><p>Jogadores indisponíveis ou em dúvida</p></div></div>${as.length?`<div class="intelligence-list">${as.map(absenceCard).join('')}</div>`:`<div class="empty"><b>Sem registos confirmados</b>Cobertura não assegurada. Não interpretar como equipas completas.</div>`}</section>
     <section class="panel"><div class="panel-header"><div><h2>▧ Manchetes associadas</h2><p>RSS — sinais por verificar</p></div></div>${ns.length?`<div class="intelligence-list">${ns.map(headlineCard).join('')}</div>`:`<div class="empty"><b>Sem manchetes associadas</b>O feed pode estar indisponível ou a equipa pode não estar mencionada no título.</div>`}</section></div>
