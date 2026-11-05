@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#081220" />
+  <meta name="description" content="Afonso OS Football Lab — dados pré-jogo: resultados, forma, descanso, notícias, lesões e castigos nas ligas portuguesa e dinamarquesa." />
+  <title>Afonso OS · Football Lab 26/27</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><div class="brand-symbol">A<span>O</span></div><div><b>AFONSO OS</b><small>FOOTBALL INTELLIGENCE</small></div></div>
+      <div class="side-group-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Navegação principal">
+        <button class="nav-item active" data-view="overview"><span class="nicon">◈</span> Visão geral</button>
+        <button class="nav-item" data-view="matches"><span class="nicon">▦</span> Jogos e resultados</button>
+        <button class="nav-item" data-view="table"><span class="nicon">☷</span> Classificações</button>
+        <button class="nav-item" data-view="briefings"><span class="nicon">◉</span> Dossiê pré-jogo</button>
+        <button class="nav-item" data-view="model"><span class="nicon">⌁</span> Modelo estatístico</button>
+      </nav>
+      <div class="side-group-label">INTELIGÊNCIA</div>
+      <nav class="side-nav">
+        <button class="nav-item" data-view="news"><span class="nicon">▧</span> Notícias & sinais</button>
+        <button class="nav-item" data-view="absences"><span class="nicon">⊘</span> Lesões & castigos</button>
+      </nav>
+      <div class="side-bottom">
+        <div class="status-card"><span class="pulse"></span><div><b>Monitorização de época</b><small id="side-status">A carregar dados…</small></div></div>
+        <div class="sidebar-note">Dados: <a href="https://www.thesportsdb.com/" target="_blank" rel="noopener noreferrer">TheSportsDB</a> · Notícias RSS<br/>Projeto independente · Sem apostas automáticas</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="top-left"><button id="menu-button" class="icon-button mobile-only" aria-label="Abrir menu">☰</button><div class="breadcrumb">Afonso OS <span>/</span> <b id="view-breadcrumb">Visão geral</b></div></div>
+        <div class="top-right"><span class="pill pale">Época 2026 / 27</span><span class="avatar">AC</span></div>
+      </header>
+      <div class="content">
+        <section class="intro">
+          <div><div class="eyebrow"><span class="live-indicator"></span> INTELIGÊNCIA DESPORTIVA · TEMPORADA ATUAL</div><h1 id="page-title">A tua visão do futebol, <em>baseada em dados.</em></h1><p id="page-subtitle">Conhece os fatores que podem alterar um jogo: forma, descanso, notícias e disponibilidade dos jogadores.</p></div>
+          <div class="sync-card"><span class="sync-icon">↻</span><div><small>ÚLTIMA ATUALIZAÇÃO</small><strong id="updated-at">A verificar…</strong></div></div>
+        </section>
+
+        <div class="league-filter" role="group" aria-label="Filtrar competição">
+          <button data-league="all" class="league-pill active"><span class="league-flag">◎</span> As duas ligas</button>
+          <button data-league="pt" class="league-pill"><span class="league-flag">🇵🇹</span> Liga Portugal</button>
+          <button data-league="dk" class="league-pill"><span class="league-flag">🇩🇰</span> 3F Superliga</button>
+          <span class="league-spacer"></span><span class="small-source">Fontes: TheSportsDB + notícias RSS</span>
+        </div>
+
+        <div id="warning" class="warning hidden" role="status"></div>
+        <div id="view"></div>
+        <footer class="footer"><span>AFONSO OS · FOOTBALL INTELLIGENCE <span class="dot-separator">•</span> Edição 2026/27</span><span>Dados informativos, notícias não verificadas automaticamente e modelo experimental. Sem apostas automáticas.</span></footer>
+      </div>
+    </main>
+  </div>
+  <script src="app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+[
+  {
+    "league": "pt",
+    "team": "Benfica",
+    "player": "NOME_DO_JOGADOR",
+    "fixture_date": "2026-11-07",
+    "status": "Confirmado indisponível",
+    "reason": "Motivo confirmado pela fonte",
+    "category": "lesao",
+    "source": "Comunicado oficial",
+    "source_url": "https://site-oficial-exemplo.pt/comunicado"
+  }
+]

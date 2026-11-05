@@ -1,0 +1,54 @@
+name: Football Intelligence — atualizar e publicar
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 7,19 * * *'
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: football-lab-pages
+  cancel-in-progress: false
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recolher jogos das duas ligas
+        run: python scripts/update_data.py
+      - name: Recolher notícias e ausências documentadas
+        env:
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: python scripts/update_intelligence.py
+      - name: Guardar resultados recolhidos
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/season.json data/intelligence.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: atualizar resultados e calendário'
+            git push origin HEAD:main
+          fi
+      - name: Preparar dashboard estático
+        run: |
+          mkdir -p public/data
+          cp app/index.html app/style.css app/app.js public/
+          cp data/season.json data/intelligence.json public/data/
+          touch public/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - id: deployment
+        uses: actions/deploy-pages@v4

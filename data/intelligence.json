@@ -1,0 +1,16 @@
+{
+  "schema": 2,
+  "season": "2026-2027",
+  "updated_at": null,
+  "news_updated_at": null,
+  "news_status": "not_loaded",
+  "news": [],
+  "absences": [],
+  "absences_status": "not_connected_or_unavailable",
+  "manual_entries": 0,
+  "sources": {
+    "news": "Google News RSS — manchetes, não factos confirmados",
+    "absences": "API-Football opcional; registos manuais com URL"
+  },
+  "warnings": ["A recolha de notícias não foi executada nesta demonstração. Não estão confirmadas lesões ou castigos. Configure a fonte de ausências para obter informação."]
+}
