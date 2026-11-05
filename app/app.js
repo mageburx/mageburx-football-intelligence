@@ -179,8 +179,39 @@
       (selected?'<div class="fi-market-details">Probabilidade estimada: <b>'+percent(bet.prob)+'</b> · Odd justa teórica: <b>'+numberPT.format(bet.odd)+'</b></div>':'')+
       '<p>Não é garantia nem demonstra vantagem económica. Sem odds reais verificadas e calibração independente, não é possível afirmar que existe uma aposta de valor. Não executar apostas automaticamente.</p></div>';
   }
+  function extraMarketsMarkup(m){
+    if(!m?.v3||!m.pred?.markets)return '<div class="limit-note">Os mercados adicionais requerem dados v3 atualizados.</div>';
+    const market=m.pred.markets;
+    const rows=[
+      ['Dupla oportunidade 1X','double_1x','1X2'],
+      ['Dupla oportunidade X2','double_x2','1X2'],
+      ['Dupla oportunidade 12','double_12','1X2'],
+      ['Over 0.5 golos','over_0_5','Golos'],
+      ['Under 0.5 golos','under_0_5','Golos'],
+      ['Over 1.5 golos','over_1_5','Golos'],
+      ['Under 1.5 golos','under_1_5','Golos'],
+      ['Over 2.5 golos','over_2_5','Golos'],
+      ['Under 2.5 golos','under_2_5','Golos'],
+      ['Over 3.5 golos','over_3_5','Golos'],
+      ['Under 3.5 golos','under_3_5','Golos'],
+      ['Ambas marcam — Sim','btts_yes','Golos'],
+      ['Ambas marcam — Não','btts_no','Golos'],
+      ['Casa mais de 0.5 golos','home_over_0_5','Equipa'],
+      ['Casa mais de 1.5 golos','home_over_1_5','Equipa'],
+      ['Fora mais de 0.5 golos','away_over_0_5','Equipa'],
+      ['Fora mais de 1.5 golos','away_over_1_5','Equipa']
+    ];
+    const items=rows.filter(r=>Number.isFinite(market[r[1]]) && market[r[1]]>0 && market[r[1]]<1);
+    if(!items.length)return '';
+    return '<section class="fi-extra"><div class="fi-extra-head"><h3>Mercados adicionais · dados gratuitos</h3><p>Probabilidades teóricas e odds justas, não recomendações de aposta.</p></div>'+
+      '<div class="fi-extra-grid">'+items.map(([name,key,group])=>{
+        const p=market[key];
+        return '<div class="fi-extra-item"><small>'+group+'</small><strong>'+name+'</strong><div><b>'+percent(p)+'</b><span>Odd justa: '+numberPT.format(1/p)+'</span></div></div>';
+      }).join('')+'</div>'+
+      '<p class="muted fi-extra-note">Golos calculados pela distribuição Dixon–Coles de resultados; dupla oportunidade pelo modelo 1X2 selecionado. Sem odds reais, validação independente ou dados de cantos/cartões.</p></section>';
+  }
   function modelResult(){const m=currentModel();if(!m||!m.pred)return `<div class="empty"><b>Modelo sem dados suficientes</b>É necessário pelo menos um jogo concluído e informação das duas equipas.</div>`;
-    const {event:e,pred:p}=m;return `<div class="detail-stack"><span class="pill-label">${safe(leagueNames[m.lid])}</span><span class="tag">${formatDate(e.date)} · Jornada ${e.round}</span></div><h3 class="subhead" style="font-size:18px;margin-top:15px">${safe(e.home)} <span style="color:#7896a8">vs</span> ${safe(e.away)}</h3><div class="stat-caption">Golos esperados estimados: ${numberPT.format(p.lambdaH)} — ${numberPT.format(p.lambdaA)} · ${m.v3?"Motor v3 ("+safe(p.model)+")":"Poisson legado — v3 indisponível"}</div>${probabilityStrip(p)}${probMarkup(p)}${suggestionMarkup(m)}
+    const {event:e,pred:p}=m;return `<div class="detail-stack"><span class="pill-label">${safe(leagueNames[m.lid])}</span><span class="tag">${formatDate(e.date)} · Jornada ${e.round}</span></div><h3 class="subhead" style="font-size:18px;margin-top:15px">${safe(e.home)} <span style="color:#7896a8">vs</span> ${safe(e.away)}</h3><div class="stat-caption">Golos esperados estimados: ${numberPT.format(p.lambdaH)} — ${numberPT.format(p.lambdaA)} · ${m.v3?"Motor v3 ("+safe(p.model)+")":"Poisson legado — v3 indisponível"}</div>${probabilityStrip(p)}${probMarkup(p)}${suggestionMarkup(m)}${extraMarketsMarkup(m)}
       <div class="big-prob"><div><b>${percent(p.over)}</b><small>Mais de 2,5 golos</small></div><div><b>${percent(p.btts)}</b><small>Ambas marcam</small></div></div><div class="limit-note"><b>${safe(p.note)}.</b> As probabilidades NÃO são ajustadas por ausências, notícias ou descanso, porque ainda não existe calibração histórica. Consulta o dossiê pré-jogo.</div>`;
   }
   function modelView(){
@@ -231,7 +262,7 @@
     const p=m.pred;
     return `<div class="brief-head"><span class="pill-label">${safe(leagueNames[lid])}</span><span class="muted">Jornada ${e.round} · ${formatDate(e.date)}</span><h2>${safe(e.home)} <span class="versus">vs</span> ${safe(e.away)}</h2><div class="muted">Dossiê baseado nos dados disponíveis, não uma previsão garantida.</div></div>
     ${state.data?.leagues?.[lid]?.partial?'<div class="limit-note" style="margin-bottom:18px">Dados desta liga <b>incompletos</b>: forma, descanso e probabilidades podem estar incorretos até à recolha integral.</div>':''}
-    ${p?`<section class="panel" style="margin-bottom:18px"><div class="panel-header"><div><h2>Probabilidades e mercado</h2><p>Modelo pré-jogo · sem garantia de valor</p></div></div><div class="body-pad">${probabilityStrip(p)}${suggestionMarkup(m)}</div></section>`:''}
+    ${p?`<section class="panel" style="margin-bottom:18px"><div class="panel-header"><div><h2>Probabilidades e mercado</h2><p>Modelo pré-jogo · sem garantia de valor</p></div></div><div class="body-pad">${probabilityStrip(p)}${suggestionMarkup(m)}${extraMarketsMarkup(m)}</div></section>`:''}
     <div class="snapshot-pair">${teamSnapshot(e.home,lid,e.date)}${teamSnapshot(e.away,lid,e.date)}</div>
     <div class="grid-2"><section class="panel"><div class="panel-header"><div><h2>⊘ Ausências reportadas</h2><p>Jogadores indisponíveis ou em dúvida</p></div></div>${as.length?`<div class="intelligence-list">${as.map(absenceCard).join('')}</div>`:`<div class="empty"><b>Sem registos confirmados</b>Cobertura não assegurada. Não interpretar como equipas completas.</div>`}</section>
     <section class="panel"><div class="panel-header"><div><h2>▧ Manchetes associadas</h2><p>RSS — sinais por verificar</p></div></div>${ns.length?`<div class="intelligence-list">${ns.map(headlineCard).join('')}</div>`:`<div class="empty"><b>Sem manchetes associadas</b>O feed pode estar indisponível ou a equipa pode não estar mencionada no título.</div>`}</section></div>
