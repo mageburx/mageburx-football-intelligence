@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -29,7 +29,7 @@
     briefings:['Dossiê pré-jogo','O que mudou <em>antes do apito?</em>','Descanso, forma, ausências reportadas e manchetes associadas às equipas.'],
     news:['Notícias & sinais','A informação certa. <em>Com origem.</em>','Títulos recolhidos por RSS, ligados à fonte original e sujeitos a confirmação.'],
     absences:['Lesões & castigos','Disponibilidade <em>sob escrutínio.</em>','Diferencia baixa confirmada pelo fornecedor, dúvida e ausência de dados.'],
-    model:['Modelo estatístico','Probabilidades, <em>não certezas.</em>','Modelo Poisson exploratório baseado em golos, sem ajuste automático de notícias.']
+    model:['Modelo estatístico','Probabilidades, <em>não certezas.</em>','Poisson, Dixon–Coles, Elo e testes cronológicos de qualidade das previsões.']
   };
   const isFinished = e => e.finished === true && Number.isInteger(e.home_score) && Number.isInteger(e.away_score);
   const rows = league => (state.data?.leagues?.[league]?.events || []).filter(e => e && e.home && e.away && e.date);
@@ -132,13 +132,25 @@
     return `<label class="choice-label" for="model-match">SELECIONAR ENCONTRO</label><select id="model-match" class="input">${options.map(e=>`<option value="${safe(e.league+':'+e.id)}" ${state.modelMatch===e.league+':'+e.id?'selected':''}>${safe(e.league.toUpperCase())} · ${safe(e.home)} — ${safe(e.away)} · ${formatDate(e.date)}</option>`).join('')}</select>`;
   }
   function currentModel(){const [lid,...id] = state.modelMatch.split(':');const event=rows(lid).find(e=>e.id===id.join(':'));
-    if(!event) return null;return {event,pred:predict(event,rows(lid)),lid};}
+    if(!event) return null;
+    const fresh = state.model?.generated_at && state.data?.updated_at &&
+      state.model.generated_at >= state.data.updated_at;
+    const next = fresh ? state.model?.leagues?.[lid]?.predictions?.[String(event.id)] : null;
+    return {event,pred: next || predict(event,rows(lid)),lid, v3:!!next};}
   function probMarkup(p){return [['Vitória casa',p.p1],['Empate',p.px],['Vitória fora',p.p2]].map(([n,v])=>`<div class="prob-row"><span>${n}</span><div class="prob-bar"><span style="width:${Math.min(100,Math.max(0,v*100))}%"></span></div><b>${percent(v)}</b></div>`).join('');}
   function modelResult(){const m=currentModel();if(!m||!m.pred)return `<div class="empty"><b>Modelo sem dados suficientes</b>É necessário pelo menos um jogo concluído e informação das duas equipas.</div>`;
-    const {event:e,pred:p}=m;return `<div class="detail-stack"><span class="pill-label">${safe(leagueNames[m.lid])}</span><span class="tag">${formatDate(e.date)} · Jornada ${e.round}</span></div><h3 class="subhead" style="font-size:18px;margin-top:15px">${safe(e.home)} <span style="color:#7896a8">vs</span> ${safe(e.away)}</h3><div class="stat-caption">Golos esperados estimados: ${numberPT.format(p.lambdaH)} — ${numberPT.format(p.lambdaA)}</div>${probMarkup(p)}
+    const {event:e,pred:p}=m;return `<div class="detail-stack"><span class="pill-label">${safe(leagueNames[m.lid])}</span><span class="tag">${formatDate(e.date)} · Jornada ${e.round}</span></div><h3 class="subhead" style="font-size:18px;margin-top:15px">${safe(e.home)} <span style="color:#7896a8">vs</span> ${safe(e.away)}</h3><div class="stat-caption">Golos esperados estimados: ${numberPT.format(p.lambdaH)} — ${numberPT.format(p.lambdaA)} · ${m.v3?"Motor v3 ("+safe(p.model)+")":"Poisson legado — v3 indisponível"}</div>${probMarkup(p)}
       <div class="big-prob"><div><b>${percent(p.over)}</b><small>Mais de 2,5 golos</small></div><div><b>${percent(p.btts)}</b><small>Ambas marcam</small></div></div><div class="limit-note"><b>${safe(p.note)}.</b> As probabilidades NÃO são ajustadas por ausências, notícias ou descanso, porque ainda não existe calibração histórica. Consulta o dossiê pré-jogo.</div>`;
   }
-  function modelView(){return `<div class="grid-2"><section class="panel"><div class="panel-header"><div><h2>Simulador Poisson · 1X2</h2><p>Equipa da casa vs visitante · época corrente</p></div><span class="tag">MODELO v0.1</span></div><div class="body-pad">${modelSelect()}<div id="model-result" style="padding-top:22px">${modelResult()}</div></div></section><section class="panel"><div class="panel-header"><div><h2>Como funciona</h2><p>Estimativa probabilística simples e transparente</p></div></div><div class="body-pad"><div class="insight-card" style="min-height:0;margin-bottom:13px"><h3>1. Recolha de resultados</h3><p>O bot importa jogos da época 2026/27 para cada competição e separa casa/fora.</p></div><div class="insight-card" style="min-height:0;margin-bottom:13px"><h3>2. Força ofensiva e defensiva</h3><p>Média de golos marcados e sofridos por equipa, suavizada com a média da liga.</p></div><div class="insight-card" style="min-height:0"><h3>3. Distribuição Poisson</h3><p>Calcula resultados possíveis e soma as probabilidades de vitória, empate, derrota e mercados de golos.</p></div><p class="muted model-note">O modelo de golos ainda não tem backtesting walk-forward nem ajuste estatisticamente validado por lesões ou notícias. Nunca interpreta a estimativa como uma probabilidade comprovada.</p></div></section></div>`;}
+  function modelView(){
+    const chosen=state.league==='all'?'pt':state.league;
+    const data=state.model?.leagues?.[chosen];
+    const methods=[['poisson','Poisson independente'],['dc','Dixon–Coles'],['blend','Dixon–Coles + Elo']];
+    const scores=data?.evaluations||{};
+    const backtest=methods.map(([key,label])=>{const m=scores[key];return '<tr><td>'+label+'</td><td class="text-right">'+(m?.n??'—')+'</td><td class="text-right">'+(m?numberPT.format(m.brier):'—')+'</td><td class="text-right">'+(m?numberPT.format(m.log_loss):'—')+'</td></tr>';}).join('');
+    const audit=data?'<div class="insight-card" style="margin-bottom:14px"><h3>Backtesting cronológico · '+safe(leagueNames[chosen])+'</h3><p>Cada jogo é previsto exclusivamente com dados de datas anteriores. A seleção é exploratória, sem teste independente.</p><div class="table-scroll"><table><thead><tr><th>Modelo</th><th class="text-right">Testes</th><th class="text-right">Brier ↓</th><th class="text-right">Log Loss ↓</th></tr></thead><tbody>'+backtest+'</tbody></table></div><p class="muted">Modelo selecionado: <b>'+safe(data.selected)+'</b> · '+data.played+' resultados disponíveis</p></div>':'<div class="limit-note">O motor v3 ainda não foi gerado. Mantém-se o Poisson legado.</div>';
+    return '<div class="grid-2"><section class="panel"><div class="panel-header"><div><h2>Motor probabilístico · 1X2</h2><p>Golos e análise pré-jogo</p></div><span class="tag">MODELO v3</span></div><div class="body-pad">'+modelSelect()+'<div id="model-result" style="padding-top:22px">'+modelResult()+'</div></div></section><section class="panel"><div class="panel-header"><div><h2>Auditoria do modelo</h2><p>Verificar desempenho em resultados passados</p></div></div><div class="body-pad">'+audit+'<p class="muted model-note">Brier Score e Log Loss: quanto menores, melhores. Estimativas ainda sem calibração independente. Não incluem xG ou lesões por falta de cobertura verificada.</p></div></section></div>';
+  }
   const dateOnly = v => String(v||'').slice(0,10);
   const safeLink = v => /^https:\/\/[^\s"'<>]+$/i.test(String(v||'')) ? safe(v) : '#';
   const intelligence = () => state.intelligence || {news:[],absences:[],warnings:[],news_status:'not_loaded',absences_status:'not_connected_or_unavailable'};
@@ -216,6 +228,7 @@
       const d=await response.json();if(!d.leagues?.pt||!d.leagues?.dk)throw new Error('Formato de dados inesperado');
       state.data=d;
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
+      try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
     render();
   }
