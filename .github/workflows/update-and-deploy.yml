@@ -11,7 +11,7 @@ permissions:
   id-token: write
 concurrency:
   group: football-lab-pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   update-and-deploy:
     runs-on: ubuntu-latest
@@ -47,6 +47,8 @@ jobs:
           cp data/season.json data/intelligence.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public
