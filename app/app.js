@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -29,7 +29,8 @@
     briefings:['Dossiê pré-jogo','O que mudou <em>antes do apito?</em>','Descanso, forma, ausências reportadas e manchetes associadas às equipas.'],
     news:['Notícias & sinais','A informação certa. <em>Com origem.</em>','Títulos recolhidos por RSS, ligados à fonte original e sujeitos a confirmação.'],
     absences:['Lesões & castigos','Disponibilidade <em>sob escrutínio.</em>','Diferencia baixa confirmada pelo fornecedor, dúvida e ausência de dados.'],
-    model:['Modelo estatístico','Probabilidades, <em>não certezas.</em>','Poisson, Dixon–Coles, Elo e testes cronológicos de qualidade das previsões.']
+    model:['Modelo estatístico','Probabilidades, <em>não certezas.</em>','Poisson, Dixon–Coles, Elo e testes cronológicos de qualidade das previsões.'],
+    reliability:['Painel de fiabilidade','Evidência antes de <em>confiar.</em>','Histórico, validação temporal, calibração e registo de previsões anteriores aos jogos.']
   };
   const isFinished = e => e.finished === true && Number.isInteger(e.home_score) && Number.isInteger(e.away_score);
   const rows = league => (state.data?.leagues?.[league]?.events || []).filter(e => e && e.home && e.away && e.date);
@@ -298,6 +299,68 @@
     <div class="callout intel-callout" style="margin-top:18px"><b>Interpretação</b><div>${p?`Modelo apenas com golos: casa ${percent(p.p1)}, empate ${percent(p.px)}, fora ${percent(p.p2)}. Estes valores <b>não incluem</b> lesões, castigos, notícias nem cansaço fora da liga. O número de jogos da amostra e a falta de calibração limitam a fiabilidade.`:'Dados insuficientes para o modelo 1X2.'} A fadiga não foi calculada a partir de taças, competições europeias ou seleções.</div></div>`;
   }
   function briefingsView(){return `<section class="panel" style="margin-bottom:18px"><div class="panel-header"><div><h2>Seleciona um encontro</h2><p>O painel agrega quatro dimensões: forma, descanso, ausências e notícias</p></div><span class="tag">PRE-MATCH</span></div><div class="body-pad">${modelSelect()}</div></section><div id="briefing-result">${briefingResult()}</div>`;}
+  function reliabilityView(){
+    const lid=state.league==='all'?'pt':state.league;
+    const audit=state.reliability?.history?.[lid];
+    const prospective=state.reliability?.prospective;
+    const titles={double_1x:'Dupla oportunidade 1X',double_x2:'Dupla oportunidade X2',double_12:'Dupla oportunidade 12',
+      over_0_5:'Over 0.5',under_0_5:'Under 0.5',over_1_5:'Over 1.5',under_1_5:'Under 1.5',
+      over_2_5:'Over 2.5',under_2_5:'Under 2.5',over_3_5:'Over 3.5',under_3_5:'Under 3.5',
+      btts_yes:'Ambas marcam — Sim',btts_no:'Ambas marcam — Não',
+      home_over_0_5:'Casa Over 0.5',home_over_1_5:'Casa Over 1.5',
+      away_over_0_5:'Fora Over 0.5',away_over_1_5:'Fora Over 1.5'};
+    if(!audit)return '<div class="limit-note">Aguardando a primeira publicação do relatório de fiabilidade.</div>';
+    const options=Object.entries(titles).map(([key,name])=>'<option value="'+key+'" '+(key===state.reliabilityMarket?'selected':'')+'>'+safe(name)+'</option>').join('');
+    const m=audit.metrics?.[state.reliabilityMarket]||{};
+    const validNumber=v=>typeof v==='number'&&Number.isFinite(v);
+    const val=v=>validNumber(v)?numberPT.format(v):'—';
+    const pct=v=>validNumber(v)?percent(v):'—';
+    const status={
+      insuficiente:'Sem dados suficientes',historico_parcial:'Histórico incompleto',
+      amostra_insuficiente:'Amostra insuficiente',preliminar:'Preliminar',
+      pior_que_referencia:'Pior que referência',sinal_historico_a_confirmar:'Sinal histórico por confirmar',
+      inconclusivo:'Inconclusivo'
+    }[m.status]||'Ainda não avaliado';
+    const seasons=Object.entries(audit.coverage||{}).map(([season,c])=>
+      '<div class="fi-season"><strong>'+safe(season.replace('-','/'))+'</strong>'+
+      '<span>'+c.games+' jogos</span><small>'+(c.complete?'Completa':'Parcial / em recolha')+'</small></div>').join('');
+    const missing=['2021-2022','2022-2023','2023-2024','2024-2025','2025-2026'].filter(y=>!audit.coverage?.[y]);
+    const rows=(m.calibration_bins||[]).map(b=>{
+      const predicted=Math.max(0,Math.min(100,Number(b.mean_prediction)*100));
+      const observed=Math.max(0,Math.min(100,Number(b.observed_frequency)*100));
+      return '<div class="fi-calibration-row"><div class="fi-calib-meta"><span>'+safe(b.range)+'</span><span>N='+b.n+' · Previsto '+pct(b.mean_prediction)+' / Real '+pct(b.observed_frequency)+'</span></div>'+
+        '<div class="fi-calib-track"><span class="fi-calib-pred" style="width:'+predicted.toFixed(2)+'%"></span></div>'+
+        '<div class="fi-calib-track"><span class="fi-calib-real" style="width:'+observed.toFixed(2)+'%"></span></div></div>';
+    }).join('');
+    const monthly=(m.monthly||[]).map(e=>'<tr><td>'+safe(e.month)+'</td><td class="text-right">'+e.n+'</td><td class="text-right">'+val(e.brier)+'</td></tr>').join('');
+    const holdout=audit.holdout;
+    const ci=m.brier_gain_ci95;
+    const ciText=Array.isArray(ci)?val(ci[0])+' a '+val(ci[1]):'—';
+    return '<section class="panel fi-rel-panel"><div class="panel-header"><div><h2>Qualidade estatística · '+safe(leagueNames[lid])+'</h2><p>Épocas antigas para treino; época seguinte reservada para teste histórico</p></div><span class="tag">v4 · EXPERIMENTAL</span></div>'+
+      '<div class="body-pad"><div class="fi-reliability-top"><div class="fi-reliability-primary"><label for="reliability-market">Mercado a avaliar</label><select id="reliability-market" class="input">'+options+'</select>'+
+      '<p class="muted">Teste: '+(holdout?safe(holdout.season.replace('-','/')):'sem época suficiente')+
+      ' · '+(holdout?holdout.train_games:0)+' jogos anteriores para treino · '+
+      (holdout?.complete?'época de teste completa':'época de teste incompleta')+'</p></div>'+
+      '<div class="fi-rel-status"><small>ESTADO DE FIABILIDADE</small><strong>'+safe(status)+'</strong>'+
+      '<span>'+((m.n||0))+' previsões avaliadas</span></div></div>'+
+      '<div class="fi-reliability-kpis"><div><small>Brier modelo ↓</small><strong>'+val(m.brier)+'</strong></div>'+
+      '<div><small>Brier referência ↓</small><strong>'+val(m.baseline_brier)+'</strong></div>'+
+      '<div><small>Variação face à referência</small><strong>'+pct(m.brier_skill)+'</strong></div>'+
+      '<div><small>Erro de calibração ECE ↓</small><strong>'+pct(m.ece)+'</strong></div></div>'+
+      '<p class="muted fi-rel-caveat">Intervalo de confiança de 95% para a melhoria absoluta do Brier: '+ciText+
+      '. Se incluir zero, não existe evidência estatística clara de melhoria. É uma aproximação que não ajusta a dependência entre jogos.</p>'+
+      '<div class="fi-rel-grid"><div class="fi-rel-column"><h3>Calibração prevista vs observada</h3>'+
+      '<div class="fi-calib-legend"><span class="fi-calib-pred-color"></span> Probabilidade prevista <span class="fi-calib-real-color"></span> Frequência observada</div>'+
+      (rows||'<p class="muted">Sem previsões avaliadas.</p>')+'</div>'+
+      '<div class="fi-rel-column"><h3>Desempenho por mês</h3><div class="table-scroll"><table><thead><tr><th>Mês</th><th class="text-right">Jogos</th><th class="text-right">Brier ↓</th></tr></thead><tbody>'+
+      (monthly||'<tr><td colspan="3">Sem testes disponíveis</td></tr>')+'</tbody></table></div></div></div>'+
+      '<div class="fi-rel-seasons"><h3>Cobertura das épocas históricas</h3><div class="fi-season-grid">'+seasons+
+      missing.map(y=>'<div class="fi-season"><strong>'+safe(y.replace('-','/'))+'</strong><span>0 jogos</span><small>Por importar</small></div>').join('')+
+      '</div></div><div class="fi-rel-ledger"><h3>Registo de previsões reais</h3><div class="fi-reliability-kpis"><div><small>Previsões guardadas</small><strong>'+(prospective?.logged??0)+'</strong></div>'+
+      '<div><small>Jogos com resultado</small><strong>'+(prospective?.settled??0)+'</strong></div></div>'+
+      '<p class="muted">Estas são previsões preservadas no Git antes da data dos jogos; não confundimos a reconstrução histórica com previsões verdadeiramente emitidas antecipadamente. Alterações ao repositório ainda dependem das permissões do seu proprietário.</p></div>'+
+      '<div class="limit-note">Sem previsões de rentabilidade: os testes não utilizam odds de mercado. O histórico foi importado retrospectivamente e continua sujeito a limitações de qualidade e seleção do modelo.</div></div></section>';
+  }
   function render(){const page=views[state.view]||views.overview;$('#view-breadcrumb').textContent=page[0];$('#page-title').innerHTML=page[1];$('#page-subtitle').textContent=page[2];
     $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
     $$('.league-pill').forEach(b=>b.classList.toggle('active',b.dataset.league===state.league));
@@ -305,7 +368,7 @@
     if(!state.data?.updated_at){warning.textContent='Ainda não existe uma recolha completa. A primeira execução do GitHub Actions irá importar os resultados das duas ligas. O painel pode mostrar uma amostra de arranque incompleta.';warning.classList.remove('hidden');}
     else if(incomplete.length){warning.textContent=`Dados parciais para ${incomplete.map(x=>leagueNames[x]).join(' e ')}. Uma ou mais jornadas podem estar em falta; não uses esta classificação como oficial.`;warning.classList.remove('hidden');}
     else{warning.classList.add('hidden');}
-    $('#view').innerHTML=({overview, matches:matchView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView})[state.view]();
+    $('#view').innerHTML=({overview, matches:matchView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,reliability:reliabilityView})[state.view]();
     $('#updated-at').textContent=state.data?.updated_at?fullDate(state.data.updated_at):'Sem atualização completa';
     $('#side-status').textContent=state.data?.updated_at?`${games().length} jogos na seleção`:'À espera da 1.ª recolha';
     bindLocal();
@@ -317,6 +380,7 @@
     if(search)search.addEventListener('input',e=>{const caret=e.target.selectionStart;state.search=e.target.value;render();const n=$('#match-search');if(n){n.focus();n.setSelectionRange(caret,caret);}});
     if(sel)sel.addEventListener('change',e=>{state.modelMatch=e.target.value;render();});
     const nf=$('#news-filter');if(nf)nf.addEventListener('change',e=>{state.newsFilter=e.target.value;render();});
+    const rm=$('#reliability-market');if(rm)rm.addEventListener('change',e=>{state.reliabilityMarket=e.target.value;render();});
   }
   function goto(next){state.view=next;render();$('#sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});}
   $$('.nav-item').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.view)));
@@ -331,6 +395,7 @@
       state.data=d;
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
+      try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
     render();
   }
