@@ -1,8 +1,8 @@
 {
   "schema": 2,
   "season": "2026-2027",
-  "updated_at": "2026-11-05T22:40:32+00:00",
-  "news_updated_at": "2026-11-05T22:40:32.621169+00:00",
+  "updated_at": "2026-11-05T22:46:07+00:00",
+  "news_updated_at": "2026-11-05T22:46:07.348648+00:00",
   "news_status": "feed_ok",
   "news": [
     {
@@ -224,18 +224,6 @@
       "source": "A Bola",
       "published_at": "2026-11-04T19:54:00+00:00",
       "category": "geral",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "70d6a0186ff1aa7113",
-      "league": "pt",
-      "teams": [],
-      "title": "Oficial: Paulo Fonseca é o novo treinador do Sporting - A Bola",
-      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQcTJ0a09qS0VrczdxeXl3T2V6NHE0S29iSmJ4dHlnX2RmTFdpZ2pfZUZsbFF5Rl9sM1RwaGh2TjZkNkJ4SmZjRHB1T3NVNGY3VlE5NXd5RkxfT2NndGNaRDF6ZHpyRTZabHRWTlhPRWszbWFHX0JQQUJGLVF2M2NkWE12aERDd3IxYjI0VFJSd0Z0eTFKLUFyeUtfQ0tITVhYdFZSdg?oc=5",
-      "source": "A Bola",
-      "published_at": "2026-11-04T19:54:00+00:00",
-      "category": "treinador",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
