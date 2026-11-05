@@ -29,9 +29,15 @@ jobs:
           python-version: '3.12'
       - name: Recuperar histórico e previsões publicados
         run: python scripts/restore_published_state.py
+      - name: Recuperar snapshots da branch persistente
+        run: python scripts/data_store.py restore
       - name: Importar incrementalmente épocas dinamarquesas
         if: github.event_name != 'push'
         run: python scripts/backfill_history.py --max-calls 18 --pause 3.5
+      - name: Auditar 5 épocas por campeonato
+        run: python scripts/audit_history.py --strict
+      - name: Validar modelos com teste histórico independente
+        run: python scripts/validate_models.py
       - name: Recolher jogos das duas ligas
         run: python scripts/update_data.py
       - name: Recolher notícias e ausências documentadas
@@ -46,11 +52,23 @@ jobs:
         run: python scripts/build_reliability.py
       - name: Testar motor e painel de fiabilidade
         run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Persistir snapshots na branch football-data
+        id: persistent_state
+        continue-on-error: true
+        run: python scripts/data_store.py save
+      - name: Registar saúde do armazenamento
+        env:
+          STORAGE_OUTCOME: ${{ steps.persistent_state.outcome }}
+        run: |
+          python -c "import json,os,datetime,pathlib; ok=os.environ.get('STORAGE_OUTCOME')=='success'; v={'schema':1,'persistent_branch':'football-data','persisted':ok,'checked_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'note':'Snapshot gravado na branch dedicada' if ok else 'AVISO: gravação na branch não confirmada; existe cópia temporária nas Actions/Pages'};pathlib.Path('data/storage_status.json').write_text(json.dumps(v,ensure_ascii=False)+'\n',encoding='utf-8')"
       - name: Verificar ficheiros estatísticos
         run: |
           test -s data/history.json
           test -s data/ledger.json
           test -s data/reliability.json
+          test -s data/quality.json
+          test -s data/validation.json
+          test -s data/storage_status.json
       - name: Arquivar estado para recuperação
         uses: actions/upload-artifact@v4
         with:
@@ -59,6 +77,9 @@ jobs:
             data/history.json
             data/ledger.json
             data/reliability.json
+            data/quality.json
+            data/validation.json
+            data/storage_status.json
           retention-days: 90
       - name: Validar sintaxe do dashboard
         run: node --check app/app.js
@@ -66,7 +87,7 @@ jobs:
         run: |
           mkdir -p public/data
           cp app/index.html app/style.css app/app.js public/
-          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json public/data/
+          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:
