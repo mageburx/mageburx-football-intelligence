@@ -98,37 +98,73 @@ def load_previous(path):
         return {}
 
 
-def collect(out, pause=2.2, max_round=None, fetcher=fetch_round):
+def collect(out, pause=3.5, max_round=None, fetcher=fetch_round):
+    """Atualização incremental: jornadas em falta e jogos recentes, sem esgotar a API gratuita."""
     old = load_previous(out)
+    now = dt.datetime.now(dt.timezone.utc)
+    today = now.date()
     result = {'schema': 1, 'season': SEASON,
               'source': {'name': 'TheSportsDB', 'url': 'https://www.thesportsdb.com/', 'api': 'v1 gratuita'},
-              'updated_at': dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+              'updated_at': now.replace(microsecond=0).isoformat(),
               'leagues': {}}
     any_data = False
     for lid, lg in LEAGUES.items():
         prev = old.get('leagues', {}).get(lid, {})
         saved = {str(e.get('id')): e for e in prev.get('events', []) if isinstance(e, dict) and e.get('id')}
+        fixtures_per_round = 9 if lid == 'pt' else 6
+        known = list(saved.values())
+        past_rounds = [int(e.get('round') or 0) for e in known
+                       if e.get('date') and e['date'] <= today.isoformat()]
+        current_round = max(past_rounds, default=1)
+        # Os jogos futuros da fase final podem não estar calendarizados.
+        # Não requisitar 34/32 jornadas diariamente: a API limita pedidos (429).
+        ceiling = min(lg['rounds'], max_round or lg['rounds'], current_round + 2)
+        by_round = {}
+        for e in known:
+            by_round.setdefault(int(e.get('round') or 0), []).append(e)
+        missing = [i for i in range(1, ceiling + 1)
+                   if len(by_round.get(i, [])) < fixtures_per_round]
+        recent = []
+        for round_num, group in by_round.items():
+            if not (1 <= round_num <= ceiling):
+                continue
+            if any(e.get('date') and (today - dt.timedelta(days=10)).isoformat() <=
+                   e['date'] <= (today + dt.timedelta(days=15)).isoformat()
+                   for e in group):
+                recent.append(round_num)
+        targets = sorted(set(missing + recent), key=lambda i: (i not in missing, i))
         failed = []
         ok = 0
-        for round_num in range(1, min(lg['rounds'], max_round or lg['rounds']) + 1):
+        for round_num in targets:
             try:
                 group = fetcher(lid, round_num)
-                if group:
+                if len(group) < fixtures_per_round:
+                    failed.append(round_num)
+                    print(f'AVISO {lid} jornada {round_num}: apenas {len(group)}/{fixtures_per_round} jogos', flush=True)
+                else:
                     ok += 1
                 for e in group:
                     saved[e['id']] = e
                 print(f'{lid}: jornada {round_num}: {len(group)} jogos', flush=True)
-            except Exception as e:
+            except Exception as exc:
                 failed.append(round_num)
-                print('AVISO', e, flush=True)
-            if pause:
+                print('AVISO', exc, flush=True)
+            if pause and round_num != targets[-1]:
                 time.sleep(pause)
         events = sorted(saved.values(), key=lambda e: (e['date'], e.get('utc',''), e['id']))
         any_data |= bool(events)
+        by_round_final = {}
+        for e in events:
+            by_round_final.setdefault(int(e.get('round') or 0), []).append(e)
+        missing_past = [i for i in range(1, current_round + 1)
+                        if len(by_round_final.get(i, [])) < fixtures_per_round]
+        # Não apresentar classificação como completa se faltarem jogos já disputados.
+        partial = bool(missing_past or failed)
         result['leagues'][lid] = {'name': lg['name'], 'country': lg['country'], 'id': lg['id'],
                                   'events': events, 'rounds_ok': ok, 'rounds_failed': failed,
-                                  'partial': bool(failed) or ok < lg['rounds'],
-                                  'last_attempt_at': result['updated_at']}
+                                  'missing_past_rounds': missing_past,
+                                  'partial': partial, 'last_attempt_at': result['updated_at']}
+        print(f'{lid}: atuais {current_round}; alvos {targets}; jornadas em falta {missing_past}', flush=True)
     if not any_data:
         raise RuntimeError('Nenhuma informação foi recolhida — dados antigos preservados')
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -138,11 +174,10 @@ def collect(out, pause=2.2, max_round=None, fetcher=fetch_round):
     print(f'Atualizado: {out} (PT: {len(result["leagues"]["pt"]["events"])}; DK: {len(result["leagues"]["dk"]["events"])})')
     return result
 
-
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument('--output', type=Path, default=DEFAULT_OUT)
-    p.add_argument('--pause', type=float, default=2.2)
+    p.add_argument('--pause', type=float, default=3.5)
     p.add_argument('--max-round', type=int, default=None, help='Só para testes; deixa snapshot incompleto')
     args = p.parse_args()
     collect(args.output, args.pause, args.max_round)
