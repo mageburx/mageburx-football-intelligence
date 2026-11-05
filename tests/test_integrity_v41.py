@@ -5,7 +5,7 @@ from scripts.validate_models import audit_league
 
 def fake_game(i,year):
     return {'id':f'match-{year}-{i}','date':f'{year}-08-{(i%28)+1:02d}',
-            'home':'Home','away':'Away','home_score':i%3,'away_score':i%2,'finished':True}
+            'home':f'Home{i}','away':f'Away{i}','home_score':i%3,'away_score':i%2,'finished':True}
 
 class IntegrityV41Tests(unittest.TestCase):
     def test_missing_results_not_marked_complete(self):
