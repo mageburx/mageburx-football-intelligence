@@ -1,10 +1,52 @@
 {
   "schema": 2,
   "season": "2026-2027",
-  "updated_at": "2026-11-05T18:07:35+00:00",
-  "news_updated_at": "2026-11-05T18:07:35.344471+00:00",
+  "updated_at": "2026-11-05T20:13:29+00:00",
+  "news_updated_at": "2026-11-05T20:13:29.238173+00:00",
   "news_status": "feed_ok",
   "news": [
+    {
+      "id": "72668f4a24268845e9",
+      "league": "pt",
+      "teams": [
+        "Benfica"
+      ],
+      "title": "Benfica-Lech: Marco Silva muda nove no onze - diadejogo.pt",
+      "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNWERDYUxiOXc4amZrelFkdDBxdE8wS1FUQ2RreHZJcWQwTUpzS3VEUFp6Y0NUaERzazhIYkRIZ3MzVXZqcmVsMFE0V1dKMFo2bG5reGhPNjI3eDRnanJBdWtFcjRRMkw0QnZEaVJRT1NpY3BpcU5vWWJNZHRWMWFoU0dBcWVzbFk1ZjFV?oc=5",
+      "source": "diadejogo.pt",
+      "published_at": "2026-11-05T19:28:25+00:00",
+      "category": "geral",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
+    {
+      "id": "2454dabf89379332da",
+      "league": "pt",
+      "teams": [
+        "Benfica"
+      ],
+      "title": "Benfica-Lech Poznan: Marco Silva faz nove alterações no onze inicial - O Jogo",
+      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQLVE2d09yMldLN0hZLV9YcFlreWQ5LTFpWGFwb0dCWUpwNGVER0tseExZdFFCN0p0bTNUeW4xbXdqeWdUSUlHM1hYdHctUEZrRjZJSjlBQXd4ZEJxaW1aUmZVR3EySDZOWXNHQ1VKM05PX0lrRmF5RVlNRHhza1JjaldobnRmc2V1c2d2LV9QMHRjTXBNYl8wZEpORVZMRFppaDR4VmxVbkxMOTlUblYtZmYtNTlCTWtsaFp3eQ?oc=5",
+      "source": "O Jogo",
+      "published_at": "2026-11-05T18:52:23+00:00",
+      "category": "onze",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
+    {
+      "id": "ac5b9b226f5d194a05",
+      "league": "pt",
+      "teams": [
+        "Benfica"
+      ],
+      "title": "Benfica-Lech Poznan: Marco Silva faz nove alterações no onze inicial - SAPO",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPaGZSRkJFNjhPdXc2M1ZHRHJNc1hSWFpXYi1kTWExbzJRUERtSWlaMDlNZzlpUzNITDVONFA0Z2EzeTZ4Tl9Ca1pUbVpPS2o5M3VJUkxHRWw0Ni1GWDVQTWJpejNMTlRnR3Ewci0yLUJ4eGUyTTdIX1ZxYW5WUW1fZXNfWmVpQkVEZjdhZ1JDUjlsVFdSbjVycVZNVVVGY0RJSWhGWXROY0xVdlNJUTRWakFRS2dadw?oc=5",
+      "source": "SAPO",
+      "published_at": "2026-11-05T17:52:00+00:00",
+      "category": "onze",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
     {
       "id": "a547ff5896fab2935f",
       "league": "pt",
@@ -168,18 +210,6 @@
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
     {
-      "id": "522f30ebc259e9b183",
-      "league": "pt",
-      "teams": [],
-      "title": "Jogos em Direto - Fenerbahçe vs Liverpool - Record",
-      "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE1FdHRqc2tmaVRaTUxZbENGcW1VOE9UaVJzN0cyMHByMzBGX2JmQVk3cV95a0RHZHFmZEswTkN0Rm0zQ2psdmg2cWhzd1piWV9zdTNmdmpfX3htOHBtd1dIdGdTOTRkbDViVXJmbXVjZy1uOW44UmVv?oc=5",
-      "source": "Record",
-      "published_at": "2026-11-04T17:09:09+00:00",
-      "category": "geral",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
       "id": "f5fa6d195fc7c68231",
       "league": "pt",
       "teams": [],
@@ -201,6 +231,20 @@
       "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQU1ZJVF8xekp3c3lIMGUxamJ6cjlsVGhmSEdNT2hMbUIzNmFIWlNFWER6X05PTGQ2bWgzOFhiYkU5T1dYaWRWQ1F4ZF9MQS1jR2RXRmVNeTJVQzhKTmgwV3FmbXZwb3NURk1IdUN6Y1pLbFRlMkE1ZEpXNXY1MkM5MGFuaGZmWGpmUHZHNVIzLTFROG5KTlVuUg?oc=5",
       "source": "FC Porto",
       "published_at": "2026-11-04T13:41:54+00:00",
+      "category": "geral",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
+    {
+      "id": "f4c99ff224e4833d80",
+      "league": "pt",
+      "teams": [
+        "Benfica"
+      ],
+      "title": "Jogos em Direto - Pafos U19 vs Benfica U19 - Record",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTFA4X3pjN1g5dTk1bXZNaWhfTUhSRnhBRi05OEEwT3VMT2FqMjRCc0ZjVWkzbUhtckZiWVhKTWNFZzIzWWFOeFRSZlhDUVlGdzh5bmdmaWY3RFA0cExyTmI2V1Z0eUg5ejk1UkNoRjZIY3FtZlFnZzVubA?oc=5",
+      "source": "Record",
+      "published_at": "2026-11-04T11:38:22+00:00",
       "category": "geral",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
@@ -417,20 +461,6 @@
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
     {
-      "id": "79b6e96c1f8745e2e5",
-      "league": "pt",
-      "teams": [
-        "Arouca"
-      ],
-      "title": "O melhor arranque de sempre do clube e do treinador: Vítor Severino sente-se «feliz» em Arouca - SAPO",
-      "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxONHkzVXN5TmU4LWVEWWo0dmswV1ZhWWQxNmZ5NjBZdDNJOGVPdk5ocWk4dWFscWNNY3Bja0tERUVyY1otS0dHTy1wRDVRbzdISXg3RVZtX2I1SktnVmM5bzFRU0otR1l3eFVBTFZ2aUJEZ1d1aGtZZlRXblpDQU9EdGYyaFJkbTVZRXNfc2Y1MWVRSUQwLUV3MnlxZlZPTGNtTGlOLTdBd3ZtWF9pTG1TWUlQbFBObFUxWS1TcWxScW45TTJkU0w2Zm55OFlZTXFOb0xrWmJR?oc=5",
-      "source": "SAPO",
-      "published_at": "2026-11-02T12:18:00+00:00",
-      "category": "treinador",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
       "id": "327d2134b8e69bd5a5",
       "league": "pt",
       "teams": [
@@ -442,33 +472,6 @@
       "source": "Flashscore.pt",
       "published_at": "2026-11-02T09:59:00+00:00",
       "category": "castigo",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "02c3e3b4fde7081d20",
-      "league": "pt",
-      "teams": [
-        "Alverca",
-        "Benfica"
-      ],
-      "title": "Benfica - Alverca: Transmissão, onze provável, horários e… - Glorioso 1904",
-      "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNT1A0VlNUSU5Bai04RzJKMGhBSXd2S0hVWWh6MEgxdnIzd241Vjk1VFZ1UGhVZG5QNWQyekNnRnowak1JRHp1TEY3UmlnMFhDTWY2bFRjSW5QMjIwaldKUU45bW9FTlBIVmdlUUtvSTRMQnZYSkN1c1Y1VlF5WTVpdGpR?oc=5",
-      "source": "Glorioso 1904",
-      "published_at": "2026-11-02T09:39:15+00:00",
-      "category": "geral",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "c58d8074044196ba9c",
-      "league": "pt",
-      "teams": [],
-      "title": "Miguel Moita poderá ser o novo treinador do FC Vizela - Rádio Vizela",
-      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOendGUmh3Z002M09uNm9CU0k5aFZhU1lHMGZIWXhEckFEMTE4Z0NsbExqOXprWnRTeUFCS1lpdWZvVFRBQ09nY3lab3hDb0hwaEhSUnRmaWsxT0FacTFUOURoYnZhTHE1NGlBQ3lxWEhHVmFIbWlnZGZob2t0ZlZfZU9TMFdWY2J4UkVjTnJmd1lJMjg?oc=5",
-      "source": "Rádio Vizela",
-      "published_at": "2026-11-02T08:01:00+00:00",
-      "category": "treinador",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
@@ -665,32 +668,14 @@
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
     {
-      "id": "cae620f7edf65a1d8e",
+      "id": "1d1eda2c9162c38547",
       "league": "pt",
-      "teams": [
-        "Benfica",
-        "Gil Vicente"
-      ],
-      "title": "Jogos em Direto - Benfica vs Gil Vicente - Record",
-      "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTFBaeVJDeEpHZUVmalpjSDlmV2UzdEF0dUNfR2JXV0dsaE95ZHNEeF9CbE9iSnFkZDM2dDN0aGFfU3daeF9DNFZmQWRELVptbHFXM01CQ2tMWDhXaENXZm9qLVp4dWpqcDJ5b1NoaDdMYnAteUZsMGc?oc=5",
-      "source": "Record",
-      "published_at": "2026-10-29T18:46:44+00:00",
-      "category": "geral",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "b29f0de18d102ab29b",
-      "league": "pt",
-      "teams": [
-        "Benfica",
-        "Gil Vicente"
-      ],
-      "title": "Marco Silva muda sete: o onze do Benfica para o jogo com o Gil Vicente - SAPO",
-      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNVjFSNFpRVUktTjE0MWs4SnlNWkpyRGxNUEFTSERWYl9uWmZrQ2plOVY1b2pySmo0WTNXRnJKNTcybktEOFRBUjNUMVRMTGFFYU92ekhhb29YT0NKcEZYbDliNm1sTkkwUDYzWDBTSHJ4RWRhYVZSNVNBLWFNbkw0M2ROV3h2S0pPNXdWTXpRV09CZ25XVlR4b0pVZ2FVYlRadGs3eVE3OUMxRWx1dVI5UjRTS2xXOWVB?oc=5",
-      "source": "SAPO",
-      "published_at": "2026-10-29T18:42:00+00:00",
-      "category": "geral",
+      "teams": [],
+      "title": "Sr. €117 milhões suspenso pelo Everton por quebrar regras do clube - A Bola",
+      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQd1FScUhyb3dkWjA0cll1UFM2UDBqSWdoVS1oUmU2VjdadGM3eklWX0Q1dnprcUZNSm5RMFNJYmhGVEZJb2lLVzRMWnUwbG4wY0ltMVViUjYteUJqRWFBZ1QxYjBzZjNOeVZyeDBzbUYyV1U5Z01JdFNwVkhmVE5CYnhRSk10VDVrQTBZSlM0LVBnbHhCc1pqa0N6OGdwdEE4bUdPWjlfaHBRSE14dFZlLWlPOWxxWjRZVEE?oc=5",
+      "source": "A Bola",
+      "published_at": "2026-10-29T19:24:00+00:00",
+      "category": "castigo",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     }
