@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -299,6 +299,44 @@
     <div class="callout intel-callout" style="margin-top:18px"><b>Interpretação</b><div>${p?`Modelo apenas com golos: casa ${percent(p.p1)}, empate ${percent(p.px)}, fora ${percent(p.p2)}. Estes valores <b>não incluem</b> lesões, castigos, notícias nem cansaço fora da liga. O número de jogos da amostra e a falta de calibração limitam a fiabilidade.`:'Dados insuficientes para o modelo 1X2.'} A fadiga não foi calculada a partir de taças, competições europeias ou seleções.</div></div>`;
   }
   function briefingsView(){return `<section class="panel" style="margin-bottom:18px"><div class="panel-header"><div><h2>Seleciona um encontro</h2><p>O painel agrega quatro dimensões: forma, descanso, ausências e notícias</p></div><span class="tag">PRE-MATCH</span></div><div class="body-pad">${modelSelect()}</div></section><div id="briefing-result">${briefingResult()}</div>`;}
+  function integrityView(lid,market){
+    const qa=state.quality?.leagues?.[lid];
+    const validate=state.validation?.leagues?.[lid];
+    const storage=state.storageStatus;
+    const num=v=>typeof v==='number'&&Number.isFinite(v)?numberPT.format(v):'—';
+    const pct=v=>typeof v==='number'&&Number.isFinite(v)?percent(v):'—';
+    const metric=validate?.markets?.[market];
+    const holdout=metric?.holdout||{};
+    const enough=validate?.status==='historical_holdout_completed'&&metric?.chosen_on_validation;
+    const expected=['2021-2022','2022-2023','2023-2024','2024-2025','2025-2026'];
+    const coverage=expected.map(season=>{
+      const c=qa?.seasons?.[season];
+      return '<tr><td>'+safe(season.replace('-','/'))+'</td><td class="text-right">'+(c?.matches??0)+'/'+(c?.expected??'—')+'</td>'+
+        '<td>'+(c?.complete?'Auditada · completa':'Parcial / em validação')+'</td></tr>';
+    }).join('');
+    const qualityTitle=qa?qa.complete_count+' de 5 épocas completas':'Auditoria ainda não publicada';
+    const status=storage?.persisted?'Backup Git gravado na branch football-data':
+      'Backup Git não confirmado — apenas recuperação temporária';
+    return '<section class="panel fi-v41-panel"><div class="panel-header"><div><h2>Integridade e validação independente</h2>'+
+      '<p>Sem custos · dados auditáveis · decisões separadas dos jogos de teste</p></div><span class="tag">v4.1</span></div>'+
+      '<div class="body-pad"><div class="fi-v41-storage"><strong>'+safe(status)+'</strong>'+
+      '<p>O repositório pode ser alterado pelo proprietário; o histórico Git não constitui armazenamento imutável contra manipulação deliberada.</p></div>'+
+      '<div class="fi-v41-two"><div class="fi-v41-box"><h3>Qualidade do histórico</h3><p class="muted">'+
+      qualityTitle+' · '+(qa?.total_matches??0)+' resultados importados</p>'+
+      '<div class="table-scroll"><table><thead><tr><th>Época</th><th class="text-right">Jogos</th><th>Estado</th></tr></thead><tbody>'+coverage+'</tbody></table></div></div>'+
+      '<div class="fi-v41-box"><h3>Treino / seleção / teste</h3>'+
+      '<div class="fi-v41-stages"><span>Treino<br><b>2021–24</b></span><span>Afinação<br><b>2024/25</b></span><span>Teste<br><b>2025/26</b></span></div>'+
+      (enough?
+        '<p>Modelo escolhido sem consultar o teste: <b>'+safe(metric.chosen_on_validation)+'</b>.</p>'+
+        '<div class="fi-v41-kpis"><div><small>Jogos no teste</small><b>'+num(holdout.n)+'</b></div>'+
+        '<div><small>Brier no teste ↓</small><b>'+num(holdout.brier)+'</b></div>'+
+        '<div><small>Brier referência ↓</small><b>'+num(holdout.baseline_brier)+'</b></div>'+
+        '<div><small>Skill histórico</small><b>'+pct(holdout.brier_skill)+'</b></div></div>'+
+        '<p class="muted">Limite 95% para a melhoria absoluta do Brier: '+(Array.isArray(holdout.brier_gain_ci95)?holdout.brier_gain_ci95.map(num).join(' a '):'—')+
+        '. '+(holdout.status==='historical_signal_to_replicate'?'Sinal histórico ainda não confirmado prospetivamente.':'Sem evidência robusta de vantagem independente.')+'</p>'
+        :'<div class="limit-note">Teste independente indisponível: '+(validate?.incomplete_seasons?.length?'faltam épocas completas e auditadas ('+validate.incomplete_seasons.map(x=>safe(x.replace('-','/'))).join(', ')+').':'a validação ainda não foi gerada.')+'</div>')+
+      '</div></div><p class="muted fi-extra-note">Este teste histórico seleciona entre Poisson e Dixon–Coles usando apenas 2024/25. Não altera automaticamente as previsões ao vivo, não incorpora odds e não comprova rentabilidade.</p></div></section>';
+  }
   function reliabilityView(){
     const lid=state.league==='all'?'pt':state.league;
     const audit=state.reliability?.history?.[lid];
@@ -359,7 +397,7 @@
       '</div></div><div class="fi-rel-ledger"><h3>Registo de previsões reais</h3><div class="fi-reliability-kpis"><div><small>Previsões guardadas</small><strong>'+(prospective?.logged??0)+'</strong></div>'+
       '<div><small>Jogos com resultado</small><strong>'+(prospective?.settled??0)+'</strong></div></div>'+
       '<p class="muted">Estas são previsões preservadas no Git antes da data dos jogos; não confundimos a reconstrução histórica com previsões verdadeiramente emitidas antecipadamente. Alterações ao repositório ainda dependem das permissões do seu proprietário.</p></div>'+
-      '<div class="limit-note">Sem previsões de rentabilidade: os testes não utilizam odds de mercado. O histórico foi importado retrospectivamente e continua sujeito a limitações de qualidade e seleção do modelo.</div></div></section>';
+      '<div class="limit-note">Sem previsões de rentabilidade: os testes não utilizam odds de mercado. O histórico foi importado retrospectivamente e continua sujeito a limitações de qualidade e seleção do modelo.</div></div></section>'+integrityView(lid,state.reliabilityMarket);
   }
   function render(){const page=views[state.view]||views.overview;$('#view-breadcrumb').textContent=page[0];$('#page-title').innerHTML=page[1];$('#page-subtitle').textContent=page[2];
     $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
@@ -396,6 +434,9 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json']]){
+        try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
+      }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
     render();
   }
