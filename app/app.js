@@ -182,6 +182,7 @@
   function extraMarketsMarkup(m){
     if(!m?.v3||!m.pred?.markets)return '<div class="limit-note">Os mercados adicionais requerem dados v3 atualizados.</div>';
     const market=m.pred.markets;
+    const marketAudit=state.model?.leagues?.[m.lid]?.market_audit?.metrics||{};
     const rows=[
       ['Dupla oportunidade 1X','double_1x','1X2'],
       ['Dupla oportunidade X2','double_x2','1X2'],
@@ -206,13 +207,41 @@
     return '<section class="fi-extra"><div class="fi-extra-head"><h3>Mercados adicionais · dados gratuitos</h3><p>Probabilidades teóricas e odds justas, não recomendações de aposta.</p></div>'+
       '<div class="fi-extra-grid">'+items.map(([name,key,group])=>{
         const p=market[key];
-        return '<div class="fi-extra-item"><small>'+group+'</small><strong>'+name+'</strong><div><b>'+percent(p)+'</b><span>Odd justa: '+numberPT.format(1/p)+'</span></div></div>';
+        const backtest=marketAudit[key];
+        const label=!backtest?'Aguardando backtesting':backtest.n<100?'Amostra pequena · sem validação':backtest.brier_skill>0?'Supera referência no histórico · por validar':'Não supera a referência';
+        return '<div class="fi-extra-item"><small>'+group+'</small><strong>'+name+'</strong><div><b>'+percent(p)+'</b><span>Odd justa: '+numberPT.format(1/p)+'</span></div><em>'+safe(label)+'</em></div>';
       }).join('')+'</div>'+
       '<p class="muted fi-extra-note">Golos calculados pela distribuição Dixon–Coles de resultados; dupla oportunidade pelo modelo 1X2 selecionado. Sem odds reais, validação independente ou dados de cantos/cartões.</p></section>';
   }
   function modelResult(){const m=currentModel();if(!m||!m.pred)return `<div class="empty"><b>Modelo sem dados suficientes</b>É necessário pelo menos um jogo concluído e informação das duas equipas.</div>`;
     const {event:e,pred:p}=m;return `<div class="detail-stack"><span class="pill-label">${safe(leagueNames[m.lid])}</span><span class="tag">${formatDate(e.date)} · Jornada ${e.round}</span></div><h3 class="subhead" style="font-size:18px;margin-top:15px">${safe(e.home)} <span style="color:#7896a8">vs</span> ${safe(e.away)}</h3><div class="stat-caption">Golos esperados estimados: ${numberPT.format(p.lambdaH)} — ${numberPT.format(p.lambdaA)} · ${m.v3?"Motor v3 ("+safe(p.model)+")":"Poisson legado — v3 indisponível"}</div>${probabilityStrip(p)}${probMarkup(p)}${suggestionMarkup(m)}${extraMarketsMarkup(m)}
       <div class="big-prob"><div><b>${percent(p.over)}</b><small>Mais de 2,5 golos</small></div><div><b>${percent(p.btts)}</b><small>Ambas marcam</small></div></div><div class="limit-note"><b>${safe(p.note)}.</b> As probabilidades NÃO são ajustadas por ausências, notícias ou descanso, porque ainda não existe calibração histórica. Consulta o dossiê pré-jogo.</div>`;
+  }
+  function marketAuditView(data){
+    const audit=data?.market_audit;
+    if(!audit?.metrics)return '<div class="limit-note">A auditoria por mercado ainda não está disponível.</div>';
+    const metrics=audit.metrics;
+    const sets=[
+      ['Dupla oportunidade',[['1X','double_1x'],['X2','double_x2'],['12','double_12']]],
+      ['Golos e ambas marcam',[['Over 0.5','over_0_5'],['Under 0.5','under_0_5'],['Over 1.5','over_1_5'],['Under 1.5','under_1_5'],['Over 2.5','over_2_5'],['Under 2.5','under_2_5'],['Over 3.5','over_3_5'],['Under 3.5','under_3_5'],['Ambas marcam Sim','btts_yes'],['Ambas marcam Não','btts_no']]],
+      ['Golos por equipa',[['Casa Over 0.5','home_over_0_5'],['Casa Over 1.5','home_over_1_5'],['Fora Over 0.5','away_over_0_5'],['Fora Over 1.5','away_over_1_5']]]
+    ];
+    const fmt=v=>Number.isFinite(v)?numberPT.format(v):'—', pct=v=>Number.isFinite(v)?percent(v):'—';
+    const buildRow=([label,key])=>{
+      const a=metrics[key]||{};
+      const status=a.n<100?'Amostra reduzida':a.brier_skill>0?'Exploratório':'Não supera referência';
+      const bins=(a.calibration_bins||[]).map(b=>'<span>'+safe(b.range)+' · N='+b.n+' · Previsto '+pct(b.mean_prediction)+' · Observado '+pct(b.observed_frequency)+'</span>').join('');
+      return '<tr><td class="fi-market-name">'+safe(label)+'<small>'+safe(status)+'</small>'+
+        (bins?'<details class="fi-bin-details"><summary>Calibração</summary><div>'+bins+'</div></details>':'')+
+        '</td><td class="text-right">'+(a.n??0)+'</td><td class="text-right">'+fmt(a.brier)+'</td>'+
+        '<td class="text-right">'+fmt(a.baseline_brier)+'</td><td class="text-right">'+pct(a.brier_skill)+'</td>'+
+        '<td class="text-right">'+pct(a.calibration_error)+'</td></tr>';
+    };
+    return '<section class="panel fi-audit-panel"><div class="panel-header"><div><h2>Backtesting por mercado</h2><p>Resultados previstos exclusivamente com jogos anteriores</p></div><span class="tag">AUDITORIA</span></div><div class="body-pad">'+
+      '<p class="muted">Brier e ECE: mais baixos são melhores. A referência usa a frequência histórica do mercado, conhecida antes do jogo. Skill positivo indica Brier menor que essa referência, <b>não indica rentabilidade</b>.</p>'+
+      (data?.data_partial?'<div class="limit-note">Cobertura de resultados parcialmente incompleta nesta liga.</div>':'')+
+      sets.map(([name,rows],i)=>'<details class="fi-audit-group" '+(i===1?'open':'')+'><summary>'+safe(name)+' <span>'+rows.length+' mercados</span></summary><div class="table-scroll"><table><thead><tr><th>Mercado</th><th class="text-right">N</th><th class="text-right">Brier ↓</th><th class="text-right">Base ↓</th><th class="text-right">Skill</th><th class="text-right">ECE ↓</th></tr></thead><tbody>'+rows.map(buildRow).join('')+'</tbody></table></div></details>').join('')+
+      '<p class="muted fi-extra-note">Dupla oportunidade avaliada com Dixon–Coles fixo, não necessariamente com o modelo 1X2 atualmente selecionado. Todos os resultados são exploratórios; ainda é necessária validação independente.</p></div></section>';
   }
   function modelView(){
     const chosen=state.league==='all'?'pt':state.league;
@@ -221,7 +250,7 @@
     const scores=data?.evaluations||{};
     const backtest=methods.map(([key,label])=>{const m=scores[key];return '<tr><td>'+label+'</td><td class="text-right">'+(m?.n??'—')+'</td><td class="text-right">'+(m?numberPT.format(m.brier):'—')+'</td><td class="text-right">'+(m?numberPT.format(m.log_loss):'—')+'</td></tr>';}).join('');
     const audit=data?'<div class="insight-card" style="margin-bottom:14px"><h3>Backtesting cronológico · '+safe(leagueNames[chosen])+'</h3><p>Cada jogo é previsto exclusivamente com dados de datas anteriores. A seleção é exploratória, sem teste independente.</p><div class="table-scroll"><table><thead><tr><th>Modelo</th><th class="text-right">Testes</th><th class="text-right">Brier ↓</th><th class="text-right">Log Loss ↓</th></tr></thead><tbody>'+backtest+'</tbody></table></div><p class="muted">Modelo selecionado: <b>'+safe(data.selected)+'</b> · '+data.played+' resultados disponíveis</p></div>':'<div class="limit-note">O motor v3 ainda não foi gerado. Mantém-se o Poisson legado.</div>';
-    return '<div class="grid-2"><section class="panel"><div class="panel-header"><div><h2>Motor probabilístico · 1X2</h2><p>Golos e análise pré-jogo</p></div><span class="tag">MODELO v3</span></div><div class="body-pad">'+modelSelect()+'<div id="model-result" style="padding-top:22px">'+modelResult()+'</div></div></section><section class="panel"><div class="panel-header"><div><h2>Auditoria do modelo</h2><p>Verificar desempenho em resultados passados</p></div></div><div class="body-pad">'+audit+'<p class="muted model-note">Brier Score e Log Loss: quanto menores, melhores. Estimativas ainda sem calibração independente. Não incluem xG ou lesões por falta de cobertura verificada.</p></div></section></div>';
+    return '<div class="grid-2"><section class="panel"><div class="panel-header"><div><h2>Motor probabilístico · 1X2</h2><p>Golos e análise pré-jogo</p></div><span class="tag">MODELO v3</span></div><div class="body-pad">'+modelSelect()+'<div id="model-result" style="padding-top:22px">'+modelResult()+'</div></div></section><section class="panel"><div class="panel-header"><div><h2>Auditoria do modelo</h2><p>Verificar desempenho em resultados passados</p></div></div><div class="body-pad">'+audit+'<p class="muted model-note">Brier Score e Log Loss: quanto menores, melhores. Estimativas ainda sem calibração independente. Não incluem xG ou lesões por falta de cobertura verificada.</p></div></section></div>'+marketAuditView(data);
   }
   const dateOnly = v => String(v||'').slice(0,10);
   const safeLink = v => /^https:\/\/[^\s"'<>]+$/i.test(String(v||'')) ? safe(v) : '#';
