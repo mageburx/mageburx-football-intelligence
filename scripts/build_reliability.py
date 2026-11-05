@@ -11,7 +11,10 @@ import json
 import math
 from collections import defaultdict
 from pathlib import Path
-from build_model import MARKET_LABELS, finished, goal_rates, score_probs, market_settles
+try:
+    from scripts.build_model import MARKET_LABELS, finished, goal_rates, score_probs, market_settles
+except ModuleNotFoundError:  # python scripts/build_reliability.py
+    from build_model import MARKET_LABELS, finished, goal_rates, score_probs, market_settles
 
 ROOT = Path(__file__).resolve().parents[1]
 SEASONS = ('2021-2022', '2022-2023', '2023-2024', '2024-2025', '2025-2026')
