@@ -1,8 +1,8 @@
 {
   "schema": 2,
   "season": "2026-2027",
-  "updated_at": "2026-11-05T23:06:23+00:00",
-  "news_updated_at": "2026-11-05T23:06:23.644357+00:00",
+  "updated_at": "2026-11-05T23:16:44+00:00",
+  "news_updated_at": "2026-11-05T23:16:44.102411+00:00",
   "news_status": "feed_ok",
   "news": [
     {
@@ -115,6 +115,18 @@
       "source": "Observador",
       "published_at": "2026-11-05T10:07:40+00:00",
       "category": "geral",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
+    {
+      "id": "a1681ecdff81400490",
+      "league": "pt",
+      "teams": [],
+      "title": "É português o treinador com mais vitórias no Mundo - A Bola",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPQnItdEhOcEFEeGlGX0VQdnJTdnRoaGVaYWVDRUZQM1J4LW50dzlEU2NQWWc2WnFPdkgxY1ViM3pPMkg1OGZ3YzZPdjJjeFhFSlVOcjZQUk1USGFfak1Samc3emNxRXdkUkV0dERDVy1xT2gxUlNPRGpJR241YU53Zzl2U0xKREFTZTJZR2xsSVJYWjJFZ21BdUpkcEFDUDBIb2c?oc=5",
+      "source": "A Bola",
+      "published_at": "2026-11-05T09:43:00+00:00",
+      "category": "treinador",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
@@ -506,18 +518,6 @@
       "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNUEVfblc3MlZXcm81Q2dFbWhRN2o3a1lDRkJSNGFOSk5UR2M2VmJ0anRMY0VJTHF6SEMyZEg3dEVjZ1Jzb2hNRVAyRFp0cnB1NkhERHg0WmhjalF5dWNET29pLXQ1VXNfTXo0M2NhMzJ3Mnc0UkpCanQwVXh3Y3BqQUp1dWY4SjVXdlZWSUZiQ0hybG1QOGpaazNCZGJlbU10NFZ3S3VPMEVOaUxKRy1Sdi1ucWNtSHhKbzcyYXUzQ1ltWTg?oc=5",
       "source": "A Bola",
       "published_at": "2026-11-01T14:20:00+00:00",
-      "category": "treinador",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "0241ce87c2f186744c",
-      "league": "pt",
-      "teams": [],
-      "title": "Liga Portugal: Sporting é o sétimo clube a mudar de treinador em 2026/27 - Flashscore.pt",
-      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxNMFBkOUhZa09PdkRvck8tcWlPS0lWcThtdGE0YzByM2JweWc1YkVxWDExQmFVMEJOOGp2eFoxaExzZGd5X3lSQ1J5S3VGN1Y3OFBRYU10LXluVXFqOGdQRWZCbTdScmtYYWtFcWZmZ2VzLUQ3Mll4WWlELXVmcTkzazFNaHVuUVNmT1NNRlE4X3pINWM3SzVZVmgya21ydGNIUUZyNmlYbG1JWkh4ZjJwQVRFYkNHTUhFMTktU1hfVUNDaGlvaHd2STZDaDllTGI2VU4wRUxMVXI0YjRhaFNj?oc=5",
-      "source": "Flashscore.pt",
-      "published_at": "2026-11-01T14:05:00+00:00",
       "category": "treinador",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
