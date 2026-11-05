@@ -30,6 +30,7 @@ jobs:
       - name: Recuperar histórico e previsões publicados
         run: python scripts/restore_published_state.py
       - name: Importar incrementalmente épocas dinamarquesas
+        if: github.event_name != 'push'
         run: python scripts/backfill_history.py --max-calls 18 --pause 3.5
       - name: Recolher jogos das duas ligas
         run: python scripts/update_data.py
