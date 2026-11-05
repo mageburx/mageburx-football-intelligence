@@ -1,0 +1,1 @@
+# afonso-os-football-intelligence
