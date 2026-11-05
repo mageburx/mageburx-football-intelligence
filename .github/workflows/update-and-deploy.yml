@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths-ignore:
+      - 'data/**'
   schedule:
     - cron: '17 7,19 * * *'
 permissions:
@@ -31,11 +33,15 @@ jobs:
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
         run: python scripts/update_intelligence.py
+      - name: Calcular modelos e backtesting v3
+        run: python scripts/build_model.py
+      - name: Testar motor v3
+        run: python -m unittest discover -s tests -p 'test_model_v3.py' -v
       - name: Guardar resultados recolhidos
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/season.json data/intelligence.json
+          git add data/season.json data/intelligence.json data/model.json
           if ! git diff --cached --quiet; then
             git commit -m 'data: atualizar resultados e calendário'
             git push origin HEAD:main
@@ -44,7 +50,7 @@ jobs:
         run: |
           mkdir -p public/data
           cp app/index.html app/style.css app/app.js public/
-          cp data/season.json data/intelligence.json public/data/
+          cp data/season.json data/intelligence.json data/model.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:
