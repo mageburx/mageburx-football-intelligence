@@ -88,6 +88,9 @@ def score_probs(lh, la, dc=True):
     """Dixon-Coles low-score dependence correction for Poisson score grid."""
     probs = [0.0, 0.0, 0.0]
     over = btts = mass = 0.0
+    totals = {k: 0.0 for k in (0, 1, 2, 3)}
+    home_goals = {k: 0.0 for k in (0, 1, 2)}
+    away_goals = {k: 0.0 for k in (0, 1, 2)}
     rho = DC_RHO if dc else 0.0
     for h in range(13):
         for a in range(13):
@@ -105,10 +108,31 @@ def score_probs(lh, la, dc=True):
             probs[0 if h > a else 1 if h == a else 2] += p
             if h + a >= 3:
                 over += p
+            for k in totals:
+                if h + a >= k + 1:
+                    totals[k] += p
+            for k in home_goals:
+                if h >= k + 1:
+                    home_goals[k] += p
+            for k in away_goals:
+                if a >= k + 1:
+                    away_goals[k] += p
             if h > 0 and a > 0:
                 btts += p
+    markets = {}
+    for k, value in totals.items():
+        markets[f'over_{k}_5'] = value / mass
+        markets[f'under_{k}_5'] = 1 - value / mass
+    for k, value in home_goals.items():
+        markets[f'home_over_{k}_5'] = value / mass
+    for k, value in away_goals.items():
+        markets[f'away_over_{k}_5'] = value / mass
+    markets['btts_yes'] = btts / mass
+    markets['btts_no'] = 1 - btts / mass
+    # Market probabilities here come from the Dixon-Coles score distribution.
+    # They must not be presented as calibrated by the Elo-augmented 1X2 model.
     return {'p': normalise(probs), 'over': over / mass, 'btts': btts / mass,
-            'lambdaH': lh, 'lambdaA': la}
+            'markets': markets, 'lambdaH': lh, 'lambdaA': la}
 
 def elo_probs(history, asof, home, away):
     """Elo updated in date batches; no same-day or future leakage."""
@@ -195,6 +219,11 @@ def build(data, asof=None):
             forecasts[match_key(m)] = {'p1': round(p[0], 5), 'px': round(p[1], 5),
                                         'p2': round(p[2], 5), 'over': round(extras['over'], 5),
                                         'btts': round(extras['btts'], 5),
+                                        'markets': {k: round(v, 5) for k, v in extras['markets'].items()} | {
+                                            'double_1x': round(p[0]+p[1], 5),
+                                            'double_x2': round(p[1]+p[2], 5),
+                                            'double_12': round(p[0]+p[2], 5)},
+                                        'markets_source': 'Dixon-Coles: golos; modelo selecionado: dupla oportunidade',
                                         'lambdaH': round(extras['lambdaH'], 3),
                                         'lambdaA': round(extras['lambdaA'], 3),
                                         'leagueMatches': len(played),
