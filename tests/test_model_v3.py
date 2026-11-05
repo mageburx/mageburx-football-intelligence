@@ -1,6 +1,7 @@
 import unittest
 from scripts.build_model import (finished, score_probs, normalise, goal_rates,
-                                 variants, evaluate, build, MIN_TRAIN)
+                                 variants, evaluate, build, MIN_TRAIN,
+                                 evaluate_binary_markets, market_settles)
 
 def fixture(i, home="Home", away="Away", hg=1, ag=0):
     day = 1 + i // 10
@@ -29,6 +30,45 @@ class ModelTests(unittest.TestCase):
             self.assertGreater(mk["over_1_5"], mk["over_2_5"])
             self.assertGreater(mk["home_over_0_5"], mk["home_over_1_5"])
             self.assertGreater(mk["away_over_0_5"], mk["away_over_1_5"])
+
+    def test_market_settlement(self):
+        e = fixture(0, "Home", "Away", 2, 1)
+        self.assertEqual(market_settles(e, "over_2_5"), 1)
+        self.assertEqual(market_settles(e, "under_2_5"), 0)
+        self.assertEqual(market_settles(e, "btts_yes"), 1)
+        self.assertEqual(market_settles(e, "btts_no"), 0)
+        self.assertEqual(market_settles(e, "home_over_1_5"), 1)
+        self.assertEqual(market_settles(e, "away_over_1_5"), 0)
+        self.assertEqual(market_settles(e, "double_1x"), 1)
+        self.assertEqual(market_settles(e, "double_x2"), 0)
+        self.assertEqual(market_settles(e, "double_12"), 1)
+        draw = fixture(0, "Home", "Away", 0, 0)
+        self.assertEqual(market_settles(draw, "double_1x"), 1)
+        self.assertEqual(market_settles(draw, "double_x2"), 1)
+        self.assertEqual(market_settles(draw, "double_12"), 0)
+
+    def test_market_backtest_metrics_and_no_future_leakage(self):
+        matches = [fixture(i, "Home" if i%2 else "Away",
+                           "Away" if i%2 else "Home", i%4, i%3) for i in range(160)]
+        audit = evaluate_binary_markets(matches, asof="2026-09-30")
+        sample = audit["metrics"]["over_2_5"]
+        self.assertGreater(sample["n"], 100)
+        self.assertGreaterEqual(sample["brier"], 0)
+        self.assertLessEqual(sample["brier"], 1)
+        self.assertGreaterEqual(sample["calibration_error"], 0)
+        self.assertGreaterEqual(len(sample["calibration_bins"]), 1)
+        self.assertEqual(sum(b["n"] for b in sample["calibration_bins"]), sample["n"])
+        self.assertEqual(audit["metrics"]["over_2_5"]["n"],
+                         audit["metrics"]["under_2_5"]["n"])
+        future = fixture(777, "Home", "Away", 8, 0)
+        future["date"] = "2026-12-12"
+        after = evaluate_binary_markets(matches + [future], asof="2026-09-30")
+        self.assertEqual(audit, after)
+
+    def test_market_backtest_small_sample_warning(self):
+        games = [fixture(i, "Home", "Away", i%3, i%2) for i in range(45)]
+        output = evaluate_binary_markets(games, asof="2026-10-10")
+        self.assertEqual(output["metrics"]["btts_yes"]["status"], "amostra_insuficiente")
 
     def test_no_future_leakage(self):
         # History on or after the fixture date must not inform the prediction.
