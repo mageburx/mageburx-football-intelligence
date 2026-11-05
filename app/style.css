@@ -62,3 +62,23 @@
 .fi-extra-item b{font-size:15px;color:#95f3d2;font-variant-numeric:tabular-nums}
 .fi-extra-note{margin-top:13px;font-size:10px;line-height:1.5}
 @media(max-width:520px){.fi-extra{padding:12px}.fi-extra-grid{grid-template-columns:1fr}.fi-extra-item div{gap:5px}}
+
+
+/* v3.2: market-by-market backtesting */
+.fi-audit-panel{margin-top:20px;overflow:hidden}
+.fi-audit-panel>.body-pad>p{line-height:1.65}
+.fi-audit-group{border:1px solid #284457;border-radius:10px;background:#102838;margin-top:12px;overflow:hidden}
+.fi-audit-group>summary{cursor:pointer;list-style:none;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:#ddf1fa}
+.fi-audit-group>summary::-webkit-details-marker{display:none}
+.fi-audit-group>summary:after{content:"⌄";color:#9db8cb;margin-left:8px}
+.fi-audit-group[open]>summary:after{content:"⌃"}
+.fi-audit-group>summary span{font-size:10px;color:#8ba9bb;font-weight:400}
+.fi-audit-group .table-scroll{padding:0 10px 12px}
+.fi-audit-group table{font-variant-numeric:tabular-nums;min-width:520px}
+.fi-audit-group table th,.fi-audit-group table td{padding:10px 8px}
+.fi-market-name{min-width:135px}
+.fi-market-name small{display:block;margin-top:5px;color:#9bb4c4;font-size:9px;font-weight:400}
+.fi-bin-details{margin-top:6px}
+.fi-bin-details summary{cursor:pointer;color:#98dcca;font-size:9px}
+.fi-bin-details>div{display:flex;flex-direction:column;gap:3px;font-size:9px;line-height:1.5;margin-top:6px;color:#a4bdcd}
+.fi-extra-item em{display:block;font-style:normal;color:#a9c6cf;font-size:9px;margin-top:7px;line-height:1.3}
