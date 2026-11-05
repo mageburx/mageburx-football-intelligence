@@ -18,6 +18,18 @@ class ModelTests(unittest.TestCase):
             self.assertTrue(all(0 < x < 1 for x in p["p"]))
             self.assertTrue(0 < p["btts"] < 1)
 
+    def test_free_markets_are_coherent(self):
+        for dc in (True, False):
+            result = score_probs(1.65, 1.20, dc)
+            mk = result["markets"]
+            self.assertAlmostEqual(mk["btts_yes"] + mk["btts_no"], 1, places=9)
+            for k in (0, 1, 2, 3):
+                self.assertAlmostEqual(mk[f"over_{k}_5"] + mk[f"under_{k}_5"], 1, places=9)
+            self.assertGreater(mk["over_0_5"], mk["over_1_5"])
+            self.assertGreater(mk["over_1_5"], mk["over_2_5"])
+            self.assertGreater(mk["home_over_0_5"], mk["home_over_1_5"])
+            self.assertGreater(mk["away_over_0_5"], mk["away_over_1_5"])
+
     def test_no_future_leakage(self):
         # History on or after the fixture date must not inform the prediction.
         matches = [fixture(i, "Home" if i % 2 else "Away",
