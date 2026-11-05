@@ -1,8 +1,8 @@
 {
   "schema": 2,
   "season": "2026-2027",
-  "updated_at": "2026-11-05T22:47:24+00:00",
-  "news_updated_at": "2026-11-05T22:47:24.090496+00:00",
+  "updated_at": "2026-11-05T22:53:38+00:00",
+  "news_updated_at": "2026-11-05T22:53:38.947551+00:00",
   "news_status": "feed_ok",
   "news": [
     {
@@ -358,6 +358,21 @@
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
     {
+      "id": "327d2134b8e69bd5a5",
+      "league": "pt",
+      "teams": [
+        "Alverca",
+        "Benfica"
+      ],
+      "title": "Castigo máximo, serviços mínimos: Benfica vence Alverca - Flashscore.pt",
+      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOTVlFV3FpNW0wRm92LXZodGhVc0ZpWjdvcTlVSzRyNTBrNjU4QXUwT2hCV19EZXVsOVQzUWx4V3hFcm0xM1JZU3IyejZpcl9uaEt4THpxbzJpS1MwR2JMZjNfa25GQ25BREpKNlRlSlZBZWdseTQ1anhZNU1yMG5rREoxdUxPR1JPUHVXY2hCbHRLWEVqUkRXWEllU3FFWENyV2YzZmhhU1BwV0phZm5BTHY5blFsOHNZUUZhOHRjd3pXNFIxZXdZ?oc=5",
+      "source": "Flashscore.pt",
+      "published_at": "2026-11-02T22:19:22+00:00",
+      "category": "castigo",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
+    {
       "id": "517b77fe41b919e97a",
       "league": "pt",
       "teams": [
@@ -437,21 +452,6 @@
       "source": "A Bola",
       "published_at": "2026-11-02T15:28:00+00:00",
       "category": "treinador",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "327d2134b8e69bd5a5",
-      "league": "pt",
-      "teams": [
-        "Alverca",
-        "Benfica"
-      ],
-      "title": "Castigo máximo, serviços mínimos: Benfica vence Alverca - Flashscore.pt",
-      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOTVlFV3FpNW0wRm92LXZodGhVc0ZpWjdvcTlVSzRyNTBrNjU4QXUwT2hCV19EZXVsOVQzUWx4V3hFcm0xM1JZU3IyejZpcl9uaEt4THpxbzJpS1MwR2JMZjNfa25GQ25BREpKNlRlSlZBZWdseTQ1anhZNU1yMG5rREoxdUxPR1JPUHVXY2hCbHRLWEVqUkRXWEllU3FFWENyV2YzZmhhU1BwV0phZm5BTHY5blFsOHNZUUZhOHRjd3pXNFIxZXdZ?oc=5",
-      "source": "Flashscore.pt",
-      "published_at": "2026-11-02T09:59:00+00:00",
-      "category": "castigo",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
