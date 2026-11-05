@@ -46,6 +46,8 @@ jobs:
             git commit -m 'data: atualizar resultados e calendário'
             git push origin HEAD:main
           fi
+      - name: Validar sintaxe do dashboard
+        run: node --check app/app.js
       - name: Preparar dashboard estático
         run: |
           mkdir -p public/data
