@@ -49,3 +49,16 @@
 .fi-market-details{color:#b8e7d7;font-size:11px;margin-top:9px}
 .fi-market-card p{color:#9fb5bd;line-height:1.6;font-size:10px;margin:10px 0 0}
 @media(max-width:540px){.fi-prob-legend{font-size:10px}.fi-market-card{padding:13px}.fi-market-title{align-items:start}.fi-prob-strip{min-height:16px}}
+
+/* v3.1 markets derived from free historical goal scores */
+.fi-extra{margin:18px 0;border:1px solid #29475b;border-radius:13px;padding:16px;background:#0d2434}
+.fi-extra-head h3{margin:0 0 5px;font-size:14px;color:#e7f6fc}
+.fi-extra-head p{margin:0 0 14px;color:#9ab3c3;font-size:11px}
+.fi-extra-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.fi-extra-item{border:1px solid #284356;background:#132f40;border-radius:9px;padding:11px;min-width:0}
+.fi-extra-item small{display:block;text-transform:uppercase;letter-spacing:.07em;color:#8cadc1;font-size:9px}
+.fi-extra-item strong{display:block;font-size:11px;color:#edf9ff;margin:7px 0}
+.fi-extra-item div{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:10px;color:#a6c5cc}
+.fi-extra-item b{font-size:15px;color:#95f3d2;font-variant-numeric:tabular-nums}
+.fi-extra-note{margin-top:13px;font-size:10px;line-height:1.5}
+@media(max-width:520px){.fi-extra{padding:12px}.fi-extra-grid{grid-template-columns:1fr}.fi-extra-item div{gap:5px}}
