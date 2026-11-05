@@ -28,3 +28,24 @@
 .snap-foot{font-size:10px;color:#9fb7c7;margin-top:15px}.risk-strip{padding:10px;background:#4a3525;color:#f8d19a;font-size:10px;border-radius:8px;margin-top:12px}
 @media(max-width:800px){.snapshot-pair{grid-template-columns:1fr}.absence-row{flex-direction:column}.absence-info{align-items:start;text-align:left}}
 @media(max-width:480px){.compact-cards{grid-template-columns:1fr}.brief-head h2{font-size:18px}.snap-grid{gap:7px}.snap-grid>div{padding:9px}}
+
+
+/* Football Intelligence v3: probability distribution and market signal */
+.fi-prob-section{margin:16px 0 19px}
+.fi-prob-legend{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-bottom:10px;color:#adc5d6;font-size:11px}
+.fi-prob-legend span{display:inline-flex;align-items:center;gap:6px}
+.fi-prob-legend strong{color:#eff9ff;font-variant-numeric:tabular-nums}
+.fi-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none}
+.fi-home{background:#37b795}
+.fi-draw{background:#e0b35c}
+.fi-away{background:#6e99df}
+.fi-prob-strip{display:flex;overflow:hidden;min-height:18px;border-radius:999px;background:#21374b;box-shadow:inset 0 1px 2px #0005}
+.fi-prob-strip span{display:block;min-width:0;transition:width .35s ease}
+.fi-prob-strip span+span{border-left:2px solid #0a1e2b}
+.fi-market-card{padding:16px 17px;margin:18px 0;border-radius:13px;background:#102d35;border:1px solid #326c6b}
+.fi-market-title{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:9px;color:#c6dfdf;font-size:11px;font-weight:700}
+.fi-market-tag{font-size:9px;letter-spacing:.055em;color:#b4f5dd;border:1px solid #427e77;border-radius:5px;padding:5px 7px;white-space:nowrap}
+.fi-market-card>strong{display:block;color:#ebfff6;font-size:14px;line-height:1.5}
+.fi-market-details{color:#b8e7d7;font-size:11px;margin-top:9px}
+.fi-market-card p{color:#9fb5bd;line-height:1.6;font-size:10px;margin:10px 0 0}
+@media(max-width:540px){.fi-prob-legend{font-size:10px}.fi-market-card{padding:13px}.fi-market-title{align-items:start}.fi-prob-strip{min-height:16px}}
