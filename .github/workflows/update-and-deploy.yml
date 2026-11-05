@@ -35,13 +35,17 @@ jobs:
         run: python scripts/update_intelligence.py
       - name: Calcular modelos e backtesting v3
         run: python scripts/build_model.py
-      - name: Testar motor v3
-        run: python -m unittest discover -s tests -p 'test_model_v3.py' -v
+      - name: Guardar previsões antes dos jogos
+        run: python scripts/record_predictions.py
+      - name: Calcular fiabilidade com épocas históricas e ledger
+        run: python scripts/build_reliability.py
+      - name: Testar motor e painel de fiabilidade
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Guardar resultados recolhidos
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/season.json data/intelligence.json data/model.json
+          git add data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json
           if ! git diff --cached --quiet; then
             git commit -m 'data: atualizar resultados e calendário'
             git push origin HEAD:main
@@ -52,7 +56,7 @@ jobs:
         run: |
           mkdir -p public/data
           cp app/index.html app/style.css app/app.js public/
-          cp data/season.json data/intelligence.json data/model.json public/data/
+          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:
