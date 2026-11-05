@@ -6,7 +6,7 @@
     "url": "https://www.thesportsdb.com/",
     "api": "v1 gratuita"
   },
-  "updated_at": "2026-11-05T22:40:00+00:00",
+  "updated_at": "2026-11-05T22:40:13+00:00",
   "leagues": {
     "pt": {
       "name": "Liga Portugal Betclic",
@@ -2588,11 +2588,11 @@
           "finished": false
         }
       ],
-      "rounds_ok": 24,
+      "rounds_ok": 3,
       "rounds_failed": [],
+      "missing_past_rounds": [],
       "partial": false,
-      "last_attempt_at": "2026-11-05T20:03:12+00:00",
-      "missing_past_rounds": []
+      "last_attempt_at": "2026-11-05T22:40:13+00:00"
     },
     "dk": {
       "name": "3F Superliga",
@@ -3394,7 +3394,7 @@
         {
           "id": "2481868",
           "date": "2026-10-30",
-          "utc": "",
+          "utc": "2026-10-30T18:00:00",
           "round": 13,
           "home": "Lyngby",
           "away": "Randers FC",
@@ -3403,20 +3403,9 @@
           "finished": true
         },
         {
-          "id": "2481865",
-          "date": "2026-11-01",
-          "utc": "",
-          "round": 13,
-          "home": "FC Nordsjælland",
-          "away": "FC Midtjylland",
-          "home_score": 2,
-          "away_score": 3,
-          "finished": true
-        },
-        {
           "id": "2481866",
           "date": "2026-11-01",
-          "utc": "",
+          "utc": "2026-11-01T13:00:00",
           "round": 13,
           "home": "Odense BK",
           "away": "Silkeborg IF",
@@ -3425,20 +3414,9 @@
           "finished": true
         },
         {
-          "id": "2481867",
-          "date": "2026-11-01",
-          "utc": "",
-          "round": 13,
-          "home": "Brøndby",
-          "away": "AGF Aarhus",
-          "home_score": 2,
-          "away_score": 0,
-          "finished": true
-        },
-        {
           "id": "2481869",
           "date": "2026-11-01",
-          "utc": "",
+          "utc": "2026-11-01T13:00:00",
           "round": 13,
           "home": "Viborg",
           "away": "AC Horsens",
@@ -3447,9 +3425,31 @@
           "finished": true
         },
         {
+          "id": "2481865",
+          "date": "2026-11-01",
+          "utc": "2026-11-01T15:00:00",
+          "round": 13,
+          "home": "FC Nordsjælland",
+          "away": "FC Midtjylland",
+          "home_score": 2,
+          "away_score": 3,
+          "finished": true
+        },
+        {
+          "id": "2481867",
+          "date": "2026-11-01",
+          "utc": "2026-11-01T17:00:00",
+          "round": 13,
+          "home": "Brøndby",
+          "away": "AGF Aarhus",
+          "home_score": 2,
+          "away_score": 0,
+          "finished": true
+        },
+        {
           "id": "2481864",
           "date": "2026-11-02",
-          "utc": "",
+          "utc": "2026-11-02T18:00:00",
           "round": 13,
           "home": "Sønderjyske",
           "away": "FC Copenhagen",
@@ -4052,11 +4052,11 @@
           "finished": false
         }
       ],
-      "rounds_ok": 17,
+      "rounds_ok": 4,
       "rounds_failed": [],
+      "missing_past_rounds": [],
       "partial": false,
-      "last_attempt_at": "2026-11-05T20:03:12+00:00",
-      "missing_past_rounds": []
+      "last_attempt_at": "2026-11-05T22:40:13+00:00"
     }
   }
 }

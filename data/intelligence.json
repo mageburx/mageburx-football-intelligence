@@ -1,8 +1,8 @@
 {
   "schema": 2,
   "season": "2026-2027",
-  "updated_at": "2026-11-05T20:13:29+00:00",
-  "news_updated_at": "2026-11-05T20:13:29.238173+00:00",
+  "updated_at": "2026-11-05T22:40:32+00:00",
+  "news_updated_at": "2026-11-05T22:40:32.621169+00:00",
   "news_status": "feed_ok",
   "news": [
     {
@@ -20,16 +20,44 @@
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
     {
-      "id": "2454dabf89379332da",
+      "id": "9b743d87b70fc9474c",
       "league": "pt",
       "teams": [
         "Benfica"
       ],
-      "title": "Benfica-Lech Poznan: Marco Silva faz nove alterações no onze inicial - O Jogo",
-      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQLVE2d09yMldLN0hZLV9YcFlreWQ5LTFpWGFwb0dCWUpwNGVER0tseExZdFFCN0p0bTNUeW4xbXdqeWdUSUlHM1hYdHctUEZrRjZJSjlBQXd4ZEJxaW1aUmZVR3EySDZOWXNHQ1VKM05PX0lrRmF5RVlNRHhza1JjaldobnRmc2V1c2d2LV9QMHRjTXBNYl8wZEpORVZMRFppaDR4VmxVbkxMOTlUblYtZmYtNTlCTWtsaFp3eQ?oc=5",
+      "title": "Banjaqui volta ao onze e vinca dinâmica do Benfica: «Ajuda-me a aparecer mais à frente» - Record",
+      "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxOZUFfYTZ2a0FwSXJtLV9PX2NFMUR4WkJGSjRtMW9FakhvM3VheXRqOVQ1bzZnRGNRRGpoejhjMW9GcWZFOEZoek5QVzJYeU9rLTNzcUxldG40SVpSTTBEYjBtVHgwZElzX3huVldIaUFRRUJnT3hXb1dhc3pSZFUxVldzV0dzQjY3SHo3bDYyRV9EMkVrSkVaQW9FbTlTdDNWMzFERUpGVm1MYkpKR3JKM2RzX3R4d3JNbTJEX2FzWmx0Nk1WYXR2RVJMY1RwejBzQVVjRi1VVmFvNDZTU0U4Q3VlRkhOR1QzcC04WdIB7AFBVV95cUxOZUFfYTZ2a0FwSXJtLV9PX2NFMUR4WkJGSjRtMW9FakhvM3VheXRqOVQ1bzZnRGNRRGpoejhjMW9GcWZFOEZoek5QVzJYeU9rLTNzcUxldG40SVpSTTBEYjBtVHgwZElzX3huVldIaUFRRUJnT3hXb1dhc3pSZFUxVldzV0dzQjY3SHo3bDYyRV9EMkVrSkVaQW9FbTlTdDNWMzFERUpGVm1MYkpKR3JKM2RzX3R4d3JNbTJEX2FzWmx0Nk1WYXR2RVJMY1RwejBzQVVjRi1VVmFvNDZTU0U4Q3VlRkhOR1QzcC04WQ?oc=5",
+      "source": "Record",
+      "published_at": "2026-11-05T19:07:56+00:00",
+      "category": "geral",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
+    {
+      "id": "6f63d630b489d7e4f8",
+      "league": "pt",
+      "teams": [
+        "Benfica"
+      ],
+      "title": "DIRETO | Liga Europa: Benfica-Lech Poznan AO MINUTO e com relato na TSF - O Jogo",
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNVDNJN0VKbDNScFRvYmVodTdMREVyZDNLbXRIUHlLNzBsSHh5czFXQ3p5QlZ1ZTNQWm5WbXJTTVBNVVJfRjVTTVNCTGYtSk14dzRDR21zOVJhZDdfMHNOMExSc1R5REJRS2ZzcGR4U1FVYU40SXhwWjBkalFCREQ0eUczRlRTaTJzLXR5ZzNVdzBnbzRkRFJ2ZFZ2dlRoa01HQ2QxUUNFMU1qbnFZNV9hTU1zY3c0V3VTcXYxTU9B?oc=5",
       "source": "O Jogo",
-      "published_at": "2026-11-05T18:52:23+00:00",
-      "category": "onze",
+      "published_at": "2026-11-05T18:31:37+00:00",
+      "category": "geral",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
+    {
+      "id": "353138bdf53c6b6749",
+      "league": "pt",
+      "teams": [
+        "Benfica"
+      ],
+      "title": "Benfica vence Lech Poznan por 3-1 e continua caminhada vitoriosa na Liga Europa - Correio da Manhã",
+      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPdDRwd2hyTlJVd2NidVI0alBOLW01NEFfa1pUbFlhdkMtT0VHZHp6SjQwdmFnbUFkOUs1S01qZWV0VWdQNHVDV2ZkRGduejBKdkswV2VSS3FObDQ4NjZPUzdwckRjcUJjaGhmaWZiUnp4NWJMRFExZjVsNHdsS25QdFdaRV9uT0ExaldGVXM1Nm5KRmxJMVVta3oteTZVWHRCX3Vv0gGeAUFVX3lxTFBlak83X1poOTBFay0xdWI2VExlOW5JWm5JYzl5RW9xVTVSM2JLR1k5Yjl6NHNvUUJRSTI4WmtJZkxjX0FVLW9tdmpTV1p5Uy1ab2FzX0hHaklKTGJJRGNOUG90Q1JGT2RtOVNMMll0cjBhRF9CdmxRczFscFpoX2l4eXFteWRWRXpUZHVRVGpDWmU3THdyVENqVnk2dUpn?oc=5",
+      "source": "Correio da Manhã",
+      "published_at": "2026-11-05T18:02:00+00:00",
+      "category": "geral",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
@@ -44,6 +72,20 @@
       "source": "SAPO",
       "published_at": "2026-11-05T17:52:00+00:00",
       "category": "onze",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
+    {
+      "id": "09772d9274ebd82934",
+      "league": "pt",
+      "teams": [
+        "Moreirense"
+      ],
+      "title": "Prognóstico Sporting vs Moreirense - Liga Portugal (07/11/2026) - Observador",
+      "url": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBVT2V1RnBwYkFNXzlBLTI2dVYyZlZ5bVlsa2FZTWF6VHUwel9rUXhmcnQ3SXBJSDA3YUdaZ2VtNjZtb1RDUE1FOXFuTU0xMjhrMG9TTDg5STlFZ3JuRGlaZUR6U0VwMUtJVFg4eG96V1VKMEszRkdSVG5xMV9uQQ?oc=5",
+      "source": "Observador",
+      "published_at": "2026-11-05T17:16:40+00:00",
+      "category": "geral",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
@@ -73,18 +115,6 @@
       "source": "Observador",
       "published_at": "2026-11-05T10:07:40+00:00",
       "category": "geral",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "a1681ecdff81400490",
-      "league": "pt",
-      "teams": [],
-      "title": "É português o treinador com mais vitórias no Mundo - A Bola",
-      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPQnItdEhOcEFEeGlGX0VQdnJTdnRoaGVaYWVDRUZQM1J4LW50dzlEU2NQWWc2WnFPdkgxY1ViM3pPMkg1OGZ3YzZPdjJjeFhFSlVOcjZQUk1USGFfak1Samc3emNxRXdkUkV0dERDVy1xT2gxUlNPRGpJR241YU53Zzl2U0xKREFTZTJZR2xsSVJYWjJFZ21BdUpkcEFDUDBIb2c?oc=5",
-      "source": "A Bola",
-      "published_at": "2026-11-05T09:43:00+00:00",
-      "category": "treinador",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
@@ -186,18 +216,6 @@
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
     {
-      "id": "70d6a0186ff1aa7113",
-      "league": "pt",
-      "teams": [],
-      "title": "Oficial: Paulo Fonseca é o novo treinador do Sporting - A Bola",
-      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQcTJ0a09qS0VrczdxeXl3T2V6NHE0S29iSmJ4dHlnX2RmTFdpZ2pfZUZsbFF5Rl9sM1RwaGh2TjZkNkJ4SmZjRHB1T3NVNGY3VlE5NXd5RkxfT2NndGNaRDF6ZHpyRTZabHRWTlhPRWszbWFHX0JQQUJGLVF2M2NkWE12aERDd3IxYjI0VFJSd0Z0eTFKLUFyeUtfQ0tITVhYdFZSdg?oc=5",
-      "source": "A Bola",
-      "published_at": "2026-11-04T19:54:00+00:00",
-      "category": "treinador",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
       "id": "8e91e199e7c2af4b03",
       "league": "pt",
       "teams": [],
@@ -206,6 +224,18 @@
       "source": "A Bola",
       "published_at": "2026-11-04T19:54:00+00:00",
       "category": "geral",
+      "verification": "headline_only",
+      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
+    },
+    {
+      "id": "70d6a0186ff1aa7113",
+      "league": "pt",
+      "teams": [],
+      "title": "Oficial: Paulo Fonseca é o novo treinador do Sporting - A Bola",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQcTJ0a09qS0VrczdxeXl3T2V6NHE0S29iSmJ4dHlnX2RmTFdpZ2pfZUZsbFF5Rl9sM1RwaGh2TjZkNkJ4SmZjRHB1T3NVNGY3VlE5NXd5RkxfT2NndGNaRDF6ZHpyRTZabHRWTlhPRWszbWFHX0JQQUJGLVF2M2NkWE12aERDd3IxYjI0VFJSd0Z0eTFKLUFyeUtfQ0tITVhYdFZSdg?oc=5",
+      "source": "A Bola",
+      "published_at": "2026-11-04T19:54:00+00:00",
+      "category": "treinador",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
@@ -231,20 +261,6 @@
       "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQU1ZJVF8xekp3c3lIMGUxamJ6cjlsVGhmSEdNT2hMbUIzNmFIWlNFWER6X05PTGQ2bWgzOFhiYkU5T1dYaWRWQ1F4ZF9MQS1jR2RXRmVNeTJVQzhKTmgwV3FmbXZwb3NURk1IdUN6Y1pLbFRlMkE1ZEpXNXY1MkM5MGFuaGZmWGpmUHZHNVIzLTFROG5KTlVuUg?oc=5",
       "source": "FC Porto",
       "published_at": "2026-11-04T13:41:54+00:00",
-      "category": "geral",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "f4c99ff224e4833d80",
-      "league": "pt",
-      "teams": [
-        "Benfica"
-      ],
-      "title": "Jogos em Direto - Pafos U19 vs Benfica U19 - Record",
-      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTFA4X3pjN1g5dTk1bXZNaWhfTUhSRnhBRi05OEEwT3VMT2FqMjRCc0ZjVWkzbUhtckZiWVhKTWNFZzIzWWFOeFRSZlhDUVlGdzh5bmdmaWY3RFA0cExyTmI2V1Z0eUg5ejk1UkNoRjZIY3FtZlFnZzVubA?oc=5",
-      "source": "Record",
-      "published_at": "2026-11-04T11:38:22+00:00",
       "category": "geral",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
@@ -283,18 +299,6 @@
       "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxONTVGdWRfOElPZ1l5djZqUXFWZ09fdlRpcEVzMER0Y213U2pGZFJ1bzZzQUpqY0xYM1lZSG93VktpQ3Q3bk9Lekg1dnNiZUV0ODR5d2hILTFUU3NXTXZ1VGJNT016NDdXYTdGWHBOT1l2NTVydTdPQWRnbHgxSUpXMEItOUQtVHF6Ymo4Z09id0E4bTZDSzNkTTNSWFhUN0RCUzBOY3FzYlgyQzVqTV9VOUg1N1ZHZjFqUE5tMzln?oc=5",
       "source": "Notícias ao Minuto",
       "published_at": "2026-11-04T07:44:00+00:00",
-      "category": "geral",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "6c72b1d698741a621f",
-      "league": "pt",
-      "teams": [],
-      "title": "Acordo fechado: Paulo Fonseca viaja para assinar pelo Sporting - A Bola",
-      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPTk9BMUNqaDhxNWJURElfMUdSYTI1SDBNSTBlOFRvX0hlR3l5SkVBbERiYVp4ckF0cGNHTjNoSEFEbG10VDJLWlV0Z1dUaG9fcWw1M3BWelpfMmZIV3VrWTV1LUVNR21BdF9Wa2VmRGNPQTctLXhuMEtRdlJsWHZEOHUwbmg2UE9TUTNZekVkaTM1NnBsUHRjaG4wYUNiWUVfc0ppZXA4NzdFdzJvb3Fmcw?oc=5",
-      "source": "A Bola",
-      "published_at": "2026-11-03T15:59:00+00:00",
       "category": "geral",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
@@ -437,18 +441,6 @@
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
     {
-      "id": "0537c67cca9812145d",
-      "league": "pt",
-      "teams": [],
-      "title": "Sulejmani regressa após uma lesão prolongada - RTP",
-      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPZFlReFpHUGdvakdzWGVqRHU0Q2ktVkMtQmktMzFLRS1PUHA1TDlmMnFPbExRNXYwSzA3b3QwUDM1dlJFUXBzZmF6MFhCNUxMZGRJbkFxbmpNYzdXMnE0R3ZvX2w1dDBVZjE5dWdoRGhRRHpxVVlUMEpuQWU3dVZyR2lQZHJ5ZlNya2w5eENtRnhDdw?oc=5",
-      "source": "RTP",
-      "published_at": "2026-11-02T15:50:42+00:00",
-      "category": "lesao",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
       "id": "65b7795b7613397b06",
       "league": "pt",
       "teams": [],
@@ -487,20 +479,6 @@
       "source": "Notícias ao Minuto",
       "published_at": "2026-11-02T07:34:00+00:00",
       "category": "geral",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "747b16195df704c279",
-      "league": "pt",
-      "teams": [
-        "Braga"
-      ],
-      "title": "Antigo treinador do SC Braga apontado ao lugar de Paulo Fonseca - A Bola",
-      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxONFFVUGx2TWFIQnpnVjVLcFBzdXhtVXJKMEpmR2V0d3haQkk0Zll0ZWdRUXhoMHhjS1FHV2x0eEsxR2ZCQWJGT0phQ2RzOWlLRVFHVUs4dTJxZV81S1Y0YWN1cmM1bURJLWdsd1JCNlMzcjRkQU92QXdMN0hpREh6V1A4RVlkemRGejdKNEZONlVmTWVocWQySGhlNDFHZTc5NHJZMVNHWlBFTVZocUJHX0JkQQ?oc=5",
-      "source": "A Bola",
-      "published_at": "2026-11-01T19:35:00+00:00",
-      "category": "treinador",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
     },
@@ -648,33 +626,6 @@
       "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOMV9oNkZNWlFkT09aQU9MSnZnNEM4QWRVTnhYcUxnbE5Ha2tCU213WFh5cGRfQXVPdmhhbEZZN1RfRlZJcGQ2WWI5aHIycjYyYnhmRjNEQTZhUktOSWZyT0xHWThiQnAtOEQwVU83bGpNRVhFOXRDbWlnTE1wbkhLVFBXNGV5SFk4MTdxSEViQU9VR1l5emlnZlVNdExLWHQ4cTJZeWNTbw?oc=5",
       "source": "A Bola",
       "published_at": "2026-10-30T11:26:00+00:00",
-      "category": "castigo",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "8442b16e1ac3f77ac0",
-      "league": "pt",
-      "teams": [
-        "Benfica",
-        "Gil Vicente"
-      ],
-      "title": "Marco Silva muda sete: o onze do Benfica para o jogo com o Gil Vicente - A Bola",
-      "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxObnBjdGVMZ0lNRFNKaXRLeS1uZDZlaFFnUjNxYVU3ZE5TM2tTeTZJTW1WbXQtdjJCWWRMemF2Qzl0Q19LRzZNVnI4RnVyeXAwOW9UU3loeFExeThMdmdCanVTN2tKUTZiX29HeVJMUjc5emdKNFdwTWs0QWJ0VEwteDhxcWZFbEZYX3dRSjFRejFfTVhXeWxQR3hMZHZVcXdHNzlMODlQS3FIdmhfbEtLbi1NdTdpV0RyY1hN?oc=5",
-      "source": "A Bola",
-      "published_at": "2026-10-29T19:42:00+00:00",
-      "category": "geral",
-      "verification": "headline_only",
-      "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
-    },
-    {
-      "id": "1d1eda2c9162c38547",
-      "league": "pt",
-      "teams": [],
-      "title": "Sr. €117 milhões suspenso pelo Everton por quebrar regras do clube - A Bola",
-      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQd1FScUhyb3dkWjA0cll1UFM2UDBqSWdoVS1oUmU2VjdadGM3eklWX0Q1dnprcUZNSm5RMFNJYmhGVEZJb2lLVzRMWnUwbG4wY0ltMVViUjYteUJqRWFBZ1QxYjBzZjNOeVZyeDBzbUYyV1U5Z01JdFNwVkhmVE5CYnhRSk10VDVrQTBZSlM0LVBnbHhCc1pqa0N6OGdwdEE4bUdPWjlfaHBRSE14dFZlLWlPOWxxWjRZVEE?oc=5",
-      "source": "A Bola",
-      "published_at": "2026-10-29T19:24:00+00:00",
       "category": "castigo",
       "verification": "headline_only",
       "note": "Título recolhido por RSS; abrir artigo e confirmar antes de considerar uma baixa."
