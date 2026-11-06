@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-06T22:23:55+00:00",
+  "generated_at": "2026-11-06T22:47:11+00:00",
   "source": {
     "name": "Cornerflick",
     "url": "https://cornerflick.com",
@@ -12,8 +12,8 @@
   "leagues": {
     "pt": {
       "status": "sample_available",
-      "match_count": 90,
-      "coverage_dates": "2026-08-07/2026-11-02",
+      "match_count": 91,
+      "coverage_dates": "2026-08-07/2026-11-06",
       "sample_checked": 2,
       "valid_match_samples": 1,
       "stats_fields_validated": {
