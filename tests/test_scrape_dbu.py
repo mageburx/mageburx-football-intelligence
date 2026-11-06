@@ -51,7 +51,7 @@ class ScraperTests(unittest.TestCase):
         url='https://www.dbu.dk/resultater/pulje/409107/kampprogramFuld'
         def denied(uri):
             if uri.endswith('robots.txt'):
-                return 'User-agent: *\\nDisallow: /resultater/'
+                return 'User-agent: *\nDisallow: /resultater/'
             return PAGE
         with self.assertRaises(PermissionError):
             fetch_allowed(url,reader=denied)
