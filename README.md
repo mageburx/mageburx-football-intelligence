@@ -38,6 +38,14 @@ A página *Fiabilidade* distingue o número de previsões 1X2 efetivamente guard
 
 As estatísticas de xG, notícias, odds e disponibilidade de jogadores **não** são acrescentadas por estes módulos. Continuam a ser necessárias amostras independentes e avaliações prospetivas antes de atribuir fiabilidade ou rentabilidade às previsões de qualquer uma destas ligas.
 
+## Auditoria de integridade das previsões 1X2
+
+O sistema mantém dois conceitos distintos: **testes históricos** e **previsões realmente guardadas antes do jogo**. O ficheiro `data/expansion_1x2_ledger.json` preserva a primeira previsão 1X2 emitida para cada encontro futuro; uma previsão passada nunca é reconstruída a partir dos resultados.
+
+O relatório `data/expansion_1x2_audit.json`, produzido por `scripts/audit_expansion_1x2.py`, verifica por liga assinaturas SHA-256, duplicações, cronologia, probabilidades, resultados contraditórios e alterações de datas. Apresenta jogos futuros, no próprio dia, atrasados sem resultado, adiados e previsões invalidadas. Só calcula Brier e Log Loss para resultados confirmados com previsão anterior à data original, integridade válida e sem conflitos.
+
+O dashboard mostra o estado resumido em **Fiabilidade**, e não no ecrã inicial. A contagem de jogos previstos não corresponde a apostas nem a retorno financeiro. Ligações das fontes e regras de uso continuam sujeitas a revisão.
+
 ## Cinco campeonatos monitorizados
 
 | ID interno | Competição | ID TheSportsDB | Época da fonte |
