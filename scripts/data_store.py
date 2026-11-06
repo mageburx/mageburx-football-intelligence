@@ -57,6 +57,17 @@ def restore(root=ROOT):
         path.write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
         print(f'Restored {name} from Git branch {BRANCH}', flush=True)
 
+    # The expanded leagues are stored in season.json, not in their own feed.
+    # Restore the full latest fixture snapshot before the PT/DK hourly refresh.
+    previous_season=read_remote('season.json')
+    if (isinstance(previous_season,dict) and previous_season.get('schema')==1
+        and previous_season.get('season')=='2026-2027'
+        and all(k in previous_season.get('leagues',{}) for k in ('pt','dk'))):
+        path=root/'data'/'season.json'
+        path.write_text(json.dumps(previous_season,ensure_ascii=False,separators=(',',':'))+'\n',
+                        encoding='utf-8')
+        print('Restored current-season PT/DK and expansion fixtures from persistent branch',flush=True)
+
     # For the new partially collected metadata feeds, the data branch is
     # authoritative. Do not accidentally reset the previous successful
     # season-round collection on the next hourly workflow.

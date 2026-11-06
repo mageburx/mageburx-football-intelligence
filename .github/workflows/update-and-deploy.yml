@@ -64,6 +64,8 @@ jobs:
         run: python scripts/update_data.py
       - name: Calcular indicadores exploratórios de remates, sem alterar previsões
         run: python scripts/build_shots_research.py
+      - name: Adicionar Eredivisie, 1. Division dinamarquesa e Eliteserien
+        run: python scripts/collect_expanded_leagues.py --max-calls 6 --pause 2
       - name: Recolher notícias e ausências documentadas
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
@@ -156,7 +158,7 @@ jobs:
       - name: Testar motor e painel de fiabilidade
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Testar navegação simplificada e modelo JavaScript
-        run: node --test tests/test_model.cjs tests/test_clean_ui.cjs
+        run: node --test tests/test_model.cjs tests/test_clean_ui.cjs tests/test_league_expansion.cjs
       - name: Validar sintaxe do dashboard
         run: node --check app/app.js
       - name: Preparar dashboard estático
