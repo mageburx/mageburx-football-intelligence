@@ -107,6 +107,8 @@ def save_match(known,item):
                 previous.get('away')==item.get('away')):
                 existing=previous
                 break
+    if existing is not None and existing.get('id')!=item['id']:
+        item={**item,'id':existing['id']}
     if existing is None:
         known[item['id']]=item
         return
