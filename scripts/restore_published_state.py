@@ -55,9 +55,9 @@ def merge_ledger(local,remote):
     for field in ('predictions','settlements'):
         existing={x['key']:x for x in local.get(field,[]) if isinstance(x,dict) and x.get('key')}
         for item in remote.get(field,[]):
-            if isinstance(item,dict) and item.get('key') and (field!='settlements' or item['key'] not in archived) and item['key'] not in existing:
+            if isinstance(item,dict) and item.get('key') and (field!='settlements' or item['key'] not in archived or item.get('verified_final') is True) and item['key'] not in existing:
                 existing[item['key']]=item
-        local[field]=[v for k,v in existing.items() if field!='settlements' or k not in archived]
+        local[field]=[v for k,v in existing.items() if field!='settlements' or k not in archived or v.get('verified_final') is True]
     return local
 
 def restore(root=ROOT, fetch=get_json):
