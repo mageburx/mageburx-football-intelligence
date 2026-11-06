@@ -41,7 +41,7 @@ class ScraperTests(unittest.TestCase):
         bad[0]['home_score']=9
         conflict=merge_matches(history,'2022-2023',bad)
         self.assertEqual(len(conflict['conflicts']),1)
-        self.assertEqual(history['leagues']['dk']['seasons']['2022-2023']['events'][0]['home_score'],0)
+        self.assertEqual(next(e for e in history['leagues']['dk']['seasons']['2022-2023']['events'] if e['id']=='dbu:622054')['home_score'],0)
 
     def test_temp_unavailability_is_not_empty_season(self):
         with self.assertRaisesRegex(ValueError,'temporarily unavailable'):
