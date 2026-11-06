@@ -47,6 +47,12 @@ class DanishCupFallbackTests(unittest.TestCase):
             calls=[]
             def fetch(url):
                 calls.append(url)
+                # Provider IDs must be unique across seasons; synthetic HTML
+                # is identical otherwise and would create a false collision.
+                if 'season=2025' in url:
+                    return HTML.replace('1640479','1640478').replace('1456','1455')
+                if 'season=2024' in url:
+                    return HTML.replace('1640479','1640477').replace('1456','1454')
                 return HTML
             now=dt.datetime(2026,11,6,2,0,tzinfo=dt.timezone.utc)
             first=collect(path=path,fetcher=fetch,now=now,max_seasons=2)
