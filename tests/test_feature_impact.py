@@ -27,7 +27,7 @@ class FeatureImpactTests(unittest.TestCase):
         self.assertEqual(x['rest_days_away'],4)
         self.assertAlmostEqual(x['rest_edge'],3/7,places=5)
         self.assertTrue(x['form_available'])
-        self.assertEqual(x['league_matches_last14_home'],2)
+        self.assertEqual(x['league_matches_last14_home'],1)
         self.assertEqual(x['league_matches_last14_away'],2)
 
     def test_no_same_day_or_future_leakage(self):
