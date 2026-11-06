@@ -69,7 +69,7 @@ test('separate reliability distinguishes historical Dutch testing from untested 
     nl:{completed:65,upcoming:230,partial:true,
         holdout:{season:'2024-2025',metrics:{n:230}},
         best_available_1x2:{n:230,brier:0.59},
-        prospective:{settled:0},
+        prospective:{settled:0},prospective_1x2:{issued:18,settled:0,brier:null},
         quality:'historical_holdout_available_not_proof_of_profit'},
     dk2:{completed:16,upcoming:0,partial:true,
          best_available_1x2:{n:0,brier:null},prospective:{settled:0},
@@ -83,5 +83,7 @@ test('separate reliability distinguishes historical Dutch testing from untested 
                       'Teste histórico reservado','Histórico independente ainda insuficiente'])
     assert.ok(view.includes(label),label);
   assert.ok(view.includes('2024-2025'));
+  assert.ok(view.includes('1X2 registado antes do jogo'));
+  assert.ok(view.includes('18 · resultados avaliados: 0'));
   assert.ok(!view.includes('ROI positivo'));
 });
