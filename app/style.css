@@ -337,3 +337,9 @@
   .breadcrumb-meta{display:none}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Additional league filters: wrap cleanly on phones without hiding options. */
+.league-filter{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.league-pill{flex:0 0 auto;white-space:nowrap;max-width:100%}
+@media(max-width:560px){.league-filter{gap:7px}.league-pill{font-size:11px;padding:9px 11px}
+.top-right .pill{font-size:9px;white-space:normal;text-align:center}}
