@@ -32,8 +32,13 @@ jobs:
       - name: Recuperar snapshots da branch persistente
         run: python scripts/data_store.py restore
       - name: Importar incrementalmente épocas dinamarquesas
-        if: github.event_name != 'push'
-        run: python scripts/backfill_history.py --max-calls 18 --pause 3.5
+        if: github.event_name != 'push' || contains(github.event.head_commit.message, '[full-backfill]')
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            python scripts/backfill_history.py --max-calls 80 --pause 3.5
+          else
+            python scripts/backfill_history.py --max-calls 18 --pause 3.5
+          fi
       - name: Scraper oficial DBU (respeita robots, com limites)
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
@@ -43,6 +48,8 @@ jobs:
           fi
       - name: Reconciliar nomes de clubes e play-offs oficiais da Dinamarca
         run: python scripts/reconcile_danish_history.py
+      - name: Avaliar fonte pública de estatísticas avançadas (amostra pequena)
+        run: python scripts/assess_stats_sources.py --sample 2
       - name: Auditar 5 épocas por campeonato
         run: python scripts/audit_history.py --strict
       - name: Validar modelos com teste histórico independente
@@ -79,6 +86,7 @@ jobs:
           test -s data/validation.json
           test -s data/storage_status.json
           test -s data/scrape_report.json
+          test -s data/stats_coverage.json
       - name: Arquivar estado para recuperação
         uses: actions/upload-artifact@v4
         with:
@@ -91,6 +99,7 @@ jobs:
             data/validation.json
             data/storage_status.json
             data/scrape_report.json
+            data/stats_coverage.json
           retention-days: 90
       - name: Validar sintaxe do dashboard
         run: node --check app/app.js
@@ -98,7 +107,7 @@ jobs:
         run: |
           mkdir -p public/data
           cp app/index.html app/style.css app/app.js public/
-          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json public/data/
+          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:
