@@ -366,3 +366,19 @@
 .fi-compare-table td strong{font-size:13px}
 .fi-compare-table td small{display:block;margin-top:3px;font-size:10px;color:var(--muted,#a5b3c2);white-space:nowrap}
 .fi-compare-warning{display:block;font-size:10px;margin-top:5px;color:#ffbb91}
+
+
+/* On-demand match monitoring; live status is only from confirmed provider fields. */
+.live-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px}
+.live-grid{padding:15px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.live-game{padding:18px;background:#13283b;border:1px solid #2a4154;border-radius:13px;min-width:0}
+.live-game-active{border-color:#368973;background:linear-gradient(140deg,#133a36,#13283b)}
+.live-top,.live-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:10px;color:#96aebe}
+.live-footer{font-size:9px;color:#7c98ab;line-height:1.5}
+.live-state{background:#24384b;color:#bad0da;border-radius:7px;padding:6px 9px;font-size:9px;font-weight:800;white-space:nowrap}
+.live-state-on{background:#1b5342;color:#9cf3ca}
+.live-teams{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;margin:25px 0}
+.live-teams strong{font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.live-teams strong:last-child{text-align:right}
+.live-score{font-size:24px;font-weight:800;letter-spacing:-.8px;color:#c6ffe1;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:800px){.live-grid{grid-template-columns:1fr}.live-teams{margin:19px 0}}
