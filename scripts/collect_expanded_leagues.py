@@ -129,6 +129,7 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
     # Explore the league season endpoint once a day, where it is allowed.
     # Free endpoint may be truncated; completeness is NEVER inferred here.
     calls=0
+    quota_exhausted=False
     for lid,c in work.items():
         if calls>=max_calls:break
         last=c['meta'].get('season_checked_at')
@@ -143,6 +144,8 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
             c['meta']['season_api_count']=len(data)
         except RateLimit:
             c['status']='rate_limited'
+            calls+=1
+            quota_exhausted=True
             break
         except (OSError,ValueError,RuntimeError) as exc:
             c['status']='source_partial_or_unavailable'
@@ -168,7 +171,7 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
     # Distinct leagues alternate; do not spend the budget on one competition.
     targets.sort(key=lambda x:(x[0],('nl','dk2','no').index(x[1])))
     for rnd,lid in targets:
-        if calls>=max_calls:break
+        if quota_exhausted or calls>=max_calls:break
         c=work[lid]
         cfg=c['cfg'];meta=c['meta']
         try:
@@ -182,6 +185,8 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
             meta['attempted_rounds'][str(rnd)]=now.replace(microsecond=0).isoformat()
         except RateLimit:
             c['status']='rate_limited'
+            calls+=1
+            quota_exhausted=True
             break
         except (OSError,ValueError,RuntimeError) as exc:
             c['status']='source_partial_or_unavailable'
