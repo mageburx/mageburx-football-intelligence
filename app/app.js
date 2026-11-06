@@ -779,12 +779,12 @@
     bindLocal();
   }
   function bindLocal(){
-    $('[data-goto]').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.goto)));
-    $('[data-open-match]').forEach(b=>b.addEventListener('click',()=>{
+    $$('[data-goto]').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.goto)));
+    $$('[data-open-match]').forEach(b=>b.addEventListener('click',()=>{
       state.modelMatch=b.dataset.openMatch;
       goto('briefings');
     }));
-    $('[data-more-games]').forEach(b=>b.addEventListener('click',()=>{state.matchLimit+=30;render();}));
+    $$('[data-more-games]').forEach(b=>b.addEventListener('click',()=>{state.matchLimit+=30;render();}));
     const filter=$('#match-filter'), search=$('#match-search'), sel=$('#model-match');
     if(filter)filter.addEventListener('change',e=>{state.matchFilter=e.target.value;state.matchLimit=30;render();});
     if(search)search.addEventListener('input',e=>{const caret=e.target.selectionStart;state.search=e.target.value;render();const n=$('#match-search');if(n){n.focus();n.setSelectionRange(caret,caret);}});
