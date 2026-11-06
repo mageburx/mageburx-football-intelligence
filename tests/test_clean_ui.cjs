@@ -73,3 +73,30 @@ test('game action listeners attach to every selected fixture',()=>{
   assert.match(src,/\$\$\('\[data-goto\]'\)\.forEach/);
   assert.match(src,/\$\$\('\[data-more-games\]'\)\.forEach/);
 });
+
+test('live monitor lists a match in its second half and shows known snapshot scores',()=>{
+  const now=Date.parse('2026-11-06T22:19:00Z');
+  const copy={schema:1,season:'2026-2027',updated_at:'2026-11-06T21:46:26+00:00',leagues:{
+    pt:{events:[{id:'2514030',date:'2026-11-06',utc:'2026-11-06T20:45:00',
+      home:'Famalicao',away:'Arouca',finished:false,match_status:'HT',
+      live_home_score:0,live_away_score:0},
+      {id:'2514031',date:'2026-11-07',utc:'2026-11-07T20:30:00',
+      home:'Alverca',away:'Casa Pia',finished:false}]},
+    nl:{events:[{id:'ofnl:nov6',date:'2026-11-06',utc:'2026-11-06T19:00:00',
+      home:'Willem II',away:'PEC Zwolle',finished:false}]},
+    dk:{events:[]}}};
+  app.parseData(copy);
+  const items=app.getLiveCandidates(now);
+  assert.equal(items.length,2,'same-day fixtures must not disappear after 45 minutes');
+  assert.ok(items.some(e=>e.id==='2514030'));
+  assert.ok(items.some(e=>e.id==='ofnl:nov6'),'source IDs do not hide the calendar');
+  const queried=app.getLiveLookupCandidates(now);
+  assert.equal(queried.length,1);
+  assert.equal(queried[0].id,'2514030');
+  const html=app.renderLive();
+  assert.ok(html.includes('Famalicao'));
+  assert.ok(html.includes('0 : 0'));
+  assert.ok(html.includes('INTERVALO'));
+  assert.ok(html.includes('Último marcador conhecido'));
+  assert.ok(!html.includes('0 jogos de hoje'));
+});
