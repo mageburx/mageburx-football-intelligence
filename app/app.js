@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -30,6 +30,7 @@
     news:['Notícias & sinais','A informação certa. <em>Com origem.</em>','Títulos recolhidos por RSS, ligados à fonte original e sujeitos a confirmação.'],
     absences:['Lesões & castigos','Disponibilidade <em>sob escrutínio.</em>','Diferencia baixa confirmada pelo fornecedor, dúvida e ausência de dados.'],
     model:['Modelo estatístico','Probabilidades, <em>não certezas.</em>','Poisson, Dixon–Coles, Elo e testes cronológicos de qualidade das previsões.'],
+    value:['Value & Confidence','O preço importa. <em>A evidência ainda mais.</em>','Simulador de odds reais introduzidas manualmente e probabilidades calibradas experimentalmente.'],
     reliability:['Painel de fiabilidade','Evidência antes de <em>confiar.</em>','Histórico, validação temporal, calibração e registo de previsões anteriores aos jogos.']
   };
   const isFinished = e => e.finished === true && Number.isInteger(e.home_score) && Number.isInteger(e.away_score);
@@ -244,6 +245,108 @@
       sets.map(([name,rows],i)=>'<details class="fi-audit-group" '+(i===1?'open':'')+'><summary>'+safe(name)+' <span>'+rows.length+' mercados</span></summary><div class="table-scroll"><table><thead><tr><th>Mercado</th><th class="text-right">N</th><th class="text-right">Brier ↓</th><th class="text-right">Base ↓</th><th class="text-right">Skill</th><th class="text-right">ECE ↓</th></tr></thead><tbody>'+rows.map(buildRow).join('')+'</tbody></table></div></details>').join('')+
       '<p class="muted fi-extra-note">Dupla oportunidade avaliada com Dixon–Coles fixo, não necessariamente com o modelo 1X2 atualmente selecionado. Todos os resultados são exploratórios; ainda é necessária validação independente.</p></div></section>';
   }
+  const VALUE_MARKETS=[
+    ['over_0_5','Mais de 0,5 golos'],['under_0_5','Menos de 0,5 golos'],
+    ['over_1_5','Mais de 1,5 golos'],['under_1_5','Menos de 1,5 golos'],
+    ['over_2_5','Mais de 2,5 golos'],['under_2_5','Menos de 2,5 golos'],
+    ['over_3_5','Mais de 3,5 golos'],['under_3_5','Menos de 3,5 golos'],
+    ['btts_yes','Ambas marcam — Sim'],['btts_no','Ambas marcam — Não'],
+    ['home_over_0_5','Casa: mais de 0,5 golos'],['home_over_1_5','Casa: mais de 1,5 golos'],
+    ['away_over_0_5','Fora: mais de 0,5 golos'],['away_over_1_5','Fora: mais de 1,5 golos'],
+    ['double_1x','Dupla oportunidade 1X'],['double_x2','Dupla oportunidade X2'],['double_12','Dupla oportunidade 12'],
+    ['home_win','Vitória da equipa da casa (1)'],['draw','Empate (X)'],['away_win','Vitória visitante (2)']
+  ];
+  function v5Probability(m,market){
+    if(!m?.pred)return null;
+    const raw=market==='home_win'?m.pred.p1:market==='draw'?m.pred.px:
+      market==='away_win'?m.pred.p2:m.pred.markets?.[market];
+    if(typeof raw!=='number'||!Number.isFinite(raw)||raw<=0||raw>=1)return null;
+    const audit=state.valueEngine?.leagues?.[m.lid];
+    const entry=audit?.markets?.[market];
+    const goalMarket=!market.startsWith('double_')&&!['home_win','draw','away_win'].includes(market);
+    const sameModel=goalMarket||(market.startsWith('double_')&&m.pred.model==='dc');
+    const params=entry?.params;
+    const canCalibrate=!!(sameModel&&m.v3&&audit?.status==='calibration_research_ready'&&
+      params?.source_model==='fixed_dixon_coles'&&params.fit_n>=120&&
+      Number.isFinite(params.intercept)&&Number.isFinite(params.slope));
+    let calibrated=null;
+    if(canCalibrate){
+      const logodds=Math.log(Math.max(.000001,Math.min(.999999,raw))/(1-Math.max(.000001,Math.min(.999999,raw))));
+      const z=params.intercept+params.slope*logodds;
+      calibrated=Math.max(.000001,Math.min(.999999,1/(1+Math.exp(-z))));
+    }
+    const holdout=entry?.holdout?.calibrated;
+    const n=holdout?.n||0;
+    const evidence=n>=200?'Teste histórico disponível; vantagem não demonstrada':'Amostra independente insuficiente';
+    return {raw,calibrated,used:calibrated??raw,evidence,n,
+      holdout,entry,source:calibrated!==null?'Calibração experimental · Dixon–Coles':'Probabilidade não calibrada'};
+  }
+  function valueResult(){
+    const m=currentModel();
+    if(!m?.pred)return '<div class="limit-note">Não há previsão disponível para este encontro.</div>';
+    const market=state.valueMarket;
+    const p=v5Probability(m,market);
+    if(!p)return '<div class="limit-note">O modelo não suporta este mercado para o jogo selecionado.</div>';
+    const input=String(state.valueOdds||'').trim().replace(',','.');
+    const odd=input?Number(input):NaN;
+    const valid=Number.isFinite(odd)&&odd>=1.01&&odd<=1000;
+    const breakEven=valid?1/odd:null;
+    const expected=valid?(p.used*odd-1)*100:null;
+    const fair=1/p.used;
+    const info=p.entry?.holdout;
+    const fmt=v=>Number.isFinite(v)?numberPT.format(v):'—';
+    const pct=v=>Number.isFinite(v)?percent(v):'—';
+    const comparison=valid?'<div class="fi-v5-result">'+
+      '<div><small>Probabilidade mínima exigida pela odd</small><strong>'+pct(breakEven)+'</strong></div>'+
+      '<div><small>EV matemático, não validado</small><strong>'+fmt(expected)+'%</strong></div>'+
+      '</div><p class="muted">EV = (probabilidade estimada × odd − 1) × 100. Não inclui incerteza do modelo ou regras particulares da casa. Sem histórico de odds, não comprova rentabilidade.</p>':
+      '<p class="muted">Introduz uma odd decimal real entre 1,01 e 1000 para comparar o preço. Não guardamos nem procuramos odds automaticamente.</p>';
+    const warnings=[];
+    if(!m.v3)warnings.push('Previsão v3 indisponível ou desatualizada.');
+    if(!p.calibrated)warnings.push('Este mercado não possui calibração aplicável ao modelo ao vivo.');
+    if(p.n<200)warnings.push('Amostra de teste reservada inferior a 200 jogos.');
+    const prospective=state.reliability?.prospective?.metrics?.[m.lid]?.[market]?.n||0;
+    if(prospective<200)warnings.push('Ainda sem 200 previsões prospetivas verificadas neste mercado.');
+    if(state.data?.leagues?.[m.lid]?.partial)warnings.push('Cobertura de resultados da época atual incompleta.');
+    const brier=info?.calibrated?.brier;
+    return '<div class="fi-v5-analysis"><div class="fi-v5-top"><div><small>Mercado escolhido</small><h3>'+
+      safe(VALUE_MARKETS.find(x=>x[0]===market)?.[1]||market)+'</h3></div>'+
+      '<span class="fi-v5-state">APENAS SIMULAÇÃO</span></div>'+
+      '<div class="fi-v5-prob"><div><small>Probabilidade original</small><strong>'+pct(p.raw)+'</strong></div>'+
+      '<div><small>Probabilidade ajustada (experimental)</small><strong>'+
+      (p.calibrated!==null?pct(p.calibrated):'Não aplicável')+'</strong></div>'+
+      '<div><small>Odd justa teórica</small><strong>'+fmt(fair)+'</strong></div></div>'+
+      '<p class="muted fi-v5-source">Base da estimativa: '+safe(p.source)+'. Calibração ajustada com 2024/25, nunca com jogos de 2025/26.</p>'+
+      '<div class="fi-v5-odds"><label for="value-odd">Odd decimal introduzida manualmente</label>'+
+      '<input id="value-odd" class="input" inputmode="decimal" type="text" autocomplete="off" placeholder="Ex.: 1,85" value="'+safe(state.valueOdds)+'" />'+
+      '</div>'+comparison+
+      '<div class="fi-v5-confidence"><strong>Estado: SEM APOSTA RECOMENDADA</strong>'+
+      '<p>Não existe evidência prospetiva suficiente para afirmar vantagem econômica, mesmo que o EV teórico seja positivo.</p>'+
+      '<p>Teste histórico do mercado: N='+p.n+' · Brier calibrado: '+fmt(brier)+' · Brier de referência: '+
+      fmt(info?.calibrated?.baseline_brier)+' · '+safe(p.evidence)+'.</p>'+
+      '<ul>'+warnings.map(x=>'<li>'+safe(x)+'</li>').join('')+'</ul></div></div>';
+  }
+  function valueView(){
+    const options=VALUE_MARKETS.map(([k,name])=>'<option value="'+k+'" '+(state.valueMarket===k?'selected':'')+'>'+safe(name)+'</option>').join('');
+    const active=state.league==='all'?'pt':state.league;
+    const v=state.valueEngine?.leagues?.[active];
+    const available=v?.status==='calibration_research_ready';
+    return '<div class="fi-v5-grid"><section class="panel"><div class="panel-header"><div><h2>Value & Confidence Engine · v5</h2>'+
+      '<p>Escolhe um jogo, um mercado e introduz uma odd real</p></div><span class="tag">SEM APOSTAS AUTOMÁTICAS</span></div>'+
+      '<div class="body-pad">'+modelSelect()+
+      '<div class="fi-v5-field"><label for="value-market">MERCADO PARA SIMULAÇÃO</label><select class="input" id="value-market">'+options+'</select></div>'+
+      '<div id="value-result">'+valueResult()+'</div></div></section>'+
+      '<section class="panel"><div class="panel-header"><div><h2>Calibração & limites</h2><p>Treino histórico sem antecipação de resultados</p></div></div>'+
+      '<div class="body-pad"><div class="fi-v5-steps"><div><b>2021–24</b><span>Histórico anterior</span></div>'+
+      '<div><b>2024/25</b><span>Ajuste da calibração</span></div>'+
+      '<div><b>2025/26</b><span>Teste independente</span></div></div>'+
+      '<div class="limit-note">'+(available?'Parâmetros de calibração disponíveis para estudo, não validados comercialmente.':
+      'Dados históricos insuficientes para uma calibração aplicável.')+'</div>'+
+      '<p class="muted">Comparamos Brier Score e Log Loss antes e depois do ajuste. Os parâmetros são fixados antes da época reservada para teste. Sem odds históricas e validação prospetiva, uma odd aparentemente favorável não representa uma oportunidade comprovada.</p>'+
+      '<p class="muted">O modelo atual pode escolher Poisson ou Dixon–Coles com Elo para 1X2. Por isso só aplicamos a calibração Dixon–Coles quando a previsão ao vivo usa exatamente esse modelo; nos restantes casos mostramos a probabilidade original.</p>'+
+      '<div class="fi-v5-steps"><div><b>'+((v?.validation_games)??'—')+'</b><span>Jogos para calibrar</span></div>'+
+      '<div><b>'+((v?.test_games)??'—')+'</b><span>Jogos de teste</span></div></div></div></section></div>';
+  }
   function modelView(){
     const chosen=state.league==='all'?'pt':state.league;
     const data=state.model?.leagues?.[chosen];
@@ -422,7 +525,7 @@
     if(!state.data?.updated_at){warning.textContent='Ainda não existe uma recolha completa. A primeira execução do GitHub Actions irá importar os resultados das duas ligas. O painel pode mostrar uma amostra de arranque incompleta.';warning.classList.remove('hidden');}
     else if(incomplete.length){warning.textContent=`Dados parciais para ${incomplete.map(x=>leagueNames[x]).join(' e ')}. Uma ou mais jornadas podem estar em falta; não uses esta classificação como oficial.`;warning.classList.remove('hidden');}
     else{warning.classList.add('hidden');}
-    $('#view').innerHTML=({overview, matches:matchView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,reliability:reliabilityView})[state.view]();
+    $('#view').innerHTML=({overview, matches:matchView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,value:valueView,reliability:reliabilityView})[state.view]();
     $('#updated-at').textContent=state.data?.updated_at?fullDate(state.data.updated_at):'Sem atualização completa';
     $('#side-status').textContent=state.data?.updated_at?`${games().length} jogos na seleção`:'À espera da 1.ª recolha';
     bindLocal();
@@ -435,6 +538,8 @@
     if(sel)sel.addEventListener('change',e=>{state.modelMatch=e.target.value;render();});
     const nf=$('#news-filter');if(nf)nf.addEventListener('change',e=>{state.newsFilter=e.target.value;render();});
     const rm=$('#reliability-market');if(rm)rm.addEventListener('change',e=>{state.reliabilityMarket=e.target.value;render();});
+    const vm=$('#value-market');if(vm)vm.addEventListener('change',e=>{state.valueMarket=e.target.value;render();});
+    const vo=$('#value-odd');if(vo)vo.addEventListener('change',e=>{state.valueOdds=e.target.value;render();});
   }
   function goto(next){state.view=next;render();$('#sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});}
   $$('.nav-item').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.view)));
@@ -450,7 +555,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
