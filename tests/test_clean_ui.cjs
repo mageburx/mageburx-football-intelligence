@@ -31,8 +31,8 @@ function loadFixtures(){
 test('primary navigation is focused and advanced features remain accessible',()=>{
   const main=html.match(/<nav class="side-nav" aria-label="Secções principais">([\s\S]*?)<\/nav>/);
   assert.ok(main);
-  assert.equal((main[1].match(/data-view=/g)||[]).length,4);
-  for(const name of ['overview','briefings','matches','reliability'])
+  assert.equal((main[1].match(/data-view=/g)||[]).length,5);
+  for(const name of ['overview','briefings','matches','live','reliability'])
     assert.ok(main[1].includes('data-view="'+name+'"'));
   assert.ok(html.includes('id="advanced-menu"'));
   assert.ok(html.includes('data-view="value"'));
