@@ -35,7 +35,7 @@ jobs:
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[full-backfill]')
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
-            python scripts/backfill_history.py --max-calls 12 --pause 6
+            python scripts/backfill_history.py --max-calls 55 --pause 6
           else
             python scripts/backfill_history.py --max-calls 12 --pause 6
           fi
