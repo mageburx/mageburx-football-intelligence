@@ -21,4 +21,4 @@ jobs:
       - name: Validate dashboard JavaScript
         run: node --check app/app.js
       - name: JavaScript model tests
-        run: node --test tests/test_model.cjs tests/test_clean_ui.cjs
+        run: node --test tests/test_model.cjs tests/test_clean_ui.cjs tests/test_league_expansion.cjs
