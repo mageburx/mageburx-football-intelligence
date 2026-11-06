@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, featureImpact: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -388,8 +388,49 @@
       '<tbody>'+labels+'</tbody></table></div>'+
       (context?'<h3 class="fi-factor-subtitle">Contexto do encontro selecionado</h3><div class="fi-factor-teams">'+
        formatTeam(context.home,active.event.home)+formatTeam(context.away,active.event.away)+'</div>':'')+
-      '<p class="muted fi-factor-note">Os dias de descanso consideram apenas jogos da liga — não incluem Taça, jogos europeus ou seleções. A forma simples acima não está ajustada ao adversário; o teste histórico utiliza uma medida separada baseada em Elo anterior a cada jogo. Isto mede utilidade preditiva, não causalidade. Lesões, onzes confirmados e xG ainda não estão integrados automaticamente.</p>'+
+      '<p class="muted fi-factor-note">Este estudo histórico v5.1 considera apenas jogos da liga. O novo painel v5.2 abaixo acrescenta os jogos de Taça e UEFA que conseguimos recolher, sem assumir cobertura completa. A forma simples acima não está ajustada ao adversário; o teste histórico utiliza uma medida separada baseada em Elo anterior a cada jogo. Isto mede utilidade preditiva, não causalidade. Lesões, onzes confirmados e xG ainda não estão integrados automaticamente.</p>'+
       '<div class="limit-note">Sem alteração das probabilidades ou das sugestões de aposta. Qualquer eventual melhoria precisa de replicação prospetiva e verificação de cobertura dos dados.</div></div></section>';
+  }
+  function multiCompetitionContextView(){
+    const m=currentModel();
+    const ctx=m?.event&&m?.lid?
+      state.scheduleContext?.leagues?.[m.lid]?.fixtures?.[String(m.event.id)]:null;
+    const report=state.scheduleContext;
+    const observations=state.prematchLineups?.observations||[];
+    const lining=observations.find(x=>m&&x.league===m.lid&&String(x.id)===String(m.event?.id));
+    const fmt=v=>Number.isFinite(v)?String(v):'—';
+    const quote=v=>safe(String(v??'—'));
+    const teamCard=(x,label)=>'<div class="fi-factor-team"><b>'+safe(label)+'</b>'+
+      '<span>Último encontro conhecido: '+quote(x?.last_known_match_date)+
+      (x?.last_known_competition?' · '+quote(x.last_known_competition):'')+'</span>'+
+      '<span>Dias desde último jogo conhecido: '+fmt(x?.days_since_last_known_match)+'</span>'+
+      '<span>Jogos conhecidos nos últimos 7 / 14 dias: '+fmt(x?.matches_last_7)+' / '+fmt(x?.matches_last_14)+'</span>'+
+      '<span>Taças e jogos UEFA conhecidos nos últimos 21 dias: '+fmt(x?.cup_europe_last_21)+'</span></div>';
+    const games=report?.covered_competitions||{};
+    const label={pt_cup:'Taça de Portugal',pt_league_cup:'Taça da Liga',
+      uefa_cl:'Champions League',uefa_el:'Europa League',uefa_ecl:'Conference League'};
+    const comps=Object.entries(games).filter(([key,value])=>value>0).map(([key,n])=>
+       '<span class="fi-comp-source">'+safe(label[key]||key)+' · '+n+' jogos</span>').join('');
+    const status=lining?.status==='observed_complete_pre_kickoff'?
+      'Onze completo observado antes do início':
+      lining?.status==='partial_lineup_not_for_absence_inference'?
+      'Alinhamento parcial — não permite determinar ausências':
+      lining?.status==='unverifiable_pre_kickoff_timestamp'?
+      'Sem confirmação da hora de divulgação do onze':
+      'Sem onze completo confirmado pela fonte gratuita';
+    return '<section class="panel fi-multi-panel"><div class="panel-header"><div>'+
+       '<h2>Descanso e calendário · Liga + Taças + UEFA</h2>'+
+       '<p>Jogos conhecidos antes do encontro · fontes gratuitas</p></div><span class="tag">v5.2</span></div>'+
+       '<div class="body-pad">'+
+       (ctx?'<div class="fi-factor-teams">'+
+          teamCard(ctx.home,m.event.home)+teamCard(ctx.away,m.event.away)+'</div>':
+          '<div class="limit-note">Sem contexto de calendário adicional para este encontro.</div>')+
+       '<div class="fi-comp-sources">'+(comps||'<span>Sem resultados adicionais recolhidos até agora.</span>')+'</div>'+
+       '<div class="fi-lineup-status"><strong>Onzes pré-jogo</strong><p>'+safe(status)+
+       (lining?' · '+fmt(lining.home_n)+' / '+fmt(lining.away_n)+' jogadores detetados.':'')+
+       '</p></div>'+
+       '<p class="muted fi-factor-note">Cobertura parcial: os números são um <b>mínimo de jogos conhecidos</b>. Podem faltar partidas de taças e UEFA, pelo que o descanso real pode ser menor. Não consideramos um jogador lesionado por não aparecer num alinhamento incompleto. Nenhum destes fatores altera automaticamente as probabilidades 1X2.</p>'+
+       '</div></section>';
   }
   function valueView(){
     const options=VALUE_MARKETS.map(([k,name])=>'<option value="'+k+'" '+(state.valueMarket===k?'selected':'')+'>'+safe(name)+'</option>').join('');
@@ -410,7 +451,7 @@
       '<p class="muted">Comparamos Brier Score e Log Loss antes e depois do ajuste. Os parâmetros são fixados antes da época reservada para teste. Sem odds históricas e validação prospetiva, uma odd aparentemente favorável não representa uma oportunidade comprovada.</p>'+
       '<p class="muted">O modelo atual pode escolher Poisson ou Dixon–Coles com Elo para 1X2. Por isso só aplicamos a calibração Dixon–Coles quando a previsão ao vivo usa exatamente esse modelo; nos restantes casos mostramos a probabilidade original.</p>'+
       '<div class="fi-v5-steps"><div><b>'+((v?.validation_games)??'—')+'</b><span>Jogos para calibrar</span></div>'+
-      '<div><b>'+((v?.test_games)??'—')+'</b><span>Jogos de teste</span></div></div></div></section></div>'+featureImpactView();
+      '<div><b>'+((v?.test_games)??'—')+'</b><span>Jogos de teste</span></div></div></div></section></div>'+featureImpactView()+multiCompetitionContextView();
   }
   function modelView(){
     const chosen=state.league==='all'?'pt':state.league;
@@ -620,7 +661,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
