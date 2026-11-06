@@ -72,6 +72,8 @@ jobs:
         run: python scripts/build_reliability.py
       - name: Recolher Taça de Portugal, Taça da Liga e competições UEFA
         run: python scripts/collect_cross_competitions.py --max-calls 8 --pause 3.5
+      - name: Verificar Taça da Dinamarca na DBU oficial (opcional)
+        run: python scripts/collect_danish_cup.py
       - name: Verificar onzes observáveis antes dos jogos
         run: python scripts/collect_prematch_lineups.py --max-calls 2
       - name: Atualizar descanso e carga de jogos em todas as competições conhecidas
