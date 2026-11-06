@@ -1053,6 +1053,6 @@
   // Funções matemáticas expostas exclusivamente para testes locais.
   window.FootballLabTest = {standings,poisson,predict,teamForm,parseData:d=>{state.data=d},parseIntelligence:d=>{state.intelligence=d},
     setModelData:d=>{state.model=d},setXGData:d=>{state.xgExperiment=d},
-    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,setExpansionReliability:d=>{state.expansionReliability=d},setExpansionAudit:d=>{state.expansionAudit=d},setLeagueComparison:d=>{state.leagueComparison=d},getStats};
+    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,renderLive:liveView,getLiveCandidates:liveCandidates,getLiveLookupCandidates:liveLookupCandidates,setExpansionReliability:d=>{state.expansionReliability=d},setExpansionAudit:d=>{state.expansionAudit=d},setLeagueComparison:d=>{state.leagueComparison=d},getStats};
   initialize();
 })();
