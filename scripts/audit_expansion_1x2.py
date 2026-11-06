@@ -16,7 +16,7 @@ from collections import Counter
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-LEAGUES=('nl','dk2','no')
+LEAGUES=('pt','dk','nl','dk2','no')
 
 
 def timestamp(value):
@@ -59,7 +59,7 @@ def calculate(ledger,season,now=None):
     per={lid:{'issued':0,'settled':0,'awaiting_result':0,'future':0,
               'today':0,'past_due':0,'fixture_missing':0,
               'rescheduled':0,'superseded':0,'invalid':0,'settled_valid':0,
-              'brier':None,'log_loss':None,
+              'brier':None,'log_loss':None,'brier_ci95':None,
               'status':'awaiting_results'} for lid in LEAGUES}
     scored={lid:[] for lid in LEAGUES}
     def warn(lid,code,key):
@@ -147,6 +147,15 @@ def calculate(ledger,season,now=None):
         if n:
             c['brier']=round(sum(x for x,_ in records)/n,5)
             c['log_loss']=round(sum(x for _,x in records)/n,5)
+            # Only publish an approximate interval after thirty genuinely
+            # valid settlements. This assumes independent games and should
+            # never be interpreted as a financial-profit confidence interval.
+            if n>=30:
+                avg=sum(x for x,_ in records)/n
+                variance=sum((x-avg)**2 for x,_ in records)/(n-1)
+                margin=1.96*math.sqrt(variance/n)
+                c['brier_ci95']=[round(max(0.,avg-margin),5),
+                                 round(min(2.,avg+margin),5)]
             c['status']='preliminary_only' if n<100 else 'sample_ready_for_review'
         if c['invalid']>0:c['status']='requires_data_review'
         elif c['rescheduled']>0 or c['fixture_missing']>0:
