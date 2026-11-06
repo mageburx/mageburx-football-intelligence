@@ -43,7 +43,10 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
         raise ValueError('Expected initialized Danish first division 2026-27')
     meta=dict(league.get('dbu_official',{}))
     last=meta.get('checked_at')
-    if last:
+    # A previous parser rejection caused by an unrecognized club alias can
+    # be retried immediately after the parser is fixed. Other failures still
+    # respect the daily interval to avoid hammering the official website.
+    if last and not str(meta.get('error') or '').startswith('Unknown official Danish club'):
         try:
             if (now-dt.datetime.fromisoformat(last)).total_seconds()<min_hours*3600:
                 return data
