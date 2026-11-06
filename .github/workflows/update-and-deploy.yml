@@ -155,6 +155,8 @@ jobs:
           retention-days: 90
       - name: Testar motor e painel de fiabilidade
         run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Testar navegação simplificada e modelo JavaScript
+        run: node --test tests/test_model.cjs tests/test_clean_ui.cjs
       - name: Validar sintaxe do dashboard
         run: node --check app/app.js
       - name: Preparar dashboard estático
