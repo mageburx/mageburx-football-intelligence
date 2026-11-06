@@ -51,12 +51,12 @@ class DanishCupFallbackTests(unittest.TestCase):
             now=dt.datetime(2026,11,6,2,0,tzinfo=dt.timezone.utc)
             first=collect(path=path,fetcher=fetch,now=now,max_seasons=2)
             self.assertEqual(len(calls),2)
-            self.assertEqual(len(first['events']),2) # 2026 Nov and 2025 Feb
+            self.assertEqual(len(first['events']),3) # 2026 Nov; 2025 Nov and 2026 Feb
             self.assertEqual(first['danish_cup_fallback']['2026']['scored_cards'],2)
             self.assertTrue(all(e['date']<'2026-11-06' for e in first['events']))
             second=collect(path=path,fetcher=fetch,now=now+dt.timedelta(hours=1),max_seasons=2)
             self.assertEqual(len(calls),2)
-            self.assertEqual(len(second['events']),2)
+            self.assertEqual(len(second['events']),3)
 
     def test_failures_preserve_existing_matches(self):
         with tempfile.TemporaryDirectory() as d:
