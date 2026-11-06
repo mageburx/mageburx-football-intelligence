@@ -759,6 +759,8 @@
           'Teste histórico reservado · '+safe(x.holdout.season):
           'Reprodução cronológica parcial · não independente';
         const score=m?.n>=30&&Number.isFinite(m.brier)?numberPT.format(m.brier):'—';
+        const live=x?.prospective_1x2;
+        const liveBrier=live?.settled>=10&&Number.isFinite(live.brier)?numberPT.format(live.brier):'—';
         return '<article class="ux-league-evidence-item"><div class="ux-league-head">'+
           '<strong>'+safe(leagueFlags[id]+' '+leagueNames[id])+'</strong>'+
           '<span>'+safe(leagueSeasons[id])+'</span></div>'+
@@ -768,7 +770,11 @@
           '<p>'+label+'</p>'+
           '<div class="ux-league-score">Brier 1X2 <b>'+score+'</b></div>'+
           '<small>'+(x?.partial?'Calendário ainda parcial. ':'')+
-          'Previsões antecipadas avaliadas: '+(x?.prospective?.settled??0)+'. '+
+          'Previsões de outros mercados já avaliadas: '+(x?.prospective?.settled??0)+'. '+
+          '<strong>1X2 registado antes do jogo:</strong> '+(live?.issued??0)+
+          ' · resultados avaliados: '+(live?.settled??0)+
+          ' · Brier prospetivo: '+liveBrier+'. '+
+
           (x?.quality==='historical_holdout_available_not_proof_of_profit'?'Há um teste histórico, não uma vantagem económica confirmada.':'Histórico independente ainda insuficiente.')+
           '</small></article>';
       }).join('')+'</div>'+
