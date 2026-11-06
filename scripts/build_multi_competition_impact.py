@@ -107,11 +107,21 @@ def source_coverage(events,cross,season):
          e.get('competition_type') in ('domestic_cup','european')]
     relevant=[e for e in cup if norm_team(e['home']) in clubs or norm_team(e['away']) in clubs]
     relevant_unique={ (e['date'],norm_team(e['home']),norm_team(e['away'])) for e in relevant }
+    # Separate domestic cups from UEFA games for source-coverage diagnostics.
+    # Counts are unique by match date and canonical teams, never source ID.
+    def unique_of_type(kind):
+        return {(e['date'],norm_team(e['home']),norm_team(e['away']))
+                for e in relevant if e['competition_type']==kind}
+    cup_unique=unique_of_type('domestic_cup')
+    european_unique=unique_of_type('european')
     clubs_seen={k for e in relevant for k in (norm_team(e['home']),norm_team(e['away'])) if k in clubs}
     sufficient=len(relevant_unique)>=MIN_CROSS_MATCHES and (
         len(clubs_seen)/len(clubs)>=MIN_TEAM_FRACTION if clubs else False)
     return {'league_teams':len(clubs),'teams_with_additional_fixtures':len(clubs_seen),
-            'known_cross_matches':len(relevant_unique),'adequate_minimum_sample':sufficient,
+            'known_cross_matches':len(relevant_unique),
+            'known_domestic_cup_matches':len(cup_unique),
+            'known_european_matches':len(european_unique),
+            'adequate_minimum_sample':sufficient,
             'coverage_certified_complete':False}
 
 def evaluate_league(seasons,quality,cross):
