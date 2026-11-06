@@ -64,6 +64,8 @@ jobs:
         run: python scripts/update_data.py
       - name: Calcular indicadores exploratórios de remates, sem alterar previsões
         run: python scripts/build_shots_research.py
+      - name: Adicionar Eredivisie, 1. Division dinamarquesa e Eliteserien
+        run: python scripts/collect_expanded_leagues.py --max-calls 6 --pause 2
       - name: Recolher notícias e ausências documentadas
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
