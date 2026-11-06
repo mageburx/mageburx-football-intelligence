@@ -18,7 +18,7 @@ class ExtendedLeagueTests(unittest.TestCase):
                 'strSeason':season or cfg['source_season'],
                 'dateEvent':date or ('2026-05-03' if lid=='no' else '2026-10-04'),
                 'strHomeTeam':home,'strAwayTeam':away,
-                'intRound':str(round_num),'intHomeScore':score_home,
+                'intRound':str(round_num),'strStatus':'FT','intHomeScore':score_home,
                 'intAwayScore':score_away,'strTimestamp':''}
 
     def snapshot(self):
