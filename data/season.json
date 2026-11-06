@@ -6,7 +6,7 @@
     "url": "https://www.thesportsdb.com/",
     "api": "v1 gratuita"
   },
-  "updated_at": "2026-11-05T23:51:28+00:00",
+  "updated_at": "2026-11-06T00:12:18+00:00",
   "leagues": {
     "pt": {
       "name": "Liga Portugal Betclic",
@@ -1197,6 +1197,105 @@
           "round": 12,
           "home": "Casa Pia",
           "away": "Braga",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514042",
+          "date": "2026-12-06",
+          "utc": "2026-12-06T16:00:00",
+          "round": 13,
+          "home": "Braga",
+          "away": "Arouca",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514043",
+          "date": "2026-12-06",
+          "utc": "2026-12-06T16:00:00",
+          "round": 13,
+          "home": "Nacional de Madeira",
+          "away": "Benfica",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514044",
+          "date": "2026-12-06",
+          "utc": "2026-12-06T16:00:00",
+          "round": 13,
+          "home": "Rio Ave",
+          "away": "Casa Pia",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514045",
+          "date": "2026-12-06",
+          "utc": "2026-12-06T16:00:00",
+          "round": 13,
+          "home": "Santa Clara",
+          "away": "Porto",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514046",
+          "date": "2026-12-06",
+          "utc": "2026-12-06T16:00:00",
+          "round": 13,
+          "home": "Sporting CP",
+          "away": "Marítimo",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514047",
+          "date": "2026-12-06",
+          "utc": "2026-12-06T16:00:00",
+          "round": 13,
+          "home": "Estoril Praia",
+          "away": "Vitória de Guimarães",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514048",
+          "date": "2026-12-06",
+          "utc": "2026-12-06T16:00:00",
+          "round": 13,
+          "home": "Famalicao",
+          "away": "Académico de Viseu",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514049",
+          "date": "2026-12-06",
+          "utc": "2026-12-06T16:00:00",
+          "round": 13,
+          "home": "Alverca",
+          "away": "Moreirense",
+          "home_score": null,
+          "away_score": null,
+          "finished": false
+        },
+        {
+          "id": "2514050",
+          "date": "2026-12-06",
+          "utc": "2026-12-06T16:00:00",
+          "round": 13,
+          "home": "Estrela Amadora",
+          "away": "Gil Vicente",
           "home_score": null,
           "away_score": null,
           "finished": false
@@ -2592,7 +2691,7 @@
       "rounds_failed": [],
       "missing_past_rounds": [],
       "partial": false,
-      "last_attempt_at": "2026-11-05T23:51:28+00:00"
+      "last_attempt_at": "2026-11-06T00:12:18+00:00"
     },
     "dk": {
       "name": "3F Superliga",
@@ -4052,11 +4151,11 @@
           "finished": false
         }
       ],
-      "rounds_ok": 4,
+      "rounds_ok": 3,
       "rounds_failed": [],
       "missing_past_rounds": [],
       "partial": false,
-      "last_attempt_at": "2026-11-05T23:51:28+00:00"
+      "last_attempt_at": "2026-11-06T00:12:18+00:00"
     }
   }
 }
