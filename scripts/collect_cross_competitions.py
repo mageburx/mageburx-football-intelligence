@@ -160,7 +160,8 @@ def empty():
 
 def priorities(data,now=None):
     now=now or dt.datetime.now(dt.timezone.utc)
-    # Gather 2026/27 UEFA rounds first; then cups and retrospective seasons.
+    # Prioritise missing 2024/25 and 2025/26 UEFA rounds for backtesting.
+    # A queried round is evidence of a partial result feed, NOT of completeness.
     plans=[]
     for season in reversed(SEASONS):
         for key in ('uefa_cl','uefa_el','uefa_ecl','pt_cup','pt_league_cup'):
@@ -175,19 +176,49 @@ def priorities(data,now=None):
                         if age<7*86400:continue
                     except (ValueError,TypeError):pass
                 plans.append((key,season,rnd))
-    # Prioritise autumn UEFA league-phase (R4 then R3) for current
-    # fixtures AND 2024/25, 2025/26 historical ablation. Do not spend
-    # the entire free daily request budget on 2027 future rounds.
-    season_order={s:i for i,s in enumerate(reversed(SEASONS))}
+    # Do not starve old UEFA rounds to repeatedly query distant future
+    # fixtures or empty cup rounds. This respects the existing max_calls.
+    season_order={s:i for i,s in enumerate(SEASONS)}
     league_order={k:i for i,k in enumerate(COMPETITIONS)}
     def ranking(p):
         key,season,rnd=p
-        meta=COMPETITIONS[key]
-        priority=0 if meta['type']=='european' and rnd in (3,4) else (
-            1 if meta['type']=='european' and rnd in (2,5) else 2)
-        round_rank={4:0,3:1,5:2,2:3,1:4}.get(rnd,5+rnd)
-        return (priority,season_order[season],round_rank,league_order[key])
-    return sorted(plans,key=ranking)
+        typ=COMPETITIONS[key]['type']
+        priority=0 if typ=='european' and season!=SEASONS[-1] else (
+            1 if typ=='european' else 2)
+        return (priority,season_order[season],rnd,league_order[key])
+    plans=sorted(plans,key=ranking)
+
+    # Refresh previously checked current-season UEFA rounds ONLY when a
+    # recorded match's date has passed and its result is still missing.
+    # Existing snapshots predate per-round timestamps, hence one bounded
+    # refresh of those rounds is intentionally allowed.
+    today=now.date().isoformat()
+    for key in EUROPEAN_KEYS:
+        meta=data['competitions'].get(f'{key}:{SEASONS[-1]}',{})
+        unfinished=any(e.get('competition_id')==key and
+                       SEASONS[-1]==season_of_date(e.get('date','')) and
+                       e.get('date','')<today and not e.get('finished')
+                       for e in data.get('events',[]))
+        if not unfinished:continue
+        for rnd in meta.get('checked_rounds',[]):
+            previous=(meta.get('round_refresh_at') or {}).get(str(rnd))
+            if previous:
+                try:
+                    if (now-dt.datetime.fromisoformat(previous)).total_seconds()<86400:
+                        continue
+                except (ValueError,TypeError):pass
+            plans.append((key,SEASONS[-1],rnd))
+    return plans
+
+EUROPEAN_KEYS=('uefa_cl','uefa_el','uefa_ecl')
+
+def season_of_date(date):
+    try:
+        y,m=int(date[:4]),int(date[5:7])
+        if m not in range(1,13):return None
+        return f'{y}-{y+1}' if m>=7 else f'{y-1}-{y}'
+    except (ValueError,TypeError):
+        return None
 
 def collect(path=PATH,max_calls=9,pause=3.5,fetcher=fetch_round,now=None):
     now=now or dt.datetime.now(dt.timezone.utc)
@@ -227,6 +258,7 @@ def collect(path=PATH,max_calls=9,pause=3.5,fetcher=fetch_round,now=None):
                 else:
                     indexed[e['id']]=e;added+=1
             meta['checked_rounds']=sorted(set(meta['checked_rounds']+[rnd]))
+            meta.setdefault('round_refresh_at',{})[str(rnd)]=now.isoformat()
             meta['empty_rounds']=[x for x in meta.get('empty_rounds',[]) if x!=rnd]
             meta.setdefault('empty_checked_at',{}).pop(str(rnd),None)
             success+=1
