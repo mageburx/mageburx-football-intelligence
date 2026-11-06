@@ -54,6 +54,8 @@ jobs:
         run: python scripts/audit_history.py --strict
       - name: Validar modelos com teste histórico independente
         run: python scripts/validate_models.py
+      - name: Calibrar mercados v5 com época reservada para teste
+        run: python scripts/build_value_engine.py
       - name: Recolher jogos das duas ligas
         run: python scripts/update_data.py
       - name: Recolher notícias e ausências documentadas
@@ -85,6 +87,7 @@ jobs:
           test -s data/storage_status.json
           test -s data/scrape_report.json
           test -s data/stats_coverage.json
+          test -s data/value_engine.json
       - name: Arquivar estado para recuperação
         uses: actions/upload-artifact@v4
         with:
@@ -98,6 +101,7 @@ jobs:
             data/storage_status.json
             data/scrape_report.json
             data/stats_coverage.json
+            data/value_engine.json
           retention-days: 90
       - name: Testar motor e painel de fiabilidade
         run: python -m unittest discover -s tests -p 'test_*.py' -v
@@ -107,7 +111,7 @@ jobs:
         run: |
           mkdir -p public/data
           cp app/index.html app/style.css app/app.js public/
-          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json public/data/
+          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/value_engine.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:
