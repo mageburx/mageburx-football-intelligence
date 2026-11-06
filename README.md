@@ -23,6 +23,13 @@ Os números de cobertura e desempenho variam a cada recolha. A fonte de verdade 
 
 A recolha CC0 tem intervalo mínimo de 22 horas, é gratuita e não reclama utilização exclusiva dos dados. Relatórios e arquivo são guardados na branch `football-data`, sujeitos à licença das fontes e à integridade dos resultados.
 
+## Fontes alternativas 2026 (Noruega e Dinamarca)
+
+- **Noruega / Eliteserien:** `scripts/collect_norwegian_fantasy.py` lê exclusivamente o CSV público de calendário/resultados 2026 de [TopMarx/eliteserien](https://github.com/TopMarx/eliteserien), reconcilia pares de equipas e datas com a API principal e guarda apenas os factos necessários para o modelo. O projeto de código é MIT, **mas os dados são propriedade da liga/fornecedores**; a disponibilização no GitHub não concede direitos de exploração comercial. Não usar este feed como produto comercial sem autorização. O coletor exige 16 clubes, um mínimo de 100 partidas na fonte, verifica a época, respeita o limite diário e não aceita resultados do próprio dia nem posteriores.
+- **Dinamarca / Betinia Liga (1. Division):** `scripts/collect_danish_first_official.py` tenta consultar **uma página pública da DBU** (grupo 507530, 2026/27) uma vez por dia, **apenas se robots.txt permitir**. Um erro, formato não reconhecido ou bloqueio preserva integralmente o calendário anterior. Os resultados oficiais encontrados são verificados e reconciliados sem ultrapassar o ritmo de recolha autorizado; conflitos de marcadores ficam em quarentena. A recolha TheSportsDB mantém-se ativa e recebe prioridade no orçamento gratuito de pedidos assim que a Noruega tem calendário suficiente.
+
+As estatísticas de xG, notícias, odds e disponibilidade de jogadores **não** são acrescentadas por estes módulos. Continuam a ser necessárias amostras independentes e avaliações prospetivas antes de atribuir fiabilidade ou rentabilidade às previsões de qualquer uma destas ligas.
+
 ## Cinco campeonatos monitorizados
 
 | ID interno | Competição | ID TheSportsDB | Época da fonte |
