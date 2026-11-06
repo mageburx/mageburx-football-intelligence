@@ -134,7 +134,7 @@ def collect(path=PATH,fetcher=fetch_allowed,now=None):
     old_date=report.get('last_success_at')
     if old_date:
         try:
-            if (now-dt.datetime.fromisoformat(old_date)).total_seconds()<30*86400:
+            if report.get('parsed',0)>=109 and (now-dt.datetime.fromisoformat(old_date)).total_seconds()<30*86400:
                 print('Historical Danish cup 2024/25 already sourced; skip',flush=True)
                 return data
         except ValueError:pass
