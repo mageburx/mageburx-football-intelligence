@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -571,6 +571,8 @@
     const qualityTitle=qa?qa.complete_count+' de 5 épocas completas':'Auditoria ainda não publicada';
     const scraper=state.scrapeReport;
     const advanced=state.statsCoverage?.leagues?.[lid];
+    const shots=state.shotsResearch?.leagues?.[lid];
+    const shotsPreview=shots?.candidates?.find(x=>x.status==='observational_signal_only')||shots?.candidates?.[0];
     const status=storage?.persisted?'Backup Git gravado na branch football-data':
       'Backup Git não confirmado — apenas recuperação temporária';
     return '<section class="panel fi-v41-panel"><div class="panel-header"><div><h2>Integridade e validação independente</h2>'+
@@ -591,6 +593,16 @@
       ' · Remates: '+(advanced?.stats_fields_validated?.Shots??0)+
       ' jogos com os dois valores disponíveis na amostra.</p>'+
       '<p class="muted">Fonte: <a href="https://cornerflick.com/data" target="_blank" rel="noopener noreferrer">Cornerflick</a> (compilação CC BY 4.0). Direitos subjacentes por verificar para distribuição comercial. Sem apostas ou modelos novos ativados.</p></div>'+
+      '<div class="fi-v41-scraper"><h3>Laboratório de remates e xG · versão experimental</h3>'+
+      '<p class="muted">Jogos observados: <b>'+(shots?.sample_matches??0)+'</b> · Com remates: <b>'+(shots?.shots_recorded??0)+
+      '</b> · Com remates à baliza: <b>'+(shots?.shots_on_target_recorded??0)+
+      '</b> · Com xG real: <b>'+(shots?.xg_recorded??0)+'</b>.</p>'+
+      (shotsPreview?'<p class="muted">Exemplo: '+safe(shotsPreview.home)+' – '+safe(shotsPreview.away)+
+      ' ('+safe(shotsPreview.date)+') · amostras: '+shotsPreview.recent_samples_home+'/'+shotsPreview.recent_samples_away+
+      '. '+(shotsPreview.status==='observational_signal_only'?
+      'Pressão de remates à baliza (indicador, não probabilidade): '+num(shotsPreview.pressure_home)+' / '+num(shotsPreview.pressure_away)+'.':
+      'Amostra insuficiente para calcular pressão.')+'</p>':'')+
+      '<p class="muted">xG em falta significa desconhecido, não zero. Observações incompletas e sem validação retrospetiva: nenhuma alteração às previsões ou apostas. Fonte com atribuição: <a href="https://cornerflick.com/data" target="_blank" rel="noopener noreferrer">Cornerflick</a>.</p></div>'+
       '<div class="fi-v41-two"><div class="fi-v41-box"><h3>Qualidade do histórico</h3><p class="muted">'+
       qualityTitle+' · '+(qa?.total_matches??0)+' resultados importados</p>'+
       '<div class="table-scroll"><table><thead><tr><th>Época</th><th class="text-right">Jogos</th><th>Estado</th></tr></thead><tbody>'+coverage+'</tbody></table></div></div>'+
@@ -714,7 +726,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
