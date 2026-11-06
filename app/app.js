@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, featureImpact: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -326,6 +326,71 @@
       fmt(info?.calibrated?.baseline_brier)+' · '+safe(p.evidence)+'.</p>'+
       '<ul>'+warnings.map(x=>'<li>'+safe(x)+'</li>').join('')+'</ul></div></div>';
   }
+  function contextSinceLeagueMatch(match){
+    const played=rows(match.league).filter(e=>isFinished(e)&&e.date<match.date);
+    function teamContext(team){
+      const games=played.filter(e=>e.home===team||e.away===team)
+        .sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+      const last=games.slice(0,5);
+      const dateDiff=games.length?Math.round((Date.parse(match.date+'T12:00:00Z')-Date.parse(games[0].date+'T12:00:00Z'))/86400000):null;
+      const rest=Number.isFinite(dateDiff)&&dateDiff>=1&&dateDiff<=60?dateDiff:null;
+      const points=last.map(e=>{
+        if(e.home_score===e.away_score)return 1;
+        return (e.home===team?e.home_score>e.away_score:e.away_score>e.home_score)?3:0;
+      });
+      const pointsTotal=points.reduce((a,b)=>a+b,0);
+      const last14=games.filter(e=>{
+        const d=Math.round((Date.parse(match.date+'T12:00:00Z')-Date.parse(e.date+'T12:00:00Z'))/86400000);
+        return d>0&&d<=14;
+      }).length;
+      return {rest,last14,ppg:last.length?pointsTotal/last.length:null,n:last.length};
+    }
+    return {home:teamContext(match.home),away:teamContext(match.away)};
+  }
+  function featureImpactView(){
+    const active=currentModel();
+    const lid=active?.lid||(state.league==='all'?'pt':state.league);
+    const lab=state.featureImpact?.leagues?.[lid];
+    const names={baseline:'Dixon–Coles sem novos fatores',
+      rest:'Descanso entre jogos da liga',
+      strength_adjusted_form:'Forma ajustada ao adversário',
+      rest_plus_form:'Descanso + forma ajustada'};
+    if(!lab)return '<section class="panel fi-factor-panel"><div class="panel-header"><h2>Laboratório de fatores · v5.1</h2></div><div class="body-pad"><p class="muted">Aguardando o estudo histórico.</p></div></section>';
+    const fmt=v=>Number.isFinite(v)?numberPT.format(v):'—';
+    const labels=Object.entries(lab.variants||{}).map(([key,stats])=>{
+      const h=stats.holdout||{};
+      return '<tr><td>'+safe(names[key]||key)+(key===lab.selected_on_2024_25?' <small>Selecionado em 2024/25</small>':'')+
+        '</td><td class="text-right">'+(h.n??0)+'</td><td class="text-right">'+fmt(h.brier)+'</td>'+
+        '<td class="text-right">'+fmt(h.log_loss)+'</td></tr>';
+    }).join('');
+    const selected=lab.selected_on_2024_25;
+    const ci=lab.selected_holdout_ci95;
+    const selectedCandidate=lab.variants?.[selected]?.holdout;
+    const base=lab.variants?.baseline?.holdout;
+    let status=lab.status==='blocked_incomplete_history'?'Histórico insuficiente':
+      lab.status==='historical_lift_requires_prospective_replication'?'Melhoria histórica por confirmar':
+      lab.status==='inconclusive_historical_lift'?'Melhoria não conclusiva':
+      lab.status==='feature_model_worse_on_holdout'?'Pior do que o modelo simples':
+      'Sem melhoria demonstrada';
+    const context=active?.event?contextSinceLeagueMatch({...active.event,league:lid}):null;
+    const formatTeam=(team,label)=>!team?'':('<div class="fi-factor-team"><b>'+safe(label)+'</b>'+
+      '<span>Desde último jogo da liga: '+(team.rest===null?'Sem dados':team.rest+' dias')+'</span>'+
+      '<span>Jogos da liga nos últimos 14 dias: '+team.last14+'</span>'+
+      '<span>Forma simples dos últimos '+team.n+' jogos: '+(team.ppg===null?'—':fmt(team.ppg)+' pontos/jogo')+'</span></div>');
+    return '<section class="panel fi-factor-panel"><div class="panel-header"><div><h2>Laboratório de fatores pré-jogo · v5.1</h2>'+
+      '<p>O valor preditivo dos novos fatores é avaliado sem alterar o modelo em produção.</p></div><span class="tag">PESQUISA</span></div>'+
+      '<div class="body-pad"><div class="fi-factor-kpis"><div><small>Modelo selecionado em 2024/25</small><strong>'+safe(names[selected]||'—')+'</strong></div>'+
+      '<div><small>Teste reservado 2025/26</small><strong>'+safe(status)+'</strong></div></div>'+
+      '<p class="muted">Brier 1X2 sem fatores: '+fmt(base?.brier)+' · Brier 1X2 do selecionado: '+fmt(selectedCandidate?.brier)+
+      ' · Diferença: '+fmt(lab.selected_holdout_brier_gain)+' (menor Brier é melhor).'+
+      (Array.isArray(ci)?' Intervalo aproximado de 95% para a diferença: '+ci.map(fmt).join(' a ')+'.':'')+'</p>'+
+      '<div class="table-scroll"><table><thead><tr><th>Fatores ensaiados</th><th class="text-right">Jogos</th><th class="text-right">Brier 1X2 ↓</th><th class="text-right">Log Loss ↓</th></tr></thead>'+
+      '<tbody>'+labels+'</tbody></table></div>'+
+      (context?'<h3 class="fi-factor-subtitle">Contexto do encontro selecionado</h3><div class="fi-factor-teams">'+
+       formatTeam(context.home,active.event.home)+formatTeam(context.away,active.event.away)+'</div>':'')+
+      '<p class="muted fi-factor-note">Os dias de descanso consideram apenas jogos da liga — não incluem Taça, jogos europeus ou seleções. A forma simples acima não está ajustada ao adversário; o teste histórico utiliza uma medida separada baseada em Elo anterior a cada jogo. Isto mede utilidade preditiva, não causalidade. Lesões, onzes confirmados e xG ainda não estão integrados automaticamente.</p>'+
+      '<div class="limit-note">Sem alteração das probabilidades ou das sugestões de aposta. Qualquer eventual melhoria precisa de replicação prospetiva e verificação de cobertura dos dados.</div></div></section>';
+  }
   function valueView(){
     const options=VALUE_MARKETS.map(([k,name])=>'<option value="'+k+'" '+(state.valueMarket===k?'selected':'')+'>'+safe(name)+'</option>').join('');
     const active=state.league==='all'?'pt':state.league;
@@ -345,7 +410,7 @@
       '<p class="muted">Comparamos Brier Score e Log Loss antes e depois do ajuste. Os parâmetros são fixados antes da época reservada para teste. Sem odds históricas e validação prospetiva, uma odd aparentemente favorável não representa uma oportunidade comprovada.</p>'+
       '<p class="muted">O modelo atual pode escolher Poisson ou Dixon–Coles com Elo para 1X2. Por isso só aplicamos a calibração Dixon–Coles quando a previsão ao vivo usa exatamente esse modelo; nos restantes casos mostramos a probabilidade original.</p>'+
       '<div class="fi-v5-steps"><div><b>'+((v?.validation_games)??'—')+'</b><span>Jogos para calibrar</span></div>'+
-      '<div><b>'+((v?.test_games)??'—')+'</b><span>Jogos de teste</span></div></div></div></section></div>';
+      '<div><b>'+((v?.test_games)??'—')+'</b><span>Jogos de teste</span></div></div></div></section></div>'+featureImpactView();
   }
   function modelView(){
     const chosen=state.league==='all'?'pt':state.league;
@@ -555,7 +620,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
