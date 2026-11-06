@@ -5,6 +5,10 @@ Supports continental 2026/27 seasons and Norway's calendar-year 2026 season.
 Do not infer missing results as losses or missing fixtures as cancelled.
 """
 from __future__ import annotations
+try:
+    from scripts.match_status import final_confirmed, normalize_status
+except ModuleNotFoundError:
+    from match_status import final_confirmed, normalize_status
 
 import argparse
 import datetime as dt
@@ -77,7 +81,8 @@ def parse_event(raw,lid,today=None):
     away=str(raw.get('strAwayTeam') or '').strip()
     if not home or not away or home==away:return None
     hs,aws=score(raw.get('intHomeScore')),score(raw.get('intAwayScore'))
-    finished=hs is not None and aws is not None and day<=today
+    finished=hs is not None and aws is not None and final_confirmed(raw)
+    status=normalize_status(raw.get('strStatus'))
     try:
         rnd=int(raw.get('intRound') or 0)
         if rnd<1 or rnd>config['rounds']:rnd=0
@@ -89,6 +94,11 @@ def parse_event(raw,lid,today=None):
         'home_score':hs if finished else None,
         'away_score':aws if finished else None,
         'finished':finished,
+        'result_verified':finished,
+        'match_status':status,
+        'progress':str(raw.get('strProgress') or ''),
+        'live_home_score':hs if not finished else None,
+        'live_away_score':aws if not finished else None,
     }
 
 
