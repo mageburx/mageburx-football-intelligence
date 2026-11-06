@@ -443,6 +443,8 @@
     const coverage=Object.entries(cup).map(([season,c])=>
       '<tr><td>'+safe(season.replace('-','/'))+'</td><td class="text-right">'+
       (c.known_cross_matches??0)+'</td><td class="text-right">'+
+      (c.known_domestic_cup_matches??'—')+'</td><td class="text-right">'+
+      (c.known_european_matches??'—')+'</td><td class="text-right">'+
       (c.teams_with_additional_fixtures??0)+'/'+(c.league_teams??0)+
       '</td><td>'+(c.adequate_minimum_sample?'Amostra mínima':'Incompleta')+'</td></tr>').join('');
     const models=result.models||{};
@@ -461,7 +463,7 @@
         status==='blocked_sparse_cross_competition_history'?'Teste bloqueado: faltam jogos de taças/UEFA':
         status==='blocked_insufficient_exposed_fixtures'?'Teste bloqueado: amostra exposta insuficiente':
         'Sem melhoria robusta demonstrada')+'</strong></p>'+
-      '<div class="table-scroll"><table><thead><tr><th>Época</th><th class="text-right">Jogos adicionais</th><th class="text-right">Equipas abrangidas</th><th>Qualidade</th></tr></thead><tbody>'+coverage+'</tbody></table></div>'+
+      '<div class="table-scroll"><table><thead><tr><th>Época</th><th class="text-right">Jogos adicionais</th><th class="text-right">Taças</th><th class="text-right">UEFA</th><th class="text-right">Equipas abrangidas</th><th>Qualidade</th></tr></thead><tbody>'+coverage+'</tbody></table></div>'+
       (table?'<div class="table-scroll"><table><thead><tr><th>Variante</th><th class="text-right">Brier ↓</th><th class="text-right">Jogos</th></tr></thead><tbody>'+table+'</tbody></table></div>':'')+
       '<p class="muted fi-factor-note">A cobertura histórica de competições extra não é certificada completa. Não transformamos jogos em falta em dias de descanso confirmados, nem apresentamos melhorias sem um teste independente e replicação prospetiva.</p></div></section>';
   }
