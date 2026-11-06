@@ -55,8 +55,13 @@ class DanishCupFallbackTests(unittest.TestCase):
             self.assertEqual(first['danish_cup_fallback']['2026']['scored_cards'],2)
             self.assertTrue(all(e['date']<'2026-11-06' for e in first['events']))
             second=collect(path=path,fetcher=fetch,now=now+dt.timedelta(hours=1),max_seasons=2)
-            self.assertEqual(len(calls),2)
-            self.assertEqual(len(second['events']),3)
+            # An unchecked older season is processed while recent seasons
+            # are cached; previously imported records remain unchanged.
+            self.assertEqual(len(calls),3)
+            self.assertEqual(len(second['events']),5)
+            third=collect(path=path,fetcher=fetch,now=now+dt.timedelta(hours=2),max_seasons=2)
+            self.assertEqual(len(calls),3)
+            self.assertEqual(len(third['events']),5)
 
     def test_failures_preserve_existing_matches(self):
         with tempfile.TemporaryDirectory() as d:
