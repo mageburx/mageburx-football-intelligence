@@ -110,9 +110,11 @@ def fetch_round(key,season,round_number):
     except urllib.error.HTTPError as exc:
         if exc.code==429:raise RuntimeError('rate_limit_429') from exc
         raise
-    if not isinstance(payload,dict) or not isinstance(payload.get('events'),list):
-        raise ValueError('No valid events list; do not mark round as completed')
-    return payload['events']
+    if not isinstance(payload,dict):raise ValueError('Invalid JSON payload')
+    events=payload.get('events')
+    if events is None:return []
+    if not isinstance(events,list):raise ValueError('Invalid events payload')
+    return events
 
 def empty():
     return {'schema':1,'source':'TheSportsDB v1 free eventsround',
@@ -120,7 +122,8 @@ def empty():
             'competitions':{},'events':[],'conflicts':[],
             'disclaimer':'Coverage partial; missing cup/European fixtures may understate fatigue. No league model changes.'}
 
-def priorities(data):
+def priorities(data,now=None):
+    now=now or dt.datetime.now(dt.timezone.utc)
     # Gather 2026/27 UEFA rounds first; then cups and retrospective seasons.
     plans=[]
     for season in reversed(SEASONS):
@@ -128,7 +131,14 @@ def priorities(data):
             meta=data['competitions'].get(f'{key}:{season}',{})
             checked=set(meta.get('checked_rounds',[]))
             for rnd in range(1,MAX_ROUND[COMPETITIONS[key]['type']]+1):
-                if rnd not in checked:plans.append((key,season,rnd))
+                if rnd in checked:continue
+                last_empty=(meta.get('empty_checked_at') or {}).get(str(rnd))
+                if last_empty:
+                    try:
+                        age=(now-dt.datetime.fromisoformat(last_empty)).total_seconds()
+                        if age<7*86400:continue
+                    except (ValueError,TypeError):pass
+                plans.append((key,season,rnd))
     # Interleave competitions instead of exhausting CL first; higher
     # priority for the current season and earlier rounds.
     season_order={s:i for i,s in enumerate(reversed(SEASONS))}
@@ -140,21 +150,23 @@ def collect(path=PATH,max_calls=9,pause=3.5,fetcher=fetch_round,now=None):
     asof_date=now.date().isoformat()
     data=json.loads(path.read_text(encoding='utf-8')) if path.exists() else empty()
     indexed={e['id']:e for e in data.get('events',[]) if isinstance(e,dict) and e.get('id')}
-    added=updated=success=0
+    added=updated=success=attempted=0
     errors=[]
-    for key,season,rnd in priorities(data)[:max_calls]:
+    for key,season,rnd in priorities(data,now)[:max_calls]:
+        attempted+=1
         title=f'{key}:{season}'
         meta=data['competitions'].setdefault(title,{
             'id':COMPETITIONS[key]['id'],'name':COMPETITIONS[key]['name'],
             'scope':COMPETITIONS[key]['scope'],'type':COMPETITIONS[key]['type'],
-            'checked_rounds':[],'empty_rounds':[],'status':'partial',
+            'checked_rounds':[],'empty_rounds':[],'empty_checked_at':{},'status':'partial',
         })
         try:
             raw=fetcher(key,season,rnd)
             events=[e for row in raw if (e:=parse_event(row,season,key,asof_date))]
             if not events:
-                meta['empty_rounds']=sorted(set(meta['empty_rounds']+[rnd]))
-                errors.append(f'{title} R{rnd}: empty or no valid fixtures')
+                meta['empty_rounds']=sorted(set(meta.get('empty_rounds',[])+[rnd]))
+                meta.setdefault('empty_checked_at',{})[str(rnd)]=now.isoformat()
+                errors.append(f'{title} R{rnd}: empty round; retry in 7 days')
                 continue
             for e in events:
                 old=indexed.get(e['id'])
@@ -171,7 +183,8 @@ def collect(path=PATH,max_calls=9,pause=3.5,fetcher=fetch_round,now=None):
                 else:
                     indexed[e['id']]=e;added+=1
             meta['checked_rounds']=sorted(set(meta['checked_rounds']+[rnd]))
-            meta['empty_rounds']=[x for x in meta['empty_rounds'] if x!=rnd]
+            meta['empty_rounds']=[x for x in meta.get('empty_rounds',[]) if x!=rnd]
+            meta.setdefault('empty_checked_at',{}).pop(str(rnd),None)
             success+=1
             print(title,'round',rnd,'events',len(events),flush=True)
         except (ValueError,TimeoutError,urllib.error.URLError,RuntimeError) as exc:
@@ -183,7 +196,7 @@ def collect(path=PATH,max_calls=9,pause=3.5,fetcher=fetch_round,now=None):
     data['events']=sorted(indexed.values(),key=lambda x:(x['date'],x['competition_id'],x['id']))
     data['updated_at']=now.replace(microsecond=0).isoformat()
     data['coverage']='partial'
-    data['last_run']={'attempted':min(max_calls,len(priorities(data))+success),
+    data['last_run']={'attempted':attempted,
                       'successful_rounds':success,'added':added,'updated':updated,
                       'warnings':errors[:24]}
     path.parent.mkdir(parents=True,exist_ok=True)
