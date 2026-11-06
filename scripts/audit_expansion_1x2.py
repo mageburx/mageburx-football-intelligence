@@ -94,11 +94,13 @@ def calculate(ledger,season,now=None):
             warn(lid,'invalid_probabilities',key);valid=False
         fixture=index.get(key)
         if fixture is None:
-            c['fixture_missing']+=1
             if key in superseded:
+                # Explicitly linked to a superseding source ID: this is NOT
+                # an unknown fixture and never gets a migrated settlement.
                 c['superseded']+=1
                 warn(lid,'superseded_duplicate_fixture',key)
             else:
+                c['fixture_missing']+=1
                 warn(lid,'fixture_not_in_current_snapshot',key)
             # Never automatically migrate a signed prediction to a different
             # match ID. Older snapshots and replaced duplicates remain auditable.
@@ -158,7 +160,7 @@ def calculate(ledger,season,now=None):
                                  round(min(2.,avg+margin),5)]
             c['status']='preliminary_only' if n<100 else 'sample_ready_for_review'
         if c['invalid']>0:c['status']='requires_data_review'
-        elif c['rescheduled']>0 or c['fixture_missing']>0:
+        elif c['rescheduled']>0 or c['fixture_missing']>0 or c['superseded']>0:
             c['status']='schedule_change_review'
         elif c['past_due']>0:c['status']='past_due_unconfirmed'
         elif c['awaiting_result']>0:c['status']='awaiting_settlement'
