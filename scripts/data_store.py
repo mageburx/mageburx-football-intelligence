@@ -18,7 +18,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 BRANCH = 'football-data'
 TRACKED = ('history.json', 'ledger.json', 'season.json', 'model.json',
-           'reliability.json', 'quality.json', 'validation.json')
+           'reliability.json', 'quality.json', 'validation.json', 'scrape_report.json')
 
 def git(*args, cwd=ROOT, check=True):
     return subprocess.run(['git', *args], cwd=cwd, check=check,
