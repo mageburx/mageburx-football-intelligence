@@ -140,3 +140,7 @@
 .fi-v41-kpis small{display:block;font-size:9px;color:#9db8c5}
 .fi-v41-kpis b{display:block;font-size:16px;color:#e4f7f3;margin-top:7px}
 @media(max-width:760px){.fi-v41-two{grid-template-columns:1fr}}
+
+.fi-v41-scraper{padding:15px 17px;margin-bottom:16px;border:1px solid #365b6c;border-radius:10px;background:#142e3e}
+.fi-v41-scraper h3{font-size:13px;color:#d7f0f2;margin:0 0 9px}
+.fi-v41-scraper p{font-size:10px;line-height:1.5;margin:6px 0}
