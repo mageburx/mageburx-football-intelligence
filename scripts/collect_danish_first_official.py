@@ -15,9 +15,11 @@ from pathlib import Path
 try:
     from scripts.scrape_dbu import fetch_allowed,parse_page
     from scripts.collect_expanded_leagues import save_match
+    from scripts.parse_dbu_schedule import future_schedule
 except ModuleNotFoundError:
     from scrape_dbu import fetch_allowed,parse_page
     from collect_expanded_leagues import save_match
+    from parse_dbu_schedule import future_schedule
 
 ROOT=Path(__file__).resolve().parents[1]
 PATH=ROOT/'data'/'season.json'
@@ -53,10 +55,17 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
         except (ValueError,TypeError):pass
     report={'source_url':URL,'checked_at':now.replace(microsecond=0).isoformat(),
             'status':'unavailable_or_unverified','added':0,'matched':0,
-            'conflicts':0,'error':None}
+            'conflicts':0,'error':None,
+            'upcoming_added':0,'upcoming_matched':0,'unknown_future_clubs':[]}
     try:
         html=getter(URL)
-        records=parse_page(html,'2026-2027','regular',507530,URL)
+        future,unknown=future_schedule(html,now,normalize)
+        report['unknown_future_clubs']=unknown
+        try:
+            records=parse_page(html,'2026-2027','regular',507530,URL)
+        except ValueError as exc:
+            if 'No completed matches parsed' not in str(exc):raise
+            records=[]
         known={str(e['id']):e for e in league.get('events',[]) if e.get('id')}
         for event in records:
             if event['date']>=now.date().isoformat():continue
@@ -85,6 +94,28 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
                  'away_score':event['away_score'],'finished':True}
             save_match(known,row)
             report['added']+=1
+        for event in future:
+            # Prefer a previously recorded TheSportsDB or DBU identity, so
+            # forecast ledger keys remain stable after the match is played.
+            existing=next((x for x in known.values()
+                if x.get('dbu_match_id')==event['dbu_match_id'] or
+                (x.get('date'),x.get('home'),x.get('away'))==
+                (event['date'],event['home'],event['away'])),None)
+            if existing:
+                if existing.get('finished'):continue
+                # Rescheduling a previously known official fixture is allowed
+                # only by stable DBU match number; never alter settled results.
+                if existing.get('dbu_match_id')==event['dbu_match_id']:
+                    existing.update({k:event[k] for k in ('date','utc','home','away')
+                                     if k in event})
+                elif event.get('utc') and not existing.get('utc'):
+                    existing['utc']=event['utc']
+                existing['dbu_match_id']=event['dbu_match_id']
+                existing['kickoff_time_confirmed']=event['kickoff_time_confirmed']
+                report['upcoming_matched']+=1
+                continue
+            known[event['id']]=event
+            report['upcoming_added']+=1
         league['events']=sorted(known.values(),key=lambda e:(e['date'],str(e.get('id'))))
         report['status']='partial_verified_source' if report['conflicts'] else 'sample_available'
     except (OSError,PermissionError,RuntimeError,ValueError,TypeError,

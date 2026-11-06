@@ -16,6 +16,11 @@ try:
 except ModuleNotFoundError:
     from build_model import finished, goal_rates, score_probs, usable, MIN_TRAIN
 
+try:
+    from scripts.record_expansion_1x2 import summary as prospective_1x2_summary
+except ModuleNotFoundError:
+    from record_expansion_1x2 import summary as prospective_1x2_summary
+
 ROOT=Path(__file__).resolve().parents[1]
 PATH=ROOT/'data'/'expansion_reliability.json'
 LEAGUES=('nl','dk2','no')
@@ -79,9 +84,10 @@ def nl_holdout(archive):
             'metrics':None}
 
 
-def build(season,archive,ledger=None,now=None):
+def build(season,archive,ledger=None,now=None,one_x_two_ledger=None):
     now=now or dt.datetime.now(dt.timezone.utc)
     ledger=ledger or {}
+    one_x_two_ledger=one_x_two_ledger or {}
     today=now.date().isoformat()
     counts={lid:{'issued':0,'settled':0} for lid in LEAGUES}
     done={x['key'] for x in ledger.get('settlements',[]) if isinstance(x,dict) and x.get('key')}
@@ -112,6 +118,7 @@ def build(season,archive,ledger=None,now=None):
             'holdout':dutch if lid=='nl' else None,
             'best_available_1x2':sample,
             'prospective':counts[lid],
+            'prospective_1x2':prospective_1x2_summary(one_x_two_ledger,lid),
             'quality':('historical_holdout_available_not_proof_of_profit' if ready else
                        'insufficient_independent_holdout'),
             'note':('O teste histórico NL usa apenas épocas completas anteriores, com parâmetros fixos.'
@@ -126,10 +133,12 @@ def main():
     p.add_argument('--season',type=Path,default=ROOT/'data'/'season.json')
     p.add_argument('--archive',type=Path,default=ROOT/'data'/'nl_history.json')
     p.add_argument('--ledger',type=Path,default=ROOT/'data'/'ledger.json')
+    p.add_argument('--one-x-two-ledger',type=Path,default=ROOT/'data'/'expansion_1x2_ledger.json')
     p.add_argument('--output',type=Path,default=PATH)
     args=p.parse_args()
     load=lambda x:json.loads(x.read_text(encoding='utf8')) if x.exists() else {}
-    result=build(load(args.season),load(args.archive),load(args.ledger))
+    result=build(load(args.season),load(args.archive),load(args.ledger),
+                 one_x_two_ledger=load(args.one_x_two_ledger))
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf8')
     print('Expansion reliability:',json.dumps({lid:{'completed':x['completed'],

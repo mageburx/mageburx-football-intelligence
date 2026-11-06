@@ -80,6 +80,8 @@ jobs:
         run: python scripts/build_model.py
       - name: Guardar previsões antes dos jogos
         run: python scripts/record_predictions.py
+      - name: Guardar previsões 1X2 futuras de Eredivisie, 1. Division e Eliteserien
+        run: python scripts/record_expansion_1x2.py
       - name: Registar experiência prospetiva Poisson + xG, sem alterar modelo
         run: python scripts/build_xg_experiment.py
       - name: Auditar saúde e pendências das previsões prospetivas
@@ -130,6 +132,7 @@ jobs:
           test -s data/xg_experiment.json
           test -s data/nl_history.json
           test -s data/expansion_reliability.json
+          test -s data/expansion_1x2_ledger.json
           test -s data/xg_shadow_ledger.json
           test -s data/value_engine.json
           test -s data/feature_impact.json
@@ -157,6 +160,7 @@ jobs:
             data/xg_experiment.json
             data/nl_history.json
             data/expansion_reliability.json
+            data/expansion_1x2_ledger.json
             data/xg_shadow_ledger.json
             data/value_engine.json
             data/feature_impact.json
