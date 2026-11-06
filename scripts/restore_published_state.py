@@ -47,12 +47,17 @@ def merge_history(local,remote):
 def merge_ledger(local,remote):
     if remote.get('schema')!=1 or not isinstance(remote.get('predictions'),list):
         raise ValueError('Registo publicado inválido')
+    # An archived invalid result cannot be resurrected by an old snapshot.
+    archived={x['key']:x for source in (remote,local)
+              for x in source.get('quarantined_settlements',[])
+              if isinstance(x,dict) and x.get('key')}
+    local['quarantined_settlements']=list(archived.values())
     for field in ('predictions','settlements'):
         existing={x['key']:x for x in local.get(field,[]) if isinstance(x,dict) and x.get('key')}
         for item in remote.get(field,[]):
-            if isinstance(item,dict) and item.get('key') and item['key'] not in existing:
+            if isinstance(item,dict) and item.get('key') and (field!='settlements' or item['key'] not in archived) and item['key'] not in existing:
                 existing[item['key']]=item
-        local[field]=list(existing.values())
+        local[field]=[v for k,v in existing.items() if field!='settlements' or k not in archived]
     return local
 
 def restore(root=ROOT, fetch=get_json):
