@@ -81,7 +81,7 @@ def parse_archive(html,season='2024-2025'):
         date_raw=g.get('date_label') or ''
         # e.g. "Onsdag 7 maj 2025", "Tisdag 17 september 2024"
         mat=re.search(r'\b(\d{1,2})\s+([A-Za-zÅÄÖåäö]+)\s+(20\d{2})\b',date_raw)
-        score=re.fullmatch(r'\s*(\d{1,2})\s*-\s*(\d{1,2})\s*',g.get('m2',''))
+        score=re.fullmatch(r'\*{0,2}\s*(\d{1,2})\s*-\s*(\d{1,2})\s*\*{0,2}',g.get('m2',''))
         if not mat or not score:continue
         month=MONTHS.get(mat.group(2).lower())
         if month is None:continue
