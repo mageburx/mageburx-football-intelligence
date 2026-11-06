@@ -40,8 +40,13 @@ def calculate(ledger,season,now=None):
     if ledger.get('schema')!=1:raise ValueError('Unrecognized prospective 1X2 ledger')
     current=season.get('season','unknown')
     index={}
+    superseded={}
     for lid in LEAGUES:
         info=season.get('leagues',{}).get(lid,{})
+        if lid=='nl':
+            for x in info.get('openfootball',{}).get('superseded',[]):
+                if x.get('id') and x.get('replacement_id'):
+                    superseded[f'{lid}:{current}:{x["id"]}']=x['replacement_id']
         for item in info.get('events',[]):
             fid=str(item.get('id') or '')
             if fid:index[f'{lid}:{current}:{fid}']=item
@@ -53,7 +58,7 @@ def calculate(ledger,season,now=None):
     warnings=[]
     per={lid:{'issued':0,'settled':0,'awaiting_result':0,'future':0,
               'today':0,'past_due':0,'fixture_missing':0,
-              'rescheduled':0,'invalid':0,'settled_valid':0,
+              'rescheduled':0,'superseded':0,'invalid':0,'settled_valid':0,
               'brier':None,'log_loss':None,
               'status':'awaiting_results'} for lid in LEAGUES}
     scored={lid:[] for lid in LEAGUES}
@@ -90,8 +95,13 @@ def calculate(ledger,season,now=None):
         fixture=index.get(key)
         if fixture is None:
             c['fixture_missing']+=1
-            warn(lid,'fixture_not_in_current_snapshot',key)
-            # Older seasons may be absent: no retroactive settlement inferred.
+            if key in superseded:
+                c['superseded']+=1
+                warn(lid,'superseded_duplicate_fixture',key)
+            else:
+                warn(lid,'fixture_not_in_current_snapshot',key)
+            # Never automatically migrate a signed prediction to a different
+            # match ID. Older snapshots and replaced duplicates remain auditable.
         elif fixture.get('date')!=p.get('date'):
             c['rescheduled']+=1
             warn(lid,'fixture_date_changed',key)
