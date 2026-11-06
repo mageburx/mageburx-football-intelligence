@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -408,7 +408,7 @@
       '<span>Taças e jogos UEFA conhecidos nos últimos 21 dias: '+fmt(x?.cup_europe_last_21)+'</span></div>';
     const games=report?.covered_competitions||{};
     const label={pt_cup:'Taça de Portugal',pt_league_cup:'Taça da Liga',
-      uefa_cl:'Champions League',uefa_el:'Europa League',uefa_ecl:'Conference League'};
+      uefa_cl:'Champions League',uefa_el:'Europa League',uefa_ecl:'Conference League',dk_cup:'Taça da Dinamarca'};
     const comps=Object.entries(games).filter(([key,value])=>value>0).map(([key,n])=>
        '<span class="fi-comp-source">'+safe(label[key]||key)+' · '+n+' jogos</span>').join('');
     const status=lining?.status==='observed_complete_pre_kickoff'?
@@ -432,6 +432,39 @@
        '<p class="muted fi-factor-note">Cobertura parcial: os números são um <b>mínimo de jogos conhecidos</b>. Podem faltar partidas de taças e UEFA, pelo que o descanso real pode ser menor. Não consideramos um jogador lesionado por não aparecer num alinhamento incompleto. Nenhum destes fatores altera automaticamente as probabilidades 1X2.</p>'+
        '</div></section>';
   }
+  function multiImpactView(){
+    const active=currentModel();
+    const lid=active?.lid||(state.league==='all'?'pt':state.league);
+    const result=state.multiImpact?.leagues?.[lid];
+    const q=v=>Number.isFinite(v)?numberPT.format(v):'—';
+    if(!result)return '<section class="panel fi-factor-panel"><div class="panel-header"><h2>Teste de carga competitiva · v5.3</h2></div><div class="body-pad"><p class="muted">Sem relatório histórico publicado.</p></div></section>';
+    const status=result.status;
+    const cup=(result.coverage||{});
+    const coverage=Object.entries(cup).map(([season,c])=>
+      '<tr><td>'+safe(season.replace('-','/'))+'</td><td class="text-right">'+
+      (c.known_cross_matches??0)+'</td><td class="text-right">'+
+      (c.teams_with_additional_fixtures??0)+'/'+(c.league_teams??0)+
+      '</td><td>'+(c.adequate_minimum_sample?'Amostra mínima':'Incompleta')+'</td></tr>').join('');
+    const models=result.models||{};
+    const candidates={baseline:'Sem calendário adicional',
+      all_competitions_rest:'Descanso considerando taças/UEFA',
+      rest_plus_cup_uefa_load:'Descanso + jogos extra'};
+    const table=Object.entries(models).map(([key,v])=>
+      '<tr><td>'+safe(candidates[key]||key)+'</td>'+
+      '<td class="text-right">'+q(v.holdout?.brier)+'</td>'+
+      '<td class="text-right">'+(v.holdout?.n??0)+'</td></tr>').join('');
+    const success=status==='historical_lift_not_yet_prospective';
+    return '<section class="panel fi-factor-panel"><div class="panel-header"><div>'+
+      '<h2>Teste histórico de carga competitiva · v5.3</h2>'+
+      '<p>Separação das épocas 2024/25 e 2025/26, sem alterar previsões.</p></div><span class="tag">EXPERIMENTAL</span></div>'+
+      '<div class="body-pad"><p><strong>'+safe(success?'Sinal histórico a replicar':
+        status==='blocked_sparse_cross_competition_history'?'Teste bloqueado: faltam jogos de taças/UEFA':
+        status==='blocked_insufficient_exposed_fixtures'?'Teste bloqueado: amostra exposta insuficiente':
+        'Sem melhoria robusta demonstrada')+'</strong></p>'+
+      '<div class="table-scroll"><table><thead><tr><th>Época</th><th class="text-right">Jogos adicionais</th><th class="text-right">Equipas abrangidas</th><th>Qualidade</th></tr></thead><tbody>'+coverage+'</tbody></table></div>'+
+      (table?'<div class="table-scroll"><table><thead><tr><th>Variante</th><th class="text-right">Brier ↓</th><th class="text-right">Jogos</th></tr></thead><tbody>'+table+'</tbody></table></div>':'')+
+      '<p class="muted fi-factor-note">A cobertura histórica de competições extra não é certificada completa. Não transformamos jogos em falta em dias de descanso confirmados, nem apresentamos melhorias sem um teste independente e replicação prospetiva.</p></div></section>';
+  }
   function valueView(){
     const options=VALUE_MARKETS.map(([k,name])=>'<option value="'+k+'" '+(state.valueMarket===k?'selected':'')+'>'+safe(name)+'</option>').join('');
     const active=state.league==='all'?'pt':state.league;
@@ -451,7 +484,7 @@
       '<p class="muted">Comparamos Brier Score e Log Loss antes e depois do ajuste. Os parâmetros são fixados antes da época reservada para teste. Sem odds históricas e validação prospetiva, uma odd aparentemente favorável não representa uma oportunidade comprovada.</p>'+
       '<p class="muted">O modelo atual pode escolher Poisson ou Dixon–Coles com Elo para 1X2. Por isso só aplicamos a calibração Dixon–Coles quando a previsão ao vivo usa exatamente esse modelo; nos restantes casos mostramos a probabilidade original.</p>'+
       '<div class="fi-v5-steps"><div><b>'+((v?.validation_games)??'—')+'</b><span>Jogos para calibrar</span></div>'+
-      '<div><b>'+((v?.test_games)??'—')+'</b><span>Jogos de teste</span></div></div></div></section></div>'+featureImpactView()+multiCompetitionContextView();
+      '<div><b>'+((v?.test_games)??'—')+'</b><span>Jogos de teste</span></div></div></div></section></div>'+featureImpactView()+multiCompetitionContextView()+multiImpactView();
   }
   function modelView(){
     const chosen=state.league==='all'?'pt':state.league;
@@ -661,7 +694,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
