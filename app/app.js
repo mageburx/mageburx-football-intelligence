@@ -20,18 +20,18 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
-    overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
-    matches:['Jogos e resultados','Todos os jogos. <em>Uma só vista.</em>','Resultados, calendário e jornadas da época 2026/27.'],
+    overview:['Início','Os próximos jogos, <em>sem ruído.</em>','Escolhe um jogo. Consulta as probabilidades e aprofunda apenas quando precisares.'],
+    matches:['Jogos','Calendário e <em>resultados.</em>','Pesquisa uma equipa ou abre a análise de um encontro.'],
     table:['Classificações','Cada ponto <em>conta.</em>','Classificações calculadas a partir dos jogos efetivamente recolhidos.'],
-    briefings:['Dossiê pré-jogo','O que mudou <em>antes do apito?</em>','Descanso, forma, ausências reportadas e manchetes associadas às equipas.'],
+    briefings:['Analisar jogo','Uma previsão, <em>de cada vez.</em>','Probabilidades primeiro. Os detalhes técnicos ficam à escolha.'],
     news:['Notícias & sinais','A informação certa. <em>Com origem.</em>','Títulos recolhidos por RSS, ligados à fonte original e sujeitos a confirmação.'],
     absences:['Lesões & castigos','Disponibilidade <em>sob escrutínio.</em>','Diferencia baixa confirmada pelo fornecedor, dúvida e ausência de dados.'],
     model:['Modelo estatístico','Probabilidades, <em>não certezas.</em>','Poisson, Dixon–Coles, Elo e testes cronológicos de qualidade das previsões.'],
     value:['Value & Confidence','O preço importa. <em>A evidência ainda mais.</em>','Simulador de odds reais introduzidas manualmente e probabilidades calibradas experimentalmente.'],
-    reliability:['Painel de fiabilidade','Evidência antes de <em>confiar.</em>','Histórico, validação temporal, calibração e registo de previsões anteriores aos jogos.']
+    reliability:['Fiabilidade','Até que ponto <em>podemos confiar?</em>','Resultados reais e histórico, sem confundir simulações com previsões antecipadas.']
   };
   const isFinished = e => e.finished === true && Number.isInteger(e.home_score) && Number.isInteger(e.away_score);
   const rows = league => (state.data?.leagues?.[league]?.events || []).filter(e => e && e.home && e.away && e.date);
@@ -97,35 +97,61 @@
   function tableMarkup(e, max=9){const teams=standings(e);if(!teams.length)return `<div class="empty"><b>A recolher resultados</b>A tabela aparece assim que existirem jogos terminados.</div>`;
     return `<div class="table-scroll"><table><thead><tr><th># &nbsp; Clube</th><th class="text-right">J</th><th class="text-right">V</th><th class="text-right">E</th><th class="text-right">D</th><th class="text-right">DG</th><th class="text-right">PTS</th><th>Últimos 5</th></tr></thead><tbody>${teams.slice(0,max).map((t,i)=>`<tr><td class="team-cell"><span class="rank ${i<3?'top':''}">${i+1}.</span><span class="team-name"><span class="tiny-shield">${safe(t.name.slice(0,2).toUpperCase())}</span>${safe(t.name)}</span></td><td class="text-right">${t.played}</td><td class="text-right">${t.wins}</td><td class="text-right">${t.draws}</td><td class="text-right">${t.losses}</td><td class="text-right">${(t.gf-t.ga)>0?'+':''}${t.gf-t.ga}</td><td class="text-right points">${t.points}</td><td><span class="form-cell">${t.form.slice(-5).map(x=>`<span class="form-dot ${x}">${x==='w'?'V':x==='d'?'E':'D'}</span>`).join('')}</span></td></tr>`).join('')}</tbody></table></div>`;}
   const matchRow=(e,includeLeague=true)=>`<div class="match-item"><div class="match-date">${formatDate(e.date)}<br/><span class="match-league">J${e.round||'—'}${includeLeague?' · '+safe((e.league||'').toUpperCase()):''}</span></div><div class="match-clubs"><div><strong>${safe(e.home)}</strong><span class="score">${isFinished(e)?e.home_score:'–'}</span></div><div><strong>${safe(e.away)}</strong><span class="score">${isFinished(e)?e.away_score:'–'}</span></div></div><span class="match-pill">${isFinished(e)?'FINAL':'POR JOGAR'}</span></div>`;
-  function overview(){const s=getStats(),finish=scored(),next=forthcoming().slice(0,5), last=[...finish].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,5);
-    const chosen = state.league === 'all'?'pt':state.league;
-    const lg = state.data?.leagues?.[chosen];
-    const table = rows(chosen);
-    const rounds = [...new Set(finish.map(e=>e.round).filter(Boolean))].sort((a,b)=>a-b).slice(-9);
-    const bars = rounds.map(n=>({n,v:finish.filter(e=>e.round===n).reduce((a,e)=>a+e.home_score+e.away_score,0)}));
-    const max=Math.max(1,...bars.map(b=>b.v));
-    return `<div class="cards">
-      <div class="stat-card featured"><div class="stat-top">Jogos disputados <span class="stat-icon">▦</span></div><div class="stat-num">${s.finished}</div><div class="stat-detail"><b>${s.loaded}</b> jogos no calendário recolhido</div></div>
-      <div class="stat-card"><div class="stat-top">Golos por jogo <span class="stat-icon">⚽</span></div><div class="stat-num">${numberPT.format(s.avg)}</div><div class="stat-detail">${s.goals} golos nos jogos terminados</div></div>
-      <div class="stat-card"><div class="stat-top">Vitórias da casa <span class="stat-icon">⌂</span></div><div class="stat-num">${s.finished?percent(s.homeWon/s.finished):'—'}</div><div class="stat-detail">${s.homeWon} em ${s.finished} jogos concluídos</div></div>
-      <div class="stat-card"><div class="stat-top">Próximos jogos <span class="stat-icon">↗</span></div><div class="stat-num">${s.upcoming}</div><div class="stat-detail">no calendário atualmente recolhido</div></div>
-    </div>
-    <div class="split">
-      <section class="panel"><div class="panel-header"><div><h2>Classificação · ${safe(leagueNames[chosen])}</h2><p>Calculada com os jogos disponíveis</p></div><button class="link-button" data-goto="table">Ver tabela completa ↗</button></div>${tableMarkup(table,8)}</section>
-      <section class="panel"><div class="panel-header"><div><h2>Próximos encontros</h2><p>Calendário da época 2026/27</p></div><button class="link-button" data-goto="matches">Ver todos ↗</button></div><div class="match-list">${next.length?next.map(e=>matchRow(e)).join(''):`<div class="empty"><b>Sem próximos jogos nos dados carregados</b>A atualização da cloud procura todas as jornadas da época.</div>`}</div></section>
-    </div>
-    <div class="split">
-      <section class="panel"><div class="panel-header"><div><h2>Golos por jornada</h2><p>Distribuição dos golos das jornadas terminadas na seleção atual</p></div><span class="tag">ÉPOCA 26/27</span></div><div class="body-pad" style="padding-top:5px">${bars.length?`<div class="chart-bars">${bars.map(b=>`<div class="chart-bar-wrap"><span class="chart-val">${b.v}</span><div class="chart-bar" style="height:${Math.max(3,b.v/max*93)}px"></div><span class="chart-label">J${b.n}</span></div>`).join('')}</div>`:`<div class="empty">Sem resultados disponíveis.</div>`}</div></section>
-      <section class="panel"><div class="panel-header"><div><h2>Últimos resultados</h2><p>Jogos mais recentes da seleção</p></div></div><div class="match-list">${last.length?last.map(e=>matchRow(e)).join(''):'<div class="empty">Sem jogos terminados.</div>'}</div></section>
-    </div><div class="panel intel-banner"><div class="panel-header"><div><h2>◉  Inteligência pré-jogo</h2><p>Forma · descanso · notícias · ausências</p></div><button class="link-button" data-goto="briefings">Abrir dossiês ↗</button></div><div class="body-pad" style="padding-top:0"><p class="muted">Os sinais qualitativos são apresentados com evidência e data. Não são convertidos automaticamente em probabilidades sem validação histórica.</p></div></div><div class="section-heading"><h2>Como usamos os dados</h2><small>Fonte aberta · Sem operações financeiras</small></div>
-    <div class="insights"><div class="insight-card"><div class="insight-icon">◎</div><h3>Dados verificáveis</h3><p>Calendário, resultados e classificação calculada. Se a API falhar, o painel sinaliza informação incompleta.</p></div><div class="insight-card"><div class="insight-icon">⌁</div><h3>Modelo experimental</h3><p>Estimativas Poisson 1X2, golos e ambas marcam, suavizadas para evitar extrapolações fortes de poucos jogos.</p></div><div class="insight-card"><div class="insight-icon">◉</div><h3>Dossiê pré-jogo</h3><p>Forma recente, descanso na liga, notícias com fonte e disponibilidade dos jogadores. Sem preencher lacunas com suposições.</p></div></div>`;
+  // Focus view: one prediction + shortlist. All diagnostics are elsewhere.
+  function publicForecast(e){
+    const item=state.model?.leagues?.[e.league]?.predictions?.[String(e.id)];
+    const fresh=state.model?.generated_at && state.data?.updated_at &&
+      state.model.generated_at>=state.data.updated_at;
+    return fresh && item && [item.p1,item.px,item.p2].every(Number.isFinite)?item:null;
+  }
+  function conciseProbabilities(p){
+    if(!p)return '<p class="ux-note">Previsão ainda indisponível para este encontro.</p>';
+    const total=p.p1+p.px+p.p2;
+    if(!Number.isFinite(total)||total<=0)return '<p class="ux-note">Probabilidade indisponível.</p>';
+    const values=[p.p1/total,p.px/total,p.p2/total];
+    return '<div class="ux-prob-grid">'+[['Casa',values[0]],['Empate',values[1]],['Fora',values[2]]].map(([name,v])=>
+      '<div class="ux-prob"><small>'+name+'</small><strong>'+percent(v)+'</strong></div>').join('')+
+      '</div><div class="ux-prob-track" role="img" aria-label="Casa '+percent(values[0])+', empate '+percent(values[1])+', fora '+percent(values[2])+'">'+
+      values.map(v=>'<span style="width:'+(100*v).toFixed(3)+'%"></span>').join('')+'</div>';
+  }
+  function compactFixture(e){
+    return '<button type="button" class="ux-fixture" data-open-match="'+safe(e.league+':'+e.id)+'" aria-label="Analisar '+safe(e.home)+' contra '+safe(e.away)+'">'+
+      '<small>'+safe(leagueNames[e.league])+' · '+formatDate(e.date)+'</small>'+
+      '<strong>'+safe(e.home)+' <span>vs</span> '+safe(e.away)+'</strong>'+
+      '<span class="ux-fixture-link">Analisar →</span></button>';
+  }
+  function overview(){
+    const next=forthcoming().slice(0,7);
+    const selected=next.find(e=>publicForecast(e))||next[0];
+    const others=next.filter(e=>e!==selected).slice(0,5);
+    const p=selected?publicForecast(selected):null;
+    const past=state.reliability?.prospective;
+    const xg=state.xgExperiment;
+    const observed=Object.values(xg?.leagues||{}).reduce((n,a)=>n+(a.xg_observations||0),0);
+    return '<section class="panel ux-hero"><div class="ux-hero-top"><span>JOGO EM DESTAQUE</span>'+
+      (selected?'<small>'+safe(leagueNames[selected.league])+' · '+formatDate(selected.date)+'</small>':'')+'</div>'+
+      (selected?'<h2>'+safe(selected.home)+' <em>vs</em> '+safe(selected.away)+'</h2>'+
+      '<p>Probabilidades estimadas para o resultado final</p>'+conciseProbabilities(p)+
+      '<div class="ux-hero-actions"><button class="ux-primary" type="button" data-open-match="'+safe(selected.league+':'+selected.id)+'">Analisar este jogo →</button>'+
+      '<small>Modelo experimental, sem garantia de resultado.</small></div>':
+      '<div class="empty"><b>Sem próximos jogos</b>Seleciona outra liga ou consulta o calendário.</div>')+'</section>'+
+      '<section class="ux-home-section"><div class="ux-heading"><div><h2>Próximos jogos</h2><p>Escolhe um jogo para ver a previsão.</p></div>'+
+      '<button data-goto="matches" class="ux-link">Ver todos →</button></div>'+
+      (others.length?'<div class="ux-fixtures">'+others.map(compactFixture).join('')+'</div>':
+      '<p class="ux-note">Ainda não existem outros encontros na seleção.</p>')+'</section>'+
+      '<section class="ux-home-section ux-muted-section"><div class="ux-heading"><div><h2>Fiabilidade</h2><p>O que já foi medido, sem promessas.</p></div>'+
+      '<button data-goto="reliability" class="ux-link">Ver detalhe →</button></div>'+
+      '<div class="ux-stats"><span><b>'+(past?.logged??'—')+'</b> previsões guardadas</span>'+
+      '<span><b>'+(past?.settled??'—')+'</b> resultados avaliados</span>'+
+      '<span><b>'+observed+'</b> observações xG</span></div>'+
+      '<p class="ux-note">O xG está a ser estudado separadamente e ainda não altera as probabilidades.</p></section>';
   }
   function matchView(){let items=games();let q=state.search.toLocaleLowerCase('pt-PT').trim();if(q)items=items.filter(e=>(e.home+' '+e.away).toLocaleLowerCase('pt-PT').includes(q));
     if(state.matchFilter==='finished')items=items.filter(isFinished);
     if(state.matchFilter==='upcoming')items=items.filter(e=>!isFinished(e)&&e.date>=new Date().toISOString().slice(0,10));
     if(state.matchFilter==='upcoming')items.sort((a,b)=>String(a.utc||a.date).localeCompare(String(b.utc||b.date)));
     else items.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-    return `<div class="toolbar"><div><span class="pill-label">${items.length} encontros</span> <span class="muted">· Época 2026/27</span></div><div style="display:flex;gap:9px;flex-wrap:wrap"><input id="match-search" class="searchbox" aria-label="Pesquisar clube" placeholder="Pesquisar por clube…" value="${safe(state.search)}" /><select id="match-filter" class="filter-select" aria-label="Filtrar jogos"><option value="all" ${state.matchFilter==='all'?'selected':''}>Todos os jogos</option><option value="finished" ${state.matchFilter==='finished'?'selected':''}>Resultados finais</option><option value="upcoming" ${state.matchFilter==='upcoming'?'selected':''}>Por jogar</option></select></div></div><section class="panel"><div class="panel-header"><div><h2>Calendário e resultados</h2><p>Fonte: TheSportsDB; datas apresentadas no fuso da informação recolhida</p></div></div><div class="match-list">${items.length?items.slice(0,130).map(e=>matchRow(e)).join(''):'<div class="empty"><b>Nenhum jogo encontrado</b>Altera os filtros ou aguarda a próxima atualização.</div>'}</div></section>`;
+    return `<div class="toolbar"><div><span class="pill-label">${items.length} encontros</span> <span class="muted">· Época 2026/27</span></div><div style="display:flex;gap:9px;flex-wrap:wrap"><input id="match-search" class="searchbox" aria-label="Pesquisar clube" placeholder="Pesquisar por clube…" value="${safe(state.search)}" /><select id="match-filter" class="filter-select" aria-label="Filtrar jogos"><option value="all" ${state.matchFilter==='all'?'selected':''}>Todos os jogos</option><option value="finished" ${state.matchFilter==='finished'?'selected':''}>Resultados finais</option><option value="upcoming" ${state.matchFilter==='upcoming'?'selected':''}>Por jogar</option></select></div></div><section class="panel"><div class="panel-header"><div><h2>Calendário e resultados</h2><p>Fonte: TheSportsDB; datas apresentadas no fuso da informação recolhida</p></div></div><div class="match-list">${items.length?items.slice(0,state.matchLimit).map(e=>!isFinished(e)&&e.date>=new Date().toISOString().slice(0,10)?compactFixture(e):matchRow(e)).join(''):'<div class="empty"><b>Nenhum jogo encontrado</b>Altera os filtros ou aguarda a próxima atualização.</div>'}</div>${items.length>state.matchLimit?'<div class="ux-more"><button type="button" class="ux-link" data-more-games="1">Mostrar mais jogos →</button></div>':''}</section>`;
   }
   function tableView(){return activeLeagues().map(lid=>`<section class="panel" style="margin-bottom:20px"><div class="panel-header"><div><h2>${lid==='pt'?'🇵🇹':'🇩🇰'} ${safe(leagueNames[lid])}</h2><p>${rows(lid).filter(isFinished).length} jogos concluídos na fonte · classificação calculada</p></div><span class="tag">2026 / 27</span></div>${tableMarkup(rows(lid),99)}${lid==='dk'?`<div class="body-pad muted">Nota: a Superliga dinamarquesa divide-se em fases; esta classificação é uma soma simples dos jogos disponíveis e não substitui as tabelas oficiais após a divisão.</div>`:''}</section>`).join('');}
   function modelSelect(){const options=forthcoming().filter(e=>rows(e.league).filter(isFinished).length>0).slice(0,90);
@@ -552,7 +578,32 @@
     <section class="panel"><div class="panel-header"><div><h2>▧ Manchetes associadas</h2><p>RSS — sinais por verificar</p></div></div>${ns.length?`<div class="intelligence-list">${ns.map(headlineCard).join('')}</div>`:`<div class="empty"><b>Sem manchetes associadas</b>O feed pode estar indisponível ou a equipa pode não estar mencionada no título.</div>`}</section></div>
     <div class="callout intel-callout" style="margin-top:18px"><b>Interpretação</b><div>${p?`Modelo apenas com golos: casa ${percent(p.p1)}, empate ${percent(p.px)}, fora ${percent(p.p2)}. Estes valores <b>não incluem</b> lesões, castigos, notícias nem cansaço fora da liga. O número de jogos da amostra e a falta de calibração limitam a fiabilidade.`:'Dados insuficientes para o modelo 1X2.'} A fadiga não foi calculada a partir de taças, competições europeias ou seleções.</div></div>`;
   }
-  function briefingsView(){return `<section class="panel" style="margin-bottom:18px"><div class="panel-header"><div><h2>Seleciona um encontro</h2><p>O painel agrega quatro dimensões: forma, descanso, ausências e notícias</p></div><span class="tag">PRE-MATCH</span></div><div class="body-pad">${modelSelect()}</div></section><div id="briefing-result">${briefingResult()}</div>`;}
+  function conciseBriefing(){
+    const m=currentModel();
+    if(!m||!m.pred)return '<div class="empty"><b>Previsão indisponível</b>O jogo ainda não tem dados suficientes.</div>';
+    const e=m.event,p=m.pred;
+    const ctx=state.scheduleContext?.leagues?.[m.lid]?.fixtures?.[String(e.id)];
+    const h=ctx?.home?.days_since_last_known_match,a=ctx?.away?.days_since_last_known_match;
+    const rest=Number.isFinite(h)&&Number.isFinite(a)?h+' dias casa · '+a+' dias fora':'Cobertura insuficiente';
+    const shot=state.shotsResearch?.leagues?.[m.lid]?.candidates?.find(x=>x.match_id===String(e.id));
+    const research=shot?.status==='observational_signal_only'?'Em estudo':'Amostra insuficiente';
+    return '<section class="panel ux-analysis"><div class="body-pad">'+
+      '<small class="ux-eyebrow">'+safe(leagueNames[m.lid])+' · '+formatDate(e.date)+'</small>'+
+      '<h2>'+safe(e.home)+' <em>vs</em> '+safe(e.away)+'</h2>'+
+      '<p class="ux-desc">Probabilidades 1X2 · '+safe(p.model||'modelo experimental')+'</p>'+
+      conciseProbabilities(p)+
+      '<div class="ux-context-grid">'+
+      '<div><small>Descanso conhecido</small><b>'+safe(rest)+'</b></div>'+
+      '<div><small>Remates / xG</small><b>'+safe(research)+'</b></div></div>'+
+      '<p class="ux-note">Descanso e outras competições podem ter cobertura parcial. Notícias, lesões e xG não alteram esta previsão.</p>'+
+      '</div></section>';
+  }
+  function briefingsView(){
+    return '<section class="panel ux-picker"><div class="body-pad">'+modelSelect()+'</div></section>'+
+      '<div id="briefing-result">'+conciseBriefing()+'</div>'+
+      '<details class="ux-details"><summary>Ver análise completa <small>Forma, notícias, ausências e mercados</small></summary>'+
+      '<div class="ux-expanded">'+briefingResult()+'</div></details>';
+  }
   function integrityView(lid,market){
     const qa=state.quality?.leagues?.[lid];
     const validate=state.validation?.leagues?.[lid];
@@ -689,6 +740,30 @@
       '<p class="muted">Estas são previsões preservadas no Git antes da data dos jogos; não confundimos a reconstrução histórica com previsões verdadeiramente emitidas antecipadamente. Alterações ao repositório ainda dependem das permissões do seu proprietário.</p></div>'+
       '<div class="limit-note">Sem previsões de rentabilidade: os testes não utilizam odds de mercado. O histórico foi importado retrospectivamente e continua sujeito a limitações de qualidade e seleção do modelo.</div></div></section>'+integrityView(lid,state.reliabilityMarket);
   }
+  function conciseReliabilityView(){
+    const lid=state.league==='all'?'pt':state.league;
+    const future=state.ledgerHealth?.states||{};
+    const p=state.reliability?.prospective;
+    const xg=state.xgExperiment?.leagues?.[lid];
+    return '<section class="panel ux-reliability"><div class="body-pad"><h2>Previsões antes do jogo</h2>'+
+      '<p class="ux-desc">Só podemos avaliar previsões depois do resultado final.</p>'+
+      '<div class="ux-metric-grid">'+
+      '<div><small>Previsões registadas</small><strong>'+(p?.logged??'—')+'</strong></div>'+
+      '<div><small>Resultados disponíveis</small><strong>'+(p?.settled??'—')+'</strong></div>'+
+      '<div><small>Por jogar</small><strong>'+(future.future??'—')+'</strong></div>'+
+      '<div><small>Passados sem resultado</small><strong>'+(future.past_due_missing_result??'—')+'</strong></div></div>'+
+      '<p class="ux-note">'+((p?.settled??0)<100?'A amostra prospetiva ainda é pequena: não existe precisão comprovada.':'Existem avaliações prospetivas; confirma os intervalos de incerteza no relatório técnico.')+'</p>'+
+      '</div></section>'+
+      '<section class="panel ux-reliability ux-xg-card"><div class="body-pad"><h2>Poisson + xG · laboratório</h2>'+
+      '<div class="ux-stats"><span><b>'+(xg?.xg_observations??0)+'</b> jogos com xG observado</span>'+
+      '<span><b>'+(state.xgExperiment?.total_shadow_predictions??0)+'</b> previsões experimentais</span>'+
+      '<span><b>'+(xg?.paired_evaluation?.n??0)+'</b> jogos comparados</span></div>'+
+      '<p class="ux-note">Estado: '+(xg?.status==='prospective_shadow_running'?'recolha prospetiva em curso':'faltam observações por equipa')+
+      '. Não altera o modelo publicado nem gera recomendações de aposta.</p>'+
+      '</div></section>'+
+      '<details class="ux-details"><summary>Consultar relatório técnico <small>Brier, calibração, métodos e épocas</small></summary>'+
+      '<div class="ux-expanded">'+reliabilityView()+'</div></details>';
+  }
   function render(){const page=views[state.view]||views.overview;$('#view-breadcrumb').textContent=page[0];$('#page-title').innerHTML=page[1];$('#page-subtitle').textContent=page[2];
     $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
     $$('.league-pill').forEach(b=>b.classList.toggle('active',b.dataset.league===state.league));
@@ -696,15 +771,22 @@
     if(!state.data?.updated_at){warning.textContent='Ainda não existe uma recolha completa. A primeira execução do GitHub Actions irá importar os resultados das duas ligas. O painel pode mostrar uma amostra de arranque incompleta.';warning.classList.remove('hidden');}
     else if(incomplete.length){warning.textContent=`Dados parciais para ${incomplete.map(x=>leagueNames[x]).join(' e ')}. Uma ou mais jornadas podem estar em falta; não uses esta classificação como oficial.`;warning.classList.remove('hidden');}
     else{warning.classList.add('hidden');}
-    $('#view').innerHTML=({overview, matches:matchView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,value:valueView,reliability:reliabilityView})[state.view]();
+    $('#view').innerHTML=({overview, matches:matchView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,value:valueView,reliability:conciseReliabilityView})[state.view]();
+    const advanced=$('#advanced-menu');
+    if(advanced&&['table','model','news','absences','value'].includes(state.view))advanced.open=true;
     $('#updated-at').textContent=state.data?.updated_at?fullDate(state.data.updated_at):'Sem atualização completa';
     $('#side-status').textContent=state.data?.updated_at?`${games().length} jogos na seleção`:'À espera da 1.ª recolha';
     bindLocal();
   }
   function bindLocal(){
     $$('[data-goto]').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.goto)));
+    $$('[data-open-match]').forEach(b=>b.addEventListener('click',()=>{
+      state.modelMatch=b.dataset.openMatch;
+      goto('briefings');
+    }));
+    $$('[data-more-games]').forEach(b=>b.addEventListener('click',()=>{state.matchLimit+=30;render();}));
     const filter=$('#match-filter'), search=$('#match-search'), sel=$('#model-match');
-    if(filter)filter.addEventListener('change',e=>{state.matchFilter=e.target.value;render();});
+    if(filter)filter.addEventListener('change',e=>{state.matchFilter=e.target.value;state.matchLimit=30;render();});
     if(search)search.addEventListener('input',e=>{const caret=e.target.selectionStart;state.search=e.target.value;render();const n=$('#match-search');if(n){n.focus();n.setSelectionRange(caret,caret);}});
     if(sel)sel.addEventListener('change',e=>{state.modelMatch=e.target.value;render();});
     const nf=$('#news-filter');if(nf)nf.addEventListener('change',e=>{state.newsFilter=e.target.value;render();});
@@ -726,13 +808,15 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['xgExperiment','xg_experiment.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
     render();
   }
   // Funções matemáticas expostas exclusivamente para testes locais.
-  window.FootballLabTest = {standings,poisson,predict,teamForm,parseData:d=>{state.data=d},parseIntelligence:d=>{state.intelligence=d},getStats};
+  window.FootballLabTest = {standings,poisson,predict,teamForm,parseData:d=>{state.data=d},parseIntelligence:d=>{state.intelligence=d},
+    setModelData:d=>{state.model=d},setXGData:d=>{state.xgExperiment=d},
+    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,getStats};
   initialize();
 })();

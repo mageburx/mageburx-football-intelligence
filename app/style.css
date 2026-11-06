@@ -209,3 +209,131 @@
 .fi-lineup-status{padding:13px 15px;background:#162f42;border:1px solid #34566a;border-radius:9px;margin-top:14px}
 .fi-lineup-status strong{font-size:12px;color:#e5f3f5}
 .fi-lineup-status p{font-size:11px;color:#acc8d6;margin:7px 0 0;line-height:1.65}
+
+
+/* Mageburx 6.0 — calm, match-first experience. Existing research panels remain
+   available but no longer dominate the primary user journey. */
+:root{--bg:#091521;--panel:#0f2130;--panel2:#122b3d;--edge:#294455;--text:#f1f7f9;--muted:#a8bdca;--mint:#85dec1}
+.sidebar{width:232px;background:#0b1b29;border-right:1px solid #223a4a;padding:28px 14px 17px}
+.main{width:calc(100% - 232px)}
+.brand{padding:4px 10px 34px}
+.brand b{font-size:15px;letter-spacing:1.3px}
+.brand small{letter-spacing:1px;font-size:9px}
+.side-group-label{color:#8ea7b6;margin-bottom:8px}
+.side-nav{gap:6px;margin-bottom:12px}
+.nav-item{font-size:13px;padding:13px 12px;color:#c2d2de;border-radius:12px;min-height:44px}
+.nav-item.active{background:#183a3d;color:#aff4d7}
+.nav-item:focus-visible,.league-pill:focus-visible,.ux-primary:focus-visible,
+.ux-fixture:focus-visible,.ux-link:focus-visible,.advanced-menu summary:focus-visible,
+.ux-details summary:focus-visible{outline:2px solid #a4ffdc;outline-offset:3px}
+.advanced-menu{margin:7px 0}
+.advanced-menu>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;
+  padding:15px 13px;color:#94adbb;border:1px solid #213847;border-radius:11px;font-size:12px}
+.advanced-menu>summary::-webkit-details-marker{display:none}
+.advanced-menu[open]>summary{color:#daf0ec;background:#102837;border-color:#305062}
+.advanced-menu>summary span{font-size:16px}
+.advanced-menu .side-nav{margin:8px 0 0 8px;padding:0 0 0 10px;border-left:1px solid #355366}
+.advanced-menu .nav-item{font-size:12px;min-height:38px;padding:10px 12px}
+.sidebar-note{font-size:10px;line-height:1.5;padding:13px 8px 0}
+.status-card{padding:12px;background:#102737}
+.topbar{height:65px;background:#0b1926;padding:0 36px}
+.breadcrumb{font-size:13px;color:#cddfe7}.breadcrumb b{color:#f1f8fb}
+.breadcrumb-meta{color:#667d8a}
+.content{max-width:1120px;padding:32px 38px}
+.intro{align-items:flex-start;margin-bottom:22px}
+.intro h1{font-size:clamp(27px,3vw,35px);line-height:1.22;letter-spacing:-.8px;margin-bottom:8px}
+.intro p{font-size:13px;max-width:620px;line-height:1.55}
+.sync-inline{font-size:11px;color:#94b0bf;padding-top:9px;white-space:nowrap}
+.sync-inline strong{color:#ddeae9;font-weight:600}
+.league-filter{padding-bottom:18px;margin-bottom:23px;gap:8px}
+.league-pill{font-size:12px;padding:10px 16px;border-radius:999px;min-height:40px}
+.footer{font-size:10px;line-height:1.5}
+.panel{background:#0f2231;border-color:#284052}
+.ux-hero{padding:28px 30px;background:linear-gradient(128deg,#14362f 0%,#103040 58%,#102231 100%);border-color:#376a62}
+.ux-hero-top{display:flex;justify-content:space-between;gap:15px;align-items:center;font-size:10px;color:#a8e7d1;font-weight:750;letter-spacing:.8px}
+.ux-hero-top small{font-size:12px;font-weight:500;color:#c5d9de;letter-spacing:0}
+.ux-hero h2{font-size:clamp(20px,2.5vw,29px);line-height:1.32;letter-spacing:-.7px;margin:20px 0 9px;color:#fff}
+.ux-hero h2 em,.ux-analysis h2 em{font-style:normal;color:#8eafbb;font-weight:500}
+.ux-hero>p,.ux-desc{color:#b0c7cf;font-size:13px;line-height:1.55;margin:0 0 20px}
+.ux-prob-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:22px 0 14px}
+.ux-prob{padding:17px;border:1px solid #43646b;border-radius:13px;background:#152f3e}
+.ux-prob small{display:block;font-size:12px;color:#c3d4db}
+.ux-prob strong{display:block;margin-top:9px;font-size:clamp(20px,2.7vw,31px);color:#edfdf8;font-variant-numeric:tabular-nums}
+.ux-prob-track{height:12px;border-radius:999px;overflow:hidden;display:flex;background:#253848}
+.ux-prob-track span:nth-child(1){background:#80dfb8}
+.ux-prob-track span:nth-child(2){background:#e5bc77}
+.ux-prob-track span:nth-child(3){background:#7b9dcb}
+.ux-hero-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:22px}
+.ux-hero-actions small{color:#aac2c7;font-size:11px}
+.ux-primary{padding:13px 21px;min-height:44px;border:0;background:#9ce9cd;color:#092b2a;border-radius:11px;font-size:13px;font-weight:800}
+.ux-primary:hover{background:#c2ffea}
+.ux-home-section{margin:30px 0}
+.ux-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:15px}
+.ux-heading h2{margin:0 0 5px;font-size:18px;color:#f4f9fb;letter-spacing:-.2px}
+.ux-heading p{margin:0;font-size:12px;color:#a3b9c9}
+.ux-link{border:0;background:none;color:#aaf4d4;font-size:12px;font-weight:700;padding:10px;white-space:nowrap}
+.ux-fixtures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ux-fixture{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;border:1px solid #2a4655;
+  border-radius:14px;padding:18px;background:#122a3b;min-width:0;color:inherit;min-height:130px}
+.ux-fixture:hover{border-color:#63aa9b;background:#173344}
+.ux-fixture small{color:#a7c0cd;font-size:11px}
+.ux-fixture strong{font-size:15px;line-height:1.4;color:#f2f8fa;font-weight:720}
+.ux-fixture strong span{color:#819aa8;font-weight:400;font-size:12px}
+.ux-fixture-link{color:#a2f3d7;font-size:12px;font-weight:700;margin-top:auto}
+.ux-muted-section{padding:20px 24px;background:#0e202e;border:1px solid #263d4e;border-radius:15px}
+.ux-stats{display:flex;gap:10px;flex-wrap:wrap;margin:17px 0}
+.ux-stats span{font-size:12px;color:#b4cbd2;border:1px solid #324d5a;border-radius:9px;background:#152d3e;padding:12px 14px}
+.ux-stats b{color:#e5faf1;font-size:15px;margin-right:4px}
+.ux-note{font-size:12px;line-height:1.65;color:#aabfca;margin:16px 0 0}
+.ux-picker{margin-bottom:16px}
+.ux-picker .body-pad{padding:19px 23px}
+.ux-picker .choice-label{font-size:11px}
+.ux-picker select{min-height:46px;font-size:13px}
+.ux-analysis{margin-bottom:17px}
+.ux-analysis .body-pad{padding:28px 30px}
+.ux-analysis h2{font-size:clamp(21px,2.6vw,29px);margin:12px 0}
+.ux-eyebrow{color:#9de4c6;font-size:11px;font-weight:700}
+.ux-context-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.ux-context-grid>div{background:#173244;border:1px solid #355467;border-radius:11px;padding:16px}
+.ux-context-grid small,.ux-metric-grid small{display:block;color:#9db7c4;font-size:11px;margin-bottom:8px}
+.ux-context-grid b{font-size:14px;color:#e5f4f6}
+.ux-details{border:1px solid #2b4556;border-radius:14px;margin:18px 0;background:#102636;overflow:hidden}
+.ux-details>summary{cursor:pointer;padding:20px 24px;list-style:none;font-weight:740;color:#c6eee2;display:flex;gap:8px;justify-content:space-between;align-items:center}
+.ux-details>summary::-webkit-details-marker{display:none}
+.ux-details>summary:after{content:"⌄";font-size:18px}
+.ux-details[open]>summary:after{content:"⌃"}
+.ux-details>summary small{font-weight:400;color:#a8becc;font-size:11px}
+.ux-expanded{padding:18px;border-top:1px solid #2a4757}
+.ux-expanded>.panel{margin-bottom:14px}
+.ux-reliability{margin:0 0 18px}
+.ux-reliability .body-pad{padding:25px 29px}
+.ux-reliability h2{font-size:19px;letter-spacing:-.2px;margin:0 0 8px}
+.ux-reliability p{font-size:12px;line-height:1.65;color:#a9c1cd}
+.ux-metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:21px 0}
+.ux-metric-grid>div{background:#152f42;border:1px solid #314d60;border-radius:12px;padding:16px}
+.ux-metric-grid strong{display:block;color:#f2fafd;font-size:25px;font-variant-numeric:tabular-nums}
+.ux-xg-card{background:#102c34}
+.ux-xg-card strong{color:#c6fbdf}
+@media(max-width:1100px){.sync-inline{display:none}}
+@media(max-width:800px){
+  .sidebar{width:265px}.main{width:100%}.content{padding:23px 20px}
+  .topbar{padding:0 20px;height:60px}.intro h1{font-size:29px}
+  .ux-hero{padding:24px}.ux-analysis .body-pad{padding:23px}
+  .ux-prob-grid{gap:7px}.ux-prob{padding:14px 12px}
+}
+@media(max-width:560px){
+  .content{padding:19px 14px}.intro{margin-bottom:17px}
+  .ux-hero{padding:20px 17px}.ux-hero-top{flex-wrap:wrap}
+  .ux-hero h2{font-size:23px}.ux-prob strong{font-size:23px}
+  .ux-fixtures{grid-template-columns:1fr}.ux-fixture{min-height:106px;padding:15px}
+  .ux-metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ux-context-grid{grid-template-columns:1fr}
+  .ux-hero-actions{align-items:stretch}.ux-primary{width:100%}
+  .ux-heading{gap:10px}.ux-heading h2{font-size:17px}
+  .ux-details>summary{flex-wrap:wrap;font-size:13px;padding:16px}
+  .ux-expanded{padding:8px}
+  .ux-analysis .body-pad{padding:20px 16px}
+  .league-pill{padding:9px 12px;font-size:11px}
+  .breadcrumb-meta{display:none}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
