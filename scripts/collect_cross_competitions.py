@@ -139,11 +139,19 @@ def priorities(data,now=None):
                         if age<7*86400:continue
                     except (ValueError,TypeError):pass
                 plans.append((key,season,rnd))
-    # Interleave competitions instead of exhausting CL first; higher
-    # priority for the current season and earlier rounds.
+    # Prioritise autumn UEFA league-phase (R4 then R3) for current
+    # fixtures AND 2024/25, 2025/26 historical ablation. Do not spend
+    # the entire free daily request budget on 2027 future rounds.
     season_order={s:i for i,s in enumerate(reversed(SEASONS))}
     league_order={k:i for i,k in enumerate(COMPETITIONS)}
-    return sorted(plans,key=lambda x:(season_order[x[1]],x[2],league_order[x[0]]))
+    def ranking(p):
+        key,season,rnd=p
+        meta=COMPETITIONS[key]
+        priority=0 if meta['type']=='european' and rnd in (3,4) else (
+            1 if meta['type']=='european' and rnd in (2,5) else 2)
+        round_rank={4:0,3:1,5:2,2:3,1:4}.get(rnd,5+rnd)
+        return (priority,season_order[season],round_rank,league_order[key])
+    return sorted(plans,key=ranking)
 
 def collect(path=PATH,max_calls=9,pause=3.5,fetcher=fetch_round,now=None):
     now=now or dt.datetime.now(dt.timezone.utc)
