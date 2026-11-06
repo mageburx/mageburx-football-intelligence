@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -315,12 +315,18 @@
         '<td>'+(c?.complete?'Auditada · completa':'Parcial / em validação')+'</td></tr>';
     }).join('');
     const qualityTitle=qa?qa.complete_count+' de 5 épocas completas':'Auditoria ainda não publicada';
+    const scraper=state.scrapeReport;
     const status=storage?.persisted?'Backup Git gravado na branch football-data':
       'Backup Git não confirmado — apenas recuperação temporária';
     return '<section class="panel fi-v41-panel"><div class="panel-header"><div><h2>Integridade e validação independente</h2>'+
       '<p>Sem custos · dados auditáveis · decisões separadas dos jogos de teste</p></div><span class="tag">v4.1</span></div>'+
       '<div class="body-pad"><div class="fi-v41-storage"><strong>'+safe(status)+'</strong>'+
       '<p>O repositório pode ser alterado pelo proprietário; o histórico Git não constitui armazenamento imutável contra manipulação deliberada.</p></div>'+
+      '<div class="fi-v41-scraper"><h3>Scraper DBU · fonte oficial</h3>'+
+      '<p class="muted">Última execução: '+(scraper?.generated_at?safe(scraper.generated_at.slice(0,16).replace("T"," "))+' UTC':'sem relatório')+
+      ' · Novos jogos: <b>'+(scraper?.imported??0)+'</b> · Confirmados: <b>'+(scraper?.confirmed??0)+'</b> · Conflitos: <b>'+(scraper?.conflicts?.length??0)+'</b>.</p>'+
+      '<p class="muted">'+(scraper?.attempts?.some(a=>a.status==="skipped")?'A fonte esteve indisponível ou não permitiu recolha; os jogos existentes foram preservados.':
+       'Não foram detetadas falhas no último relatório. O scraper só recolhe resultados públicos permitidos.')+'</p></div>'+
       '<div class="fi-v41-two"><div class="fi-v41-box"><h3>Qualidade do histórico</h3><p class="muted">'+
       qualityTitle+' · '+(qa?.total_matches??0)+' resultados importados</p>'+
       '<div class="table-scroll"><table><thead><tr><th>Época</th><th class="text-right">Jogos</th><th>Estado</th></tr></thead><tbody>'+coverage+'</tbody></table></div></div>'+
@@ -434,7 +440,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
