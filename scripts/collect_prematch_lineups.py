@@ -25,7 +25,8 @@ def kickoff_utc(text):
     if not text:return None
     try:
         d=dt.datetime.fromisoformat(str(text).replace('Z','+00:00'))
-        return d.astimezone(dt.timezone.utc) if d.tzinfo else None
+        return d.astimezone(dt.timezone.utc) if d.tzinfo else d.replace(tzinfo=dt.timezone.utc)
+        # TheSportsDB soccer strTimestamp is conventionally UTC even without a suffix.
     except (TypeError,ValueError):
         return None
 
