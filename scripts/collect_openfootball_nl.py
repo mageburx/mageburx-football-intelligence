@@ -131,6 +131,56 @@ def merge_current(saved,additional):
     return added,updated,conflicts
 
 
+
+def reconcile_rescheduled_fixtures(events):
+    """Drop only duplicate *unplayed* source fixtures for the same oriented tie.
+
+    A domestic double round-robin has at most one home-to-away pairing.
+    Keep the primary source identity if present, and log superseded IDs so
+    already-issued predictions stay traceable but cannot settle accidentally.
+    Finished games never get removed, even on conflict.
+    """
+    buckets={}
+    for event in events:
+        if not isinstance(event,dict):continue
+        identity=(canonical(club(event.get('home'))),
+                  canonical(club(event.get('away'))))
+        if not all(identity):continue
+        buckets.setdefault(identity,[]).append(event)
+    superseded=[]
+    keep_ids=set()
+    for identity,group in buckets.items():
+        if len(group)==1:
+            keep_ids.add(group[0]['id'])
+            continue
+        if any(e.get('finished') is True for e in group):
+            # A real final score is authoritative. A future entry can be a
+            # stale schedule snapshot and may be safely dropped; however
+            # multiple completed home/away games are left for manual review.
+            completed=[e for e in group if e.get('finished') is True]
+            if len(completed)>1:
+                keep_ids.update(e['id'] for e in group)
+                continue
+            chosen=completed[0]
+        else:
+            # Prefer a fixture with original API identity to synthetic OpenFootball
+            # IDs, regardless of its planned date (reschedules can move months).
+            chosen=min(group,key=lambda e:(
+                str(e.get('id','')).startswith('ofnl:'),
+                not bool(e.get('utc')),
+                str(e.get('id',''))))
+        keep_ids.add(chosen['id'])
+        for e in group:
+            if e['id']!=chosen['id'] and e.get('finished') is not True:
+                superseded.append({
+                    'id':e['id'],'replacement_id':chosen['id'],
+                    'old_date':e.get('date'),'replacement_date':chosen.get('date'),
+                    'home':e.get('home'),'away':e.get('away'),
+                    'reason':'duplicate_or_rescheduled_future_fixture',
+                })
+    return [e for e in events if e.get('id') in keep_ids],superseded
+
+
 def collect(season_path=SEASON_FILE,archive_path=ARCHIVE_FILE,fetcher=get_json,now=None,
             min_hours=22):
     now=now or dt.datetime.now(dt.timezone.utc)
@@ -157,12 +207,19 @@ def collect(season_path=SEASON_FILE,archive_path=ARCHIVE_FILE,fetcher=get_json,n
             if year==CURRENT:
                 current=doc['leagues']['nl']
                 n,u,c=merge_current(current['events'],records)
+                current['events'],superseded=reconcile_rescheduled_fixtures(
+                    current['events'])
                 current['events'].sort(key=lambda x:(x['date'],x['id']))
+                prior_superseded=current.get('openfootball',{}).get('superseded',[])
+                superseded_by_id={x['id']:x for x in prior_superseded+superseded
+                                  if x.get('id')}
                 current['openfootball']={
                     'source':'OpenFootball football.json CC0-1.0',
                     'updated_at':now.replace(microsecond=0).isoformat(),
                     'added':n,'results_confirmed':u,'conflicts':c,
-                    'source_fixture_count':len(records)}
+                    'source_fixture_count':len(records),
+                    'superseded':list(superseded_by_id.values()),
+                    'newly_reconciled':len(superseded)}
                 if c:errors.append(f'{year}: {c} conflicting results')
                 continue
             actual=[m for m in records if m['finished']]
