@@ -97,28 +97,54 @@
   function tableMarkup(e, max=9){const teams=standings(e);if(!teams.length)return `<div class="empty"><b>A recolher resultados</b>A tabela aparece assim que existirem jogos terminados.</div>`;
     return `<div class="table-scroll"><table><thead><tr><th># &nbsp; Clube</th><th class="text-right">J</th><th class="text-right">V</th><th class="text-right">E</th><th class="text-right">D</th><th class="text-right">DG</th><th class="text-right">PTS</th><th>Últimos 5</th></tr></thead><tbody>${teams.slice(0,max).map((t,i)=>`<tr><td class="team-cell"><span class="rank ${i<3?'top':''}">${i+1}.</span><span class="team-name"><span class="tiny-shield">${safe(t.name.slice(0,2).toUpperCase())}</span>${safe(t.name)}</span></td><td class="text-right">${t.played}</td><td class="text-right">${t.wins}</td><td class="text-right">${t.draws}</td><td class="text-right">${t.losses}</td><td class="text-right">${(t.gf-t.ga)>0?'+':''}${t.gf-t.ga}</td><td class="text-right points">${t.points}</td><td><span class="form-cell">${t.form.slice(-5).map(x=>`<span class="form-dot ${x}">${x==='w'?'V':x==='d'?'E':'D'}</span>`).join('')}</span></td></tr>`).join('')}</tbody></table></div>`;}
   const matchRow=(e,includeLeague=true)=>`<div class="match-item"><div class="match-date">${formatDate(e.date)}<br/><span class="match-league">J${e.round||'—'}${includeLeague?' · '+safe((e.league||'').toUpperCase()):''}</span></div><div class="match-clubs"><div><strong>${safe(e.home)}</strong><span class="score">${isFinished(e)?e.home_score:'–'}</span></div><div><strong>${safe(e.away)}</strong><span class="score">${isFinished(e)?e.away_score:'–'}</span></div></div><span class="match-pill">${isFinished(e)?'FINAL':'POR JOGAR'}</span></div>`;
-  function overview(){const s=getStats(),finish=scored(),next=forthcoming().slice(0,5), last=[...finish].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,5);
-    const chosen = state.league === 'all'?'pt':state.league;
-    const lg = state.data?.leagues?.[chosen];
-    const table = rows(chosen);
-    const rounds = [...new Set(finish.map(e=>e.round).filter(Boolean))].sort((a,b)=>a-b).slice(-9);
-    const bars = rounds.map(n=>({n,v:finish.filter(e=>e.round===n).reduce((a,e)=>a+e.home_score+e.away_score,0)}));
-    const max=Math.max(1,...bars.map(b=>b.v));
-    return `<div class="cards">
-      <div class="stat-card featured"><div class="stat-top">Jogos disputados <span class="stat-icon">▦</span></div><div class="stat-num">${s.finished}</div><div class="stat-detail"><b>${s.loaded}</b> jogos no calendário recolhido</div></div>
-      <div class="stat-card"><div class="stat-top">Golos por jogo <span class="stat-icon">⚽</span></div><div class="stat-num">${numberPT.format(s.avg)}</div><div class="stat-detail">${s.goals} golos nos jogos terminados</div></div>
-      <div class="stat-card"><div class="stat-top">Vitórias da casa <span class="stat-icon">⌂</span></div><div class="stat-num">${s.finished?percent(s.homeWon/s.finished):'—'}</div><div class="stat-detail">${s.homeWon} em ${s.finished} jogos concluídos</div></div>
-      <div class="stat-card"><div class="stat-top">Próximos jogos <span class="stat-icon">↗</span></div><div class="stat-num">${s.upcoming}</div><div class="stat-detail">no calendário atualmente recolhido</div></div>
-    </div>
-    <div class="split">
-      <section class="panel"><div class="panel-header"><div><h2>Classificação · ${safe(leagueNames[chosen])}</h2><p>Calculada com os jogos disponíveis</p></div><button class="link-button" data-goto="table">Ver tabela completa ↗</button></div>${tableMarkup(table,8)}</section>
-      <section class="panel"><div class="panel-header"><div><h2>Próximos encontros</h2><p>Calendário da época 2026/27</p></div><button class="link-button" data-goto="matches">Ver todos ↗</button></div><div class="match-list">${next.length?next.map(e=>matchRow(e)).join(''):`<div class="empty"><b>Sem próximos jogos nos dados carregados</b>A atualização da cloud procura todas as jornadas da época.</div>`}</div></section>
-    </div>
-    <div class="split">
-      <section class="panel"><div class="panel-header"><div><h2>Golos por jornada</h2><p>Distribuição dos golos das jornadas terminadas na seleção atual</p></div><span class="tag">ÉPOCA 26/27</span></div><div class="body-pad" style="padding-top:5px">${bars.length?`<div class="chart-bars">${bars.map(b=>`<div class="chart-bar-wrap"><span class="chart-val">${b.v}</span><div class="chart-bar" style="height:${Math.max(3,b.v/max*93)}px"></div><span class="chart-label">J${b.n}</span></div>`).join('')}</div>`:`<div class="empty">Sem resultados disponíveis.</div>`}</div></section>
-      <section class="panel"><div class="panel-header"><div><h2>Últimos resultados</h2><p>Jogos mais recentes da seleção</p></div></div><div class="match-list">${last.length?last.map(e=>matchRow(e)).join(''):'<div class="empty">Sem jogos terminados.</div>'}</div></section>
-    </div><div class="panel intel-banner"><div class="panel-header"><div><h2>◉  Inteligência pré-jogo</h2><p>Forma · descanso · notícias · ausências</p></div><button class="link-button" data-goto="briefings">Abrir dossiês ↗</button></div><div class="body-pad" style="padding-top:0"><p class="muted">Os sinais qualitativos são apresentados com evidência e data. Não são convertidos automaticamente em probabilidades sem validação histórica.</p></div></div><div class="section-heading"><h2>Como usamos os dados</h2><small>Fonte aberta · Sem operações financeiras</small></div>
-    <div class="insights"><div class="insight-card"><div class="insight-icon">◎</div><h3>Dados verificáveis</h3><p>Calendário, resultados e classificação calculada. Se a API falhar, o painel sinaliza informação incompleta.</p></div><div class="insight-card"><div class="insight-icon">⌁</div><h3>Modelo experimental</h3><p>Estimativas Poisson 1X2, golos e ambas marcam, suavizadas para evitar extrapolações fortes de poucos jogos.</p></div><div class="insight-card"><div class="insight-icon">◉</div><h3>Dossiê pré-jogo</h3><p>Forma recente, descanso na liga, notícias com fonte e disponibilidade dos jogadores. Sem preencher lacunas com suposições.</p></div></div>`;
+  // Focus view: one prediction + shortlist. All diagnostics are elsewhere.
+  function publicForecast(e){
+    const item=state.model?.leagues?.[e.league]?.predictions?.[String(e.id)];
+    const fresh=state.model?.generated_at && state.data?.updated_at &&
+      state.model.generated_at>=state.data.updated_at;
+    return fresh && item && [item.p1,item.px,item.p2].every(Number.isFinite)?item:null;
+  }
+  function conciseProbabilities(p){
+    if(!p)return '<p class="ux-note">Previsão ainda indisponível para este encontro.</p>';
+    const total=p.p1+p.px+p.p2;
+    if(!Number.isFinite(total)||total<=0)return '<p class="ux-note">Probabilidade indisponível.</p>';
+    const values=[p.p1/total,p.px/total,p.p2/total];
+    return '<div class="ux-prob-grid">'+[['Casa',values[0]],['Empate',values[1]],['Fora',values[2]]].map(([name,v])=>
+      '<div class="ux-prob"><small>'+name+'</small><strong>'+percent(v)+'</strong></div>').join('')+
+      '</div><div class="ux-prob-track" role="img" aria-label="Casa '+percent(values[0])+', empate '+percent(values[1])+', fora '+percent(values[2])+'">'+
+      values.map(v=>'<span style="width:'+(100*v).toFixed(3)+'%"></span>').join('')+'</div>';
+  }
+  function compactFixture(e){
+    return '<button type="button" class="ux-fixture" data-open-match="'+safe(e.league+':'+e.id)+'" aria-label="Analisar '+safe(e.home)+' contra '+safe(e.away)+'">'+
+      '<small>'+safe(leagueNames[e.league])+' · '+formatDate(e.date)+'</small>'+
+      '<strong>'+safe(e.home)+' <span>vs</span> '+safe(e.away)+'</strong>'+
+      '<span class="ux-fixture-link">Analisar →</span></button>';
+  }
+  function overview(){
+    const next=forthcoming().slice(0,7);
+    const selected=next.find(e=>publicForecast(e))||next[0];
+    const others=next.filter(e=>e!==selected).slice(0,5);
+    const p=selected?publicForecast(selected):null;
+    const past=state.reliability?.prospective;
+    const xg=state.xgExperiment;
+    const observed=Object.values(xg?.leagues||{}).reduce((n,a)=>n+(a.xg_observations||0),0);
+    return '<section class="panel ux-hero"><div class="ux-hero-top"><span>JOGO EM DESTAQUE</span>'+
+      (selected?'<small>'+safe(leagueNames[selected.league])+' · '+formatDate(selected.date)+'</small>':'')+'</div>'+
+      (selected?'<h2>'+safe(selected.home)+' <em>vs</em> '+safe(selected.away)+'</h2>'+
+      '<p>Probabilidades estimadas para o resultado final</p>'+conciseProbabilities(p)+
+      '<div class="ux-hero-actions"><button class="ux-primary" type="button" data-open-match="'+safe(selected.league+':'+selected.id)+'">Analisar este jogo →</button>'+
+      '<small>Modelo experimental, sem garantia de resultado.</small></div>':
+      '<div class="empty"><b>Sem próximos jogos</b>Seleciona outra liga ou consulta o calendário.</div>')+'</section>'+
+      '<section class="ux-home-section"><div class="ux-heading"><div><h2>Próximos jogos</h2><p>Escolhe um jogo para ver a previsão.</p></div>'+
+      '<button data-goto="matches" class="ux-link">Ver todos →</button></div>'+
+      (others.length?'<div class="ux-fixtures">'+others.map(compactFixture).join('')+'</div>':
+      '<p class="ux-note">Ainda não existem outros encontros na seleção.</p>')+'</section>'+
+      '<section class="ux-home-section ux-muted-section"><div class="ux-heading"><div><h2>Fiabilidade</h2><p>O que já foi medido, sem promessas.</p></div>'+
+      '<button data-goto="reliability" class="ux-link">Ver detalhe →</button></div>'+
+      '<div class="ux-stats"><span><b>'+(past?.logged??'—')+'</b> previsões guardadas</span>'+
+      '<span><b>'+(past?.settled??'—')+'</b> resultados avaliados</span>'+
+      '<span><b>'+observed+'</b> observações xG</span></div>'+
+      '<p class="ux-note">O xG está a ser estudado separadamente e ainda não altera as probabilidades.</p></section>';
   }
   function matchView(){let items=games();let q=state.search.toLocaleLowerCase('pt-PT').trim();if(q)items=items.filter(e=>(e.home+' '+e.away).toLocaleLowerCase('pt-PT').includes(q));
     if(state.matchFilter==='finished')items=items.filter(isFinished);
