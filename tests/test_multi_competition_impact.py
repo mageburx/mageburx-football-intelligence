@@ -43,6 +43,19 @@ class MultiCompetitionImpactTests(unittest.TestCase):
         self.assertFalse(coverage['adequate_minimum_sample'])
         self.assertEqual(coverage['known_cross_matches'],0)
 
+    def test_cup_and_uefa_coverage_are_separate_and_deduplicated(self):
+        events=[self.league('2024-10-01')]
+        euro=self.cup('2024-10-08')
+        duplicate={**euro,'id':'alternate:111','home':'Porto'}
+        domestic={**self.cup('2024-10-09',away='Braga',id='domestic'),
+                  'competition_type':'domestic_cup'}
+        irrelevant=self.cup('2024-10-10',home='Unrelated A',away='Unrelated B')
+        coverage=source_coverage(events,[euro,duplicate,domestic,irrelevant],'2024-2025')
+        self.assertEqual(coverage['known_cross_matches'],2)
+        self.assertEqual(coverage['known_domestic_cup_matches'],1)
+        self.assertEqual(coverage['known_european_matches'],1)
+        self.assertFalse(coverage['coverage_certified_complete'])
+
     def test_missing_2024_source_blocks_holdout_claim(self):
         years=['2021-2022','2022-2023','2023-2024','2024-2025','2025-2026']
         seasons={y:{'events':[self.league(f'{y[:4]}-10-01',id=y)]} for y in years}
