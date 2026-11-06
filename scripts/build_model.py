@@ -27,7 +27,7 @@ def finished(e):
     return (e.get('finished') is True and isinstance(e.get('home_score'), int)
             and not isinstance(e['home_score'], bool)
             and isinstance(e.get('away_score'), int)
-            and not isinstance(e['away_score'], bool))
+            and not isinstance(e['away_score'], bool) and e.get('model_eligible') is not False)
 
 def normalise(p):
     vals = [max(1e-9, float(x)) for x in p]
