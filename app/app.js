@@ -148,7 +148,9 @@
       '<div class="ux-stats"><span><b>'+(past?.logged??'—')+'</b> previsões guardadas</span>'+
       '<span><b>'+(past?.settled??'—')+'</b> resultados avaliados</span>'+
       '<span><b>'+observed+'</b> observações xG</span></div>'+
-      '<p class="ux-note">O xG está a ser estudado separadamente e ainda não altera as probabilidades.</p></section>';
+      '<p class="ux-note">O xG está a ser estudado separadamente e ainda não altera as probabilidades. '+
+      (Object.values(state.data?.leagues||{}).some(l=>l.partial)?'Alguns calendários ainda estão em recolha, sobretudo os campeonatos recém-adicionados.':'')+
+      '</p></section>';
   }
   function matchView(){let items=games();let q=state.search.toLocaleLowerCase('pt-PT').trim();if(q)items=items.filter(e=>(e.home+' '+e.away).toLocaleLowerCase('pt-PT').includes(q));
     if(state.matchFilter==='finished')items=items.filter(isFinished);
@@ -773,7 +775,7 @@
     $$('.league-pill').forEach(b=>b.classList.toggle('active',b.dataset.league===state.league));
     const warning=$('#warning');const selected=activeLeagues();const incomplete=selected.filter(lid=>state.data?.leagues?.[lid]?.partial);
     if(!state.data?.updated_at){warning.textContent='Ainda não existe uma recolha completa. A primeira execução do GitHub Actions irá importar os resultados das duas ligas. O painel pode mostrar uma amostra de arranque incompleta.';warning.classList.remove('hidden');}
-    else if(incomplete.length){warning.textContent=`Dados parciais para ${incomplete.map(x=>leagueNames[x]).join(' e ')}. Uma ou mais jornadas podem estar em falta; não uses esta classificação como oficial.`;warning.classList.remove('hidden');}
+    else if(incomplete.length && state.league!=='all'){warning.textContent=`Cobertura parcial: ${leagueNames[state.league]}. Podem faltar jogos ou jornadas; as probabilidades são exploratórias.`;warning.classList.remove('hidden');}
     else{warning.classList.add('hidden');}
     $('#view').innerHTML=({overview, matches:matchView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,value:valueView,reliability:conciseReliabilityView})[state.view]();
     const advanced=$('#advanced-menu');
