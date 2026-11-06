@@ -18,7 +18,8 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 BRANCH = 'football-data'
 TRACKED = ('history.json', 'ledger.json', 'season.json', 'model.json',
-           'reliability.json', 'quality.json', 'validation.json', 'scrape_report.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json')
+           'reliability.json', 'quality.json', 'validation.json', 'scrape_report.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json',
+           'cross_competitions.json', 'schedule_context.json', 'prematch_lineups.json')
 
 def git(*args, cwd=ROOT, check=True):
     return subprocess.run(['git', *args], cwd=cwd, check=check,
@@ -55,11 +56,24 @@ def restore(root=ROOT):
         path.write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
         print(f'Restored {name} from Git branch {BRANCH}', flush=True)
 
+    # For the new partially collected metadata feeds, the data branch is
+    # authoritative. Do not accidentally reset the previous successful
+    # season-round collection on the next hourly workflow.
+    for filename in ('cross_competitions.json','prematch_lineups.json'):
+        prior=read_remote(filename)
+        if prior is None:continue
+        if not isinstance(prior,dict) or prior.get('schema')!=1:
+            raise RuntimeError('Corrupt persistent contextual feed: '+filename)
+        target=root/'data'/filename
+        target.write_text(json.dumps(prior,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8')
+        print('Restored context state:',filename,flush=True)
+
 def save(root=ROOT):
     fetch = git('fetch', '--no-tags', 'origin', f'+refs/heads/{BRANCH}:refs/remotes/origin/{BRANCH}', check=False)
     if fetch.returncode:
         raise RuntimeError('Persistent branch not reachable: ' + fetch.stderr[-500:])
-    for filename in ('history.json', 'ledger.json', 'reliability.json', 'quality.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json'):
+    for filename in ('history.json', 'ledger.json', 'reliability.json', 'quality.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json',
+                     'cross_competitions.json', 'schedule_context.json', 'prematch_lineups.json'):
         filepath=root/'data'/filename
         if not filepath.is_file():
             raise RuntimeError('Missing required persistent data file: '+str(filepath))
