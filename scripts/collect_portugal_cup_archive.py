@@ -35,7 +35,7 @@ ARCHIVES={
                        'competition':'Taça da Liga','id':'pt_league_cup','expected':7},
 }
 def parse_archive(html,reference):
-    if not isinstance(html,str) or len(html)<1500 or 'score-game' not in html:
+    if not isinstance(html,str) or len(html)<300 or 'score-game' not in html:
         raise ValueError('Source document unavailable')
     pp=ArchiveParser()
     pp.feed(html)
