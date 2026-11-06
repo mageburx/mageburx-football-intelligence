@@ -21,8 +21,12 @@ const scope={window:{scrollTo(){},innerWidth:1200},document:{
 };
 vm.runInNewContext(src,scope);
 const app=scope.window.FootballLabTest;
-app.parseData(season);
-app.setXGData({total_shadow_predictions:0,leagues:{pt:{xg_observations:3},dk:{xg_observations:3}}});
+function loadFixtures(){
+  // initialize() also resolves an asynchronous fallback; restore fixtures for
+  // each test after that asynchronous setup has completed.
+  app.parseData(season);
+  app.setXGData({total_shadow_predictions:0,leagues:{pt:{xg_observations:3},dk:{xg_observations:3}}});
+}
 
 test('primary navigation is focused and advanced features remain accessible',()=>{
   const main=html.match(/<nav class="side-nav" aria-label="Secções principais">([\s\S]*?)<\/nav>/);
@@ -35,6 +39,7 @@ test('primary navigation is focused and advanced features remain accessible',()=
 });
 
 test('home prioritizes a selected game and no longer shows legacy charts',()=>{
+  loadFixtures();
   const out=app.renderOverview();
   assert.ok(out.includes('JOGO EM DESTAQUE'));
   assert.ok(out.includes('data-open-match='));
@@ -46,6 +51,7 @@ test('home prioritizes a selected game and no longer shows legacy charts',()=>{
 });
 
 test('game detail exposes one clear analysis with optional full report',()=>{
+  loadFixtures();
   const out=app.renderBriefing();
   assert.ok(out.includes('id="model-match"'));
   assert.ok(out.includes('ux-analysis'));
@@ -54,6 +60,7 @@ test('game detail exposes one clear analysis with optional full report',()=>{
 });
 
 test('reliability shows distinct prospective and xG research counts',()=>{
+  loadFixtures();
   const out=app.renderReliability();
   assert.ok(out.includes('Previsões antes do jogo'));
   assert.ok(out.includes('Poisson + xG'));
