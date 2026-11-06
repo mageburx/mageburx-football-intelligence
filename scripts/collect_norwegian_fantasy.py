@@ -53,7 +53,7 @@ def download():
     with urllib.request.urlopen(req,timeout=20) as response:
         data=response.read(100_000)
         if response.status!=200 or len(data)>=100_000:raise ValueError('Unexpected Norwegian CSV payload')
-        return data.decode('utf8-sig')
+        return data.decode('utf-8-sig')
 
 
 def parse(text,now):
@@ -116,7 +116,20 @@ def reconcile(season_path=FILE,fetcher=download,now=None,min_hours=22):
                 return doc
         except (ValueError,TypeError):pass
     before=league.get('events',[])
-    incoming=parse(fetcher(),now)
+    try:
+        incoming=parse(fetcher(),now)
+    except (OSError,RuntimeError,ValueError,UnicodeError,TimeoutError) as exc:
+        league['fantasy_research']={
+            **league.get('fantasy_research',{}),
+            'status':'source_unavailable',
+            'last_error':str(exc)[:180],
+            'last_failed_at':now.replace(microsecond=0).isoformat(),
+        }
+        season_path.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':'))+'\n',
+                               encoding='utf8')
+        print('Norway supplemental source unavailable; keeping previous fixtures:',
+              str(exc)[:180],flush=True)
+        return doc
     bykey={key(e):e for e in before}
     added=confirmed=conflicts=updated=0
     for row in incoming:
