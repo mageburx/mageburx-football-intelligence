@@ -99,6 +99,15 @@ def valid_items(raw,lid,today):
 def save_match(known,item):
     existing=known.get(item['id'])
     if existing is None:
+        # Secondary CC0 archives use stable synthetic IDs; do not duplicate a
+        # fixture from the primary API when its original ID differs.
+        for previous in known.values():
+            if (previous.get('date')==item.get('date') and
+                previous.get('home')==item.get('home') and
+                previous.get('away')==item.get('away')):
+                existing=previous
+                break
+    if existing is None:
         known[item['id']]=item
         return
     if existing.get('finished') and item.get('finished') and (
@@ -161,6 +170,10 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
         attempted=meta['attempted_rounds']
         for rnd in range(1,cfg['rounds']+1):
             if rnd in verified:continue
+            # Avoid spending scarce primary API calls on fully scored CC0 rounds.
+            if lid=='nl' and sum(e.get('round')==rnd and e.get('finished') is True
+                                  for e in c['known'].values())>=cfg['games_per_round']:
+                continue
             recent=attempted.get(str(rnd))
             if recent:
                 try:
@@ -169,7 +182,8 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
             # The earliest unverified rounds give a useful historical base.
             targets.append((rnd,lid))
     # Distinct leagues alternate; do not spend the budget on one competition.
-    targets.sort(key=lambda x:(x[0],('nl','dk2','no').index(x[1])))
+    # Prioritize leagues without a complementary CC0 source first.
+    targets.sort(key=lambda x:(x[0],('dk2','no','nl').index(x[1])))
     for rnd,lid in targets:
         if quota_exhausted or calls>=max_calls:break
         c=work[lid]
