@@ -30,7 +30,7 @@ def write_ledger(season,model,path,now=None):
     quarantined_keys={item.get('key') for item in quarantined}
     for item in ledger['settlements']:
         event=index.get(item.get('key'))
-        valid=(verified_event(event) and item.get('date')==event.get('date')
+        valid=(item.get('verified_final') is True and verified_event(event) and item.get('date')==event.get('date')
                and (item.get('home_score'),item.get('away_score'))==
                    (event.get('home_score'),event.get('away_score')))
         if valid:
