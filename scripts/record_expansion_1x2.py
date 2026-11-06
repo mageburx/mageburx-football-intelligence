@@ -12,6 +12,10 @@ import hashlib
 import json
 import math
 from pathlib import Path
+try:
+    from scripts.match_status import verified_event
+except ModuleNotFoundError:
+    from match_status import verified_event
 
 ROOT=Path(__file__).resolve().parents[1]
 PATH=ROOT/'data'/'expansion_1x2_ledger.json'
@@ -67,9 +71,7 @@ def run(season,model,existing=None,now=None):
             eid=str(event.get('id') or '')
             if not eid or not event.get('date'):continue
             key=expected_key(lid,season.get('season','unknown'),event)
-            finished=event.get('finished') is True and (
-                type(event.get('home_score')) is int and
-                type(event.get('away_score')) is int)
+            finished=verified_event(event)
             if key in saved:
                 if (key not in settled and finished and event['date']<today):
                     db['settlements'].append({
