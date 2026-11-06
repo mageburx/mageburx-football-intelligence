@@ -87,3 +87,28 @@ test('separate reliability distinguishes historical Dutch testing from untested 
   assert.ok(view.includes('18 · resultados avaliados: 0'));
   assert.ok(!view.includes('ROI positivo'));
 });
+
+test('prospective integrity audit separates pending from settled football predictions',()=>{
+ app.parseData(snapshot());
+ app.setExpansionReliability({leagues:{
+  nl:{completed:63,upcoming:243,partial:true,best_available_1x2:{n:304,brier:.57},
+      prospective:{settled:0},prospective_1x2:{issued:207,settled:0,brier:null},
+      quality:'historical_holdout_available_not_proof_of_profit'},
+  dk2:{completed:81,upcoming:51,partial:true,best_available_1x2:{n:48,brier:.7},
+      prospective:{settled:0},prospective_1x2:{issued:51,settled:0,brier:null},
+      quality:'insufficient_independent_holdout'},
+  no:{completed:200,upcoming:40,partial:true,best_available_1x2:{n:169,brier:.6},
+      prospective:{settled:0},prospective_1x2:{issued:40,settled:0,brier:null},
+      quality:'insufficient_independent_holdout'}
+ }});
+ app.setExpansionAudit({status:'monitoring',leagues:{
+  nl:{future:207,today:0,past_due:0,rescheduled:0,invalid:0,status:'awaiting_results'},
+  dk2:{future:51,today:0,past_due:0,rescheduled:0,invalid:0,status:'awaiting_results'},
+  no:{future:40,today:0,past_due:0,rescheduled:1,invalid:0,status:'schedule_change_review'}
+ }});
+ const view=app.renderReliability();
+ assert.ok(view.includes('Integridade 1X2:'));
+ assert.ok(view.includes('207 por jogar'));
+ assert.ok(view.includes('1 reagendados'));
+ assert.ok(view.includes('Conferir calendário atualizado.'));
+});
