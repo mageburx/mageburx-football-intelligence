@@ -1,7 +1,7 @@
 {
   "schema": 4,
   "method": "Poisson independente; Dixon-Coles (rho fixo); Elo; mistura 80/20",
-  "generated_at": "2026-11-06T16:18:30+00:00",
+  "generated_at": "2026-11-06T16:58:07+00:00",
   "note": "Avaliação walk-forward na época atual; seleção exploratória, não teste independente. Sem xG, lesões ou notícias quantificados.",
   "leagues": {
     "pt": {
@@ -8053,6 +8053,255 @@
       },
       "sample_warning": true,
       "data_partial": false
+    },
+    "nl": {
+      "played": 15,
+      "evaluations": {},
+      "selected": "poisson",
+      "predictions": {},
+      "market_audit": {
+        "method": "Dixon-Coles fixo para os mercados binários; baseline histórico causal com suavização de Laplace",
+        "sample_policy": "Amostras abaixo de 100 previsões são insuficientes; acima disso continua a faltar validação independente.",
+        "double_chance_note": "Os backtests de dupla oportunidade usam Dixon-Coles fixo, não o modelo 1X2 selecionado no presente.",
+        "metrics": {
+          "double_1x": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "double_x2": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "double_12": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_2_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_2_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_3_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_3_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "btts_yes": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "btts_no": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "home_over_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "home_over_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "away_over_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "away_over_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          }
+        }
+      },
+      "sample_warning": true,
+      "data_partial": true
+    },
+    "dk2": {
+      "played": 15,
+      "evaluations": {},
+      "selected": "poisson",
+      "predictions": {},
+      "market_audit": {
+        "method": "Dixon-Coles fixo para os mercados binários; baseline histórico causal com suavização de Laplace",
+        "sample_policy": "Amostras abaixo de 100 previsões são insuficientes; acima disso continua a faltar validação independente.",
+        "double_chance_note": "Os backtests de dupla oportunidade usam Dixon-Coles fixo, não o modelo 1X2 selecionado no presente.",
+        "metrics": {
+          "double_1x": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "double_x2": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "double_12": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_2_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_2_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_3_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_3_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "btts_yes": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "btts_no": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "home_over_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "home_over_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "away_over_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "away_over_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          }
+        }
+      },
+      "sample_warning": true,
+      "data_partial": true
+    },
+    "no": {
+      "played": 16,
+      "evaluations": {},
+      "selected": "poisson",
+      "predictions": {},
+      "market_audit": {
+        "method": "Dixon-Coles fixo para os mercados binários; baseline histórico causal com suavização de Laplace",
+        "sample_policy": "Amostras abaixo de 100 previsões são insuficientes; acima disso continua a faltar validação independente.",
+        "double_chance_note": "Os backtests de dupla oportunidade usam Dixon-Coles fixo, não o modelo 1X2 selecionado no presente.",
+        "metrics": {
+          "double_1x": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "double_x2": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "double_12": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_2_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_2_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "over_3_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "under_3_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "btts_yes": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "btts_no": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "home_over_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "home_over_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "away_over_0_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          },
+          "away_over_1_5": {
+            "n": 0,
+            "status": "amostra_insuficiente"
+          }
+        }
+      },
+      "sample_warning": true,
+      "data_partial": true
     }
   }
 }
