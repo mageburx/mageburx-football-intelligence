@@ -943,7 +943,7 @@
     liveState.loading=false;
     if(state.view==='live')render();
   }
-  setInterval(()=>{if(state.view==='live' && document.visibilityState!=='hidden')refreshLive();},120000);
+  if(typeof setInterval==='function')setInterval(()=>{if(state.view==='live' && document.visibilityState!=='hidden')refreshLive();},120000);
 
   function render(){const page=views[state.view]||views.overview;$('#view-breadcrumb').textContent=page[0];$('#page-title').innerHTML=page[1];$('#page-subtitle').textContent=page[2];
     $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
