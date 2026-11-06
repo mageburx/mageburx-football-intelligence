@@ -322,7 +322,7 @@
       '</div>'+comparison+
       '<div class="fi-v5-confidence"><strong>Estado: SEM APOSTA RECOMENDADA</strong>'+
       '<p>Não existe evidência prospetiva suficiente para afirmar vantagem econômica, mesmo que o EV teórico seja positivo.</p>'+
-      '<p>Teste histórico do mercado: N='+p.n+' · Brier calibrado: '+fmt(brier)+' · Brier de referência: '+
+      '<p>Teste histórico do mercado: N='+p.n+' · Brier original: '+fmt(info?.raw?.brier)+' · Brier calibrado: '+fmt(brier)+' · Brier de referência: '+
       fmt(info?.calibrated?.baseline_brier)+' · '+safe(p.evidence)+'.</p>'+
       '<ul>'+warnings.map(x=>'<li>'+safe(x)+'</li>').join('')+'</ul></div></div>';
   }
