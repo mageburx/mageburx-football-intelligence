@@ -52,7 +52,8 @@ def write_ledger(season,model,path,now=None):
                 if key in old and key not in resolved:
                     ledger['settlements'].append({'key':key,'resolved_at':now.replace(microsecond=0).isoformat(),
                                                   'date':event['date'],'home_score':event['home_score'],
-                                                  'away_score':event['away_score']})
+                                                  'away_score':event['away_score'],
+                                                  'verified_final':True,'source_status':event.get('match_status')})
                     settled+=1
                     resolved.add(key)
                 continue
