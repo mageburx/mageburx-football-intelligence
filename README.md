@@ -13,6 +13,14 @@
 
 Os números de cobertura e desempenho variam a cada recolha. A fonte de verdade é a branch persistente `football-data` e os JSON publicados no GitHub Pages.
 
+## Reconciliação de IDs assinados da Eredivisie
+
+As fontes TheSportsDB e OpenFootball podem listar o mesmo confronto com uma **data provisória diferente**. A fase `scripts/reconcile_nl_forecast_ids.py` recupera os vínculos de previsões 1X2 antigas a um confronto atual **somente quando há um único par mandante/visitante dentro da época 2026/27, datas com desvio até 120 dias e assinatura do registo íntegra**. Os vínculos são guardados em `season.json → leagues.nl.openfootball.superseded`; jamais alteram a previsão original ou transferem uma liquidação de um ID para outro. Emparelhamentos ambíguos, assinaturas modificadas ou datas incompatíveis continuam sob revisão manual.
+
+A recolha horária preserva agora os metadados complementares da Eredivisie, da DBU e da fonte norueguesa, para evitar a perda dos vínculos e pedidos repetidos indevidos. O importador CC0 deixa de acrescentar um segundo calendário para o mesmo par em datas discordantes. O registo prospetivo não emite uma segunda previsão da Eredivisie para a mesma partida casa/fora quando já existe uma previsão assinada nessa época.
+
+O painel de comparação apresenta separadamente o **total de previsões assinadas** e os **identificadores substituídos não pontuáveis**. Um ID classificado como substituído não é tratado como jogo desconhecido: fica rastreável, mas excluído de quaisquer métricas de desempenho. Isto não significa que uma segunda previsão anteriormente emitida tenha sido eliminada do registo: ambas permanecem preservadas para auditoria.
+
 ## Comparador prospetivo 1X2: cinco campeonatos
 
 O mesmo registo `data/expansion_1x2_ledger.json` suporta agora **Liga Portugal (`pt`), Superliga dinamarquesa (`dk`), Eredivisie (`nl`), 1. Division (`dk2`) e Eliteserien (`no`)**. Os registos de Portugal e da Superliga começam apenas a partir da implementação: **não são geradas probabilidades retroativas** para jogos anteriores, nem se confundem os mercados do ledger geral com probabilidades 1X2.
