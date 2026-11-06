@@ -883,8 +883,10 @@
     const monitored=candidates.slice(0,8);
     const sourceError=liveState.error?'<p class="limit-note">'+safe(liveState.error)+'</p>':'';
     const cards=candidates.map(e=>{
-      const entry=liveState.items[e.league+':'+e.id]||null;
-      const status=normalizeMatchStatus(entry?.strStatus||e.match_status);
+      const cached=liveState.items[e.league+':'+e.id]||null;
+      // A status from an hourly snapshot or a stale lookup is NOT live proof.
+      const entry=cached && Date.now()-cached.checkedAt<5*60000?cached.data:null;
+      const status=normalizeMatchStatus(entry?.strStatus);
       const observed=Boolean(entry);
       const inplay=liveStates.has(status);
       const isFinal=finalStates.has(status);
@@ -902,7 +904,7 @@
         '<div class="live-footer"><span>'+safe(progress&&inplay?progress:startLabel)+'</span>'+
         '<span>'+safe(observed?'Consulta à fonte efetuada':'Sem consulta recente')+'</span></div></article>';
     }).join('');
-    const active=candidates.filter(e=>liveStates.has(normalizeMatchStatus((liveState.items[e.league+':'+e.id]||{}).strStatus))).length;
+    const active=candidates.filter(e=>{const cached=liveState.items[e.league+':'+e.id];return cached && Date.now()-cached.checkedAt<5*60000 && liveStates.has(normalizeMatchStatus(cached.data?.strStatus));}).length;
     return '<div class="live-toolbar"><div><span class="pill-label">'+active+' em jogo confirmados</span> '+
       '<span class="muted">'+candidates.length+' jogos próximos desta janela · '+monitored.length+' consultados por ciclo</span></div>'+
       '<button id="live-refresh" type="button" class="secondary-button" '+(liveState.loading?'disabled':'')+'>'+
@@ -936,7 +938,7 @@
     }));
     let ok=0;
     for(const result of results)if(result.status==='fulfilled'){
-      const [key,value]=result.value;liveState.items[key]=value;ok++;
+      const [key,value]=result.value;liveState.items[key]={data:value,checkedAt:Date.now()};ok++;
     }
     liveState.updatedAt=ok?new Date().toISOString():liveState.updatedAt;
     if(ok<candidates.length)liveState.error='Algumas consultas não foram concluídas. O estado dos jogos pode estar incompleto ou atrasado.';
