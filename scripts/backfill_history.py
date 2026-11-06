@@ -22,7 +22,9 @@ PATH = ROOT / 'data' / 'history.json'
 NEEDED = ('2021-2022', '2022-2023', '2025-2026')
 API = 'https://www.thesportsdb.com/api/v1/json/123/eventsround.php'
 LEAGUE_ID = '4340'
-ROUNDS = range(1, 33)
+ROUND_COUNTS = {'2021-2022': 22, '2022-2023': 22, '2025-2026': 32}
+# 2021/22 and 2022/23 reuse rounds 1–10 for the playoff stage.
+# Each season also has one separately sourced European play-off fixture.
 
 def get_round(season: str, round_number: int, retries: int = 2):
     url = API + '?' + urllib.parse.urlencode({'id': LEAGUE_ID, 's': season, 'r': round_number})
@@ -67,11 +69,11 @@ def collect(path=PATH, max_calls=18, pause=4.0, fetcher=get_round):
     dk = history['leagues']['dk']['seasons']
     needed = []
     for season in NEEDED:
-        item = dk.setdefault(season, {'events': [], 'actual_games': 0, 'expected_games': 192,
+        item = dk.setdefault(season, {'events': [], 'actual_games': 0, 'expected_games': 193,
                                       'complete': False, 'verified_from': 'TheSportsDB eventsround API',
                                       'fetched_rounds': []})
         known = set(item.get('fetched_rounds', []))
-        for round_number in ROUNDS:
+        for round_number in range(1, ROUND_COUNTS[season] + 1):
             if round_number not in known:
                 needed.append((season, round_number))
     # Stagger season requests, rather than 32 consecutive calls to one season.
@@ -92,9 +94,11 @@ def collect(path=PATH, max_calls=18, pause=4.0, fetcher=get_round):
                 old['events'] = sorted(merged.values(), key=lambda e: (e['date'], e['id']))
                 old['fetched_rounds'] = sorted(set(old.get('fetched_rounds', []) + [round_number]))
                 old['actual_games'] = len(old['events'])
-                # Completeness also requires all 32 rounds checked successfully.
-                old['complete'] = (len(old['fetched_rounds']) == 32 and
-                                   old['actual_games'] >= 192)
+                # Complete only after the season's real API round layout plus
+                # the separately sourced European play-off match (193 total).
+                required = set(range(1, ROUND_COUNTS[season] + 1))
+                old['complete'] = (set(old['fetched_rounds']) == required and
+                                   old['actual_games'] == 193)
                 ok += 1
                 changed = True
                 print(f'{season} J{round_number}: {len(matches)} jogos; total {old["actual_games"]}', flush=True)
