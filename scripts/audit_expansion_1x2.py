@@ -14,6 +14,10 @@ import json
 import math
 from collections import Counter
 from pathlib import Path
+try:
+    from scripts.match_status import verified_event
+except ModuleNotFoundError:
+    from match_status import verified_event
 
 ROOT=Path(__file__).resolve().parents[1]
 LEAGUES=('pt','dk','nl','dk2','no')
@@ -110,6 +114,8 @@ def calculate(ledger,season,now=None):
         result=resolved.get(key)
         if result is not None:
             c['settled']+=1
+            if result.get('verified_final') is not True or not verified_event(fixture):
+                warn(lid,'settlement_without_verified_final',key);valid=False
             if sett_keys[key]!=1:
                 warn(lid,'duplicate_settlement',key);valid=False
             if fixture and fixture.get('finished') is True and (

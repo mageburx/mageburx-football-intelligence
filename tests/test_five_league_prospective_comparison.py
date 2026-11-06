@@ -16,7 +16,8 @@ def source(finished=False,date=NEXT):
     return {'schema':1,'season':'2026-2027',
             'leagues':{lid:{'events':[{'id':f'{lid}-fixture-1','date':date,
                                        'home':f'{lid} Home','away':f'{lid} Away',
-                                       'finished':finished,
+                                       'finished':finished,'result_verified':finished,
+                                       'match_status':'FT' if finished else '',
                                        'home_score':2 if finished else None,
                                        'away_score':0 if finished else None}]}
                        for lid in LIDS}}

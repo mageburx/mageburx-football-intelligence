@@ -131,7 +131,8 @@ class ProspectiveTests(unittest.TestCase):
         self.assertEqual(next_run['predictions'][0]['sha256'],first)
         actual=season()
         actual['leagues']['no']['events'][0].update({
-            'finished':True,'home_score':2,'away_score':1})
+            'finished':True,'home_score':2,'away_score':1,
+             'result_verified':True,'match_status':'FT'})
         result=run(actual,changed,next_run,now=NOW+dt.timedelta(days=2))
         self.assertEqual(len(result['settlements']),1)
         measured=summary(result,'no')

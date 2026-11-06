@@ -72,7 +72,7 @@ class ReliabilityTests(unittest.TestCase):
             again=write_ledger(season,model,path,now)
             self.assertEqual(again['predictions'][0]['sha256'],fingerprint)
             self.assertEqual(len(again['predictions']),1)
-            season['leagues']['dk']['events'][0].update({'finished':True,'home_score':2,'away_score':1})
+            season['leagues']['dk']['events'][0].update({'finished':True,'home_score':2,'away_score':1,'result_verified':True,'match_status':'FT'})
             settled=write_ledger(season,model,path,now)
             self.assertEqual(len(settled['settlements']),1)
             repeated=write_ledger(season,model,path,now)

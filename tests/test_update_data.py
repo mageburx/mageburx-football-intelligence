@@ -4,7 +4,7 @@ from scripts.update_data import parse_event, collect, SEASON
 
 
 def make_event(id='10', season=SEASON, date='2026-08-09', hs='3', aws='1'):
-    return {'idEvent': id, 'strSeason': season, 'idLeague': '4344', 'dateEvent': date, 'strHomeTeam': 'Casa', 'strAwayTeam': 'Fora', 'intHomeScore': hs, 'intAwayScore': aws, 'intRound': '1', 'strTimestamp': date + 'T19:00:00'}
+    return {'idEvent': id, 'strSeason': season, 'idLeague': '4344', 'dateEvent': date, 'strHomeTeam': 'Casa', 'strAwayTeam': 'Fora', 'intHomeScore': hs, 'intAwayScore': aws, 'intRound': '1', 'strStatus': 'FT', 'strTimestamp': date + 'T19:00:00'}
 
 
 def test_parse_scores():

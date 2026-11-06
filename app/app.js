@@ -27,6 +27,7 @@
   const views = {
     overview:['Início','Os próximos jogos, <em>sem ruído.</em>','Escolhe um jogo. Consulta as probabilidades e aprofunda apenas quando precisares.'],
     matches:['Jogos','Calendário e <em>resultados.</em>','Pesquisa uma equipa ou abre a análise de um encontro.'],
+    live:['Jogos a decorrer','Marcadores <em>em direto.</em>','Monitorização de partidas e atualização do estado pela fonte, quando disponível.'],
     table:['Classificações','Cada ponto <em>conta.</em>','Classificações calculadas a partir dos jogos efetivamente recolhidos.'],
     briefings:['Analisar jogo','Uma previsão, <em>de cada vez.</em>','Probabilidades primeiro. Os detalhes técnicos ficam à escolha.'],
     news:['Notícias & sinais','A informação certa. <em>Com origem.</em>','Títulos recolhidos por RSS, ligados à fonte original e sujeitos a confirmação.'],
@@ -856,6 +857,94 @@
       '<details class="ux-details"><summary>Consultar relatório técnico <small>Brier, calibração, métodos e épocas</small></summary>'+
       '<div class="ux-expanded">'+reliabilityView()+'</div></details>';
   }
+
+  // The free provider exposes individual event lookups, not a guaranteed livescore feed.
+  // Never mark a match LIVE unless its latest response explicitly says so.
+  const liveState={items:{},updatedAt:null,loading:false,error:null,lastRequest:0};
+  const liveStates=new Set(['1H','HT','2H','ET','BT','P','PT','LIVE','IN PLAY','IN PROGRESS','HALF TIME','HALFTIME']);
+  const finalStates=new Set(['FT','AET','PEN','MATCH FINISHED','FINISHED','FULL TIME','FULLTIME']);
+  const normalizeMatchStatus=v=>String(v||'').trim().toUpperCase().replace(/_/g,' ').replace(/\s+/g,' ');
+  function utcKickoff(e){
+    const raw=String(e.utc||'');
+    if(!raw)return null;
+    const stamp=Date.parse(raw+(/[Zz]$|[+-]\d\d:\d\d$/.test(raw)?'':'Z'));
+    return Number.isFinite(stamp)?stamp:null;
+  }
+  function liveCandidates(){
+    const now=Date.now(),today=new Date().toISOString().slice(0,10);
+    return games().filter(e=>{
+      if(!/^\d{4,10}$/.test(String(e.id||'')))return false;
+      const kickoff=utcKickoff(e);
+      return kickoff!==null ? (kickoff-now>-45*60000 && kickoff-now<5*3600000) : e.date===today;
+    }).sort((a,b)=>Math.abs((utcKickoff(a)||now)-now)-Math.abs((utcKickoff(b)||now)-now));
+  }
+  function liveView(){
+    const candidates=liveCandidates();
+    const monitored=candidates.slice(0,8);
+    const sourceError=liveState.error?'<p class="limit-note">'+safe(liveState.error)+'</p>':'';
+    const cards=candidates.map(e=>{
+      const entry=liveState.items[e.league+':'+e.id]||null;
+      const status=normalizeMatchStatus(entry?.strStatus||e.match_status);
+      const observed=Boolean(entry);
+      const inplay=liveStates.has(status);
+      const isFinal=finalStates.has(status);
+      const label=inplay?'EM JOGO':isFinal?'FINAL NA FONTE':status==='NS'?'POR INICIAR':'POR CONFIRMAR';
+      // Never show a stale snapshot as a verified live score.
+      const hs=observed && entry.intHomeScore!=null && entry.intHomeScore!==''?Number(entry.intHomeScore):null;
+      const as=observed && entry.intAwayScore!=null && entry.intAwayScore!==''?Number(entry.intAwayScore):null;
+      const showScores=(inplay||isFinal) && Number.isInteger(hs) && Number.isInteger(as);
+      const progress=entry?.strProgress?String(entry.strProgress):'';
+      const start=utcKickoff(e);
+      const startLabel=start?fullDate(new Date(start).toISOString()):formatDate(e.date)+' · hora não confirmada';
+      return '<article class="live-game '+(inplay?'live-game-active':'')+'"><div class="live-top"><span>'+safe(leagueFlags[e.league]+' '+leagueNames[e.league])+'</span>'+
+        '<span class="live-state '+(inplay?'live-state-on':'')+'">'+safe(label)+'</span></div>'+
+        '<div class="live-teams"><strong>'+safe(e.home)+'</strong><div class="live-score">'+(showScores?hs+' : '+as:'– : –')+'</div><strong>'+safe(e.away)+'</strong></div>'+
+        '<div class="live-footer"><span>'+safe(progress&&inplay?progress:startLabel)+'</span>'+
+        '<span>'+safe(observed?'Consulta à fonte efetuada':'Sem consulta recente')+'</span></div></article>';
+    }).join('');
+    const active=candidates.filter(e=>liveStates.has(normalizeMatchStatus((liveState.items[e.league+':'+e.id]||{}).strStatus))).length;
+    return '<div class="live-toolbar"><div><span class="pill-label">'+active+' em jogo confirmados</span> '+
+      '<span class="muted">'+candidates.length+' jogos próximos desta janela · '+monitored.length+' consultados por ciclo</span></div>'+
+      '<button id="live-refresh" type="button" class="secondary-button" '+(liveState.loading?'disabled':'')+'>'+
+      (liveState.loading?'A consultar…':'↻ Atualizar agora')+'</button></div>'+
+      '<div class="callout intel-callout"><b>Monitorização indicativa, não um feed live oficial.</b>'+
+      '<div>Os estados e marcadores são consultados na API gratuita TheSportsDB, jogo a jogo, de 2 em 2 minutos enquanto esta página estiver aberta. Atualizações, minutos e cobertura podem falhar ou chegar com atraso. Nenhum marcador em curso é usado para liquidar previsões.</div></div>'+
+      sourceError+
+      '<section class="panel"><div class="panel-header"><div><h2>Jogos a decorrer</h2>'+
+      '<p>'+(liveState.updatedAt?'Última consulta: '+safe(fullDate(liveState.updatedAt)):'Ainda sem consulta direta à fonte')+
+      '</p></div><span class="tag">SEM CUSTO ADICIONAL</span></div><div class="live-grid">'+
+      (cards||'<div class="empty"><b>Sem jogos na janela de monitorização</b>Consulta mais tarde ou altera a liga selecionada. Não significa que todas as competições estejam paradas.</div>')+
+      '</div></section>';
+  }
+  async function refreshLive(force=false){
+    if(state.view!=='live'||liveState.loading||!state.data)return;
+    if(Date.now()-liveState.lastRequest<(force?45000:115000))return;
+    const candidates=liveCandidates().slice(0,8);
+    if(!candidates.length){liveState.error=null;render();return;}
+    liveState.loading=true;liveState.error=null;liveState.lastRequest=Date.now();render();
+    const results=await Promise.allSettled(candidates.map(async e=>{
+      const ctl=new AbortController(),timeout=setTimeout(()=>ctl.abort(),10000);
+      try{
+        const url='https://www.thesportsdb.com/api/v1/json/123/lookupevent.php?id='+encodeURIComponent(e.id);
+        const response=await fetch(url,{cache:'no-store',signal:ctl.signal});
+        if(!response.ok)throw Error('HTTP '+response.status);
+        const data=await response.json();
+        const item=(data.events||[]).find(x=>String(x.idEvent)===String(e.id));
+        if(!item)throw Error('Sem dados da partida');
+        return [e.league+':'+e.id,item];
+      }finally{clearTimeout(timeout);}
+    }));
+    let ok=0;
+    for(const result of results)if(result.status==='fulfilled'){
+      const [key,value]=result.value;liveState.items[key]=value;ok++;
+    }
+    liveState.updatedAt=ok?new Date().toISOString():liveState.updatedAt;
+    if(ok<candidates.length)liveState.error='Algumas consultas não foram concluídas. O estado dos jogos pode estar incompleto ou atrasado.';
+    liveState.loading=false;
+    if(state.view==='live')render();
+  }
+  if(typeof setInterval==='function')setInterval(()=>{if(state.view==='live' && document.visibilityState!=='hidden')refreshLive();},120000);
+
   function render(){const page=views[state.view]||views.overview;$('#view-breadcrumb').textContent=page[0];$('#page-title').innerHTML=page[1];$('#page-subtitle').textContent=page[2];
     $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
     $$('.league-pill').forEach(b=>b.classList.toggle('active',b.dataset.league===state.league));
@@ -863,7 +952,7 @@
     if(!state.data?.updated_at){warning.textContent='Ainda não existe uma recolha completa. A primeira execução do GitHub Actions irá importar os resultados das duas ligas. O painel pode mostrar uma amostra de arranque incompleta.';warning.classList.remove('hidden');}
     else if(incomplete.length && state.league!=='all'){warning.textContent=`Cobertura parcial: ${leagueNames[state.league]}. Podem faltar jogos ou jornadas; as probabilidades são exploratórias.`;warning.classList.remove('hidden');}
     else{warning.classList.add('hidden');}
-    $('#view').innerHTML=({overview, matches:matchView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,value:valueView,reliability:conciseReliabilityView})[state.view]();
+    $('#view').innerHTML=({overview, matches:matchView,live:liveView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,value:valueView,reliability:conciseReliabilityView})[state.view]();
     const advanced=$('#advanced-menu');
     if(advanced&&['table','model','news','absences','value'].includes(state.view))advanced.open=true;
     $('#updated-at').textContent=state.data?.updated_at?fullDate(state.data.updated_at):'Sem atualização completa';
@@ -871,6 +960,7 @@
     bindLocal();
   }
   function bindLocal(){
+    const lr=$('#live-refresh');if(lr)lr.addEventListener('click',()=>refreshLive(true));
     $$('[data-goto]').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.goto)));
     $$('[data-open-match]').forEach(b=>b.addEventListener('click',()=>{
       state.modelMatch=b.dataset.openMatch;
@@ -886,7 +976,7 @@
     const vm=$('#value-market');if(vm)vm.addEventListener('change',e=>{state.valueMarket=e.target.value;render();});
     const vo=$('#value-odd');if(vo)vo.addEventListener('change',e=>{state.valueOdds=e.target.value;render();});
   }
-  function goto(next){state.view=next;render();$('#sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});}
+  function goto(next){state.view=next;render();if(next==='live')refreshLive();$('#sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});}
   $$('.nav-item').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.view)));
   $$('.league-pill').forEach(b=>b.addEventListener('click',()=>{state.league=b.dataset.league;state.modelMatch='';store('footballlab-league',state.league);render();}));
   $('#menu-button').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));

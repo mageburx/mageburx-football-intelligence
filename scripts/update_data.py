@@ -14,6 +14,10 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+try:
+    from scripts.match_status import final_confirmed, normalize_status
+except ModuleNotFoundError:
+    from match_status import final_confirmed, normalize_status
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUT = ROOT / 'data' / 'season.json'
@@ -47,7 +51,9 @@ def parse_event(event, league_id):
         except (ValueError, TypeError):
             return None
     hs, aws = score(event.get('intHomeScore')), score(event.get('intAwayScore'))
-    completed = hs is not None and aws is not None and date <= dt.datetime.now(dt.timezone.utc).date().isoformat()
+    completed = hs is not None and aws is not None and final_confirmed(event)
+    status = normalize_status(event.get('strStatus'))
+    live_hs, live_as = hs, aws
     if not completed:
         hs, aws = None, None
     try:
@@ -64,6 +70,11 @@ def parse_event(event, league_id):
         'home_score': hs,
         'away_score': aws,
         'finished': completed,
+        'result_verified': completed,
+        'match_status': status,
+        'progress': str(event.get('strProgress') or ''),
+        'live_home_score': live_hs if not completed else None,
+        'live_away_score': live_as if not completed else None,
     }
 
 

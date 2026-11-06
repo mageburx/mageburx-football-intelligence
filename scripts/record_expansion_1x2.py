@@ -12,6 +12,10 @@ import hashlib
 import json
 import math
 from pathlib import Path
+try:
+    from scripts.match_status import verified_event
+except ModuleNotFoundError:
+    from match_status import verified_event
 
 ROOT=Path(__file__).resolve().parents[1]
 PATH=ROOT/'data'/'expansion_1x2_ledger.json'
@@ -67,15 +71,14 @@ def run(season,model,existing=None,now=None):
             eid=str(event.get('id') or '')
             if not eid or not event.get('date'):continue
             key=expected_key(lid,season.get('season','unknown'),event)
-            finished=event.get('finished') is True and (
-                type(event.get('home_score')) is int and
-                type(event.get('away_score')) is int)
+            finished=verified_event(event)
             if key in saved:
                 if (key not in settled and finished and event['date']<today):
                     db['settlements'].append({
                         'key':key,'date':event['date'],
                         'home_score':event['home_score'],'away_score':event['away_score'],
-                        'resolved_at':now.replace(microsecond=0).isoformat()})
+                        'resolved_at':now.replace(microsecond=0).isoformat(),
+                        'verified_final':True,'source_status':event.get('match_status')})
                     settled.add(key)
                 continue
             if not can_issue or finished or event['date']<=today:continue
@@ -109,7 +112,7 @@ def summary(db,lid):
     scored=[]
     for p in predictions:
         result=settlements.get(p['key'])
-        if result is None:continue
+        if result is None or result.get('verified_final') is not True:continue
         if type(result.get('home_score')) is not int or type(result.get('away_score')) is not int:continue
         if p.get('date')!=result.get('date'):continue
         issued=parse_datetime(p.get('issued_at'))

@@ -5,6 +5,10 @@ Supports continental 2026/27 seasons and Norway's calendar-year 2026 season.
 Do not infer missing results as losses or missing fixtures as cancelled.
 """
 from __future__ import annotations
+try:
+    from scripts.match_status import final_confirmed, normalize_status
+except ModuleNotFoundError:
+    from match_status import final_confirmed, normalize_status
 
 import argparse
 import datetime as dt
@@ -77,7 +81,8 @@ def parse_event(raw,lid,today=None):
     away=str(raw.get('strAwayTeam') or '').strip()
     if not home or not away or home==away:return None
     hs,aws=score(raw.get('intHomeScore')),score(raw.get('intAwayScore'))
-    finished=hs is not None and aws is not None and day<=today
+    finished=hs is not None and aws is not None and final_confirmed(raw)
+    status=normalize_status(raw.get('strStatus'))
     try:
         rnd=int(raw.get('intRound') or 0)
         if rnd<1 or rnd>config['rounds']:rnd=0
@@ -89,6 +94,11 @@ def parse_event(raw,lid,today=None):
         'home_score':hs if finished else None,
         'away_score':aws if finished else None,
         'finished':finished,
+        'result_verified':finished,
+        'match_status':status,
+        'progress':str(raw.get('strProgress') or ''),
+        'live_home_score':hs if not finished else None,
+        'live_away_score':aws if not finished else None,
     }
 
 
@@ -115,9 +125,13 @@ def save_match(known,item):
     if existing.get('finished') and item.get('finished') and (
         existing.get('home_score'),existing.get('away_score'))!=(
         item.get('home_score'),item.get('away_score')):
-        # Do not silently overwrite conflicting scores.
+        # Quarantine inconsistent provider scores instead of treating either as final.
+        known[item['id']]={**item,'finished':False,'result_verified':False,
+                           'home_score':None,'away_score':None,
+                           'score_conflict':True}
         return
-    if existing.get('finished') and not item.get('finished'):return
+    if existing.get('score_conflict'):return
+    if existing.get('finished') and existing.get('result_verified') and not item.get('finished'):return
     known[item['id']]=item
 
 
