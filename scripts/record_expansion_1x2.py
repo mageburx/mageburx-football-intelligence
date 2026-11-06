@@ -77,7 +77,8 @@ def run(season,model,existing=None,now=None):
                     db['settlements'].append({
                         'key':key,'date':event['date'],
                         'home_score':event['home_score'],'away_score':event['away_score'],
-                        'resolved_at':now.replace(microsecond=0).isoformat()})
+                        'resolved_at':now.replace(microsecond=0).isoformat(),
+                        'verified_final':True,'source_status':event.get('match_status')})
                     settled.add(key)
                 continue
             if not can_issue or finished or event['date']<=today:continue
@@ -111,7 +112,7 @@ def summary(db,lid):
     scored=[]
     for p in predictions:
         result=settlements.get(p['key'])
-        if result is None:continue
+        if result is None or result.get('verified_final') is not True:continue
         if type(result.get('home_score')) is not int or type(result.get('away_score')) is not int:continue
         if p.get('date')!=result.get('date'):continue
         issued=parse_datetime(p.get('issued_at'))
