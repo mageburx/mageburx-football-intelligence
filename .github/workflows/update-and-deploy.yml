@@ -68,10 +68,14 @@ jobs:
         run: python scripts/build_model.py
       - name: Guardar previsões antes dos jogos
         run: python scripts/record_predictions.py
+      - name: Auditar saúde e pendências das previsões prospetivas
+        run: python scripts/audit_ledger_health.py
       - name: Calcular fiabilidade com épocas históricas e ledger
         run: python scripts/build_reliability.py
       - name: Recolher Taça de Portugal, Taça da Liga e competições UEFA
         run: python scripts/collect_cross_competitions.py --max-calls 8 --pause 3.5
+      - name: Auditar cobertura histórica UEFA, sem presumir completude
+        run: python scripts/audit_european_coverage.py
       - name: Verificar Taça da Dinamarca na DBU oficial (opcional)
         run: python scripts/collect_danish_cup.py
       - name: Taça da Dinamarca, fonte secundária permitida (poupança de pedidos)
@@ -111,6 +115,8 @@ jobs:
           test -s data/schedule_context.json
           test -s data/prematch_lineups.json
           test -s data/multi_competition_impact.json
+          test -s data/ledger_health.json
+          test -s data/european_coverage.json
       - name: Arquivar estado para recuperação
         uses: actions/upload-artifact@v4
         with:
@@ -130,6 +136,8 @@ jobs:
             data/schedule_context.json
             data/prematch_lineups.json
             data/multi_competition_impact.json
+            data/ledger_health.json
+            data/european_coverage.json
           retention-days: 90
       - name: Testar motor e painel de fiabilidade
         run: python -m unittest discover -s tests -p 'test_*.py' -v
@@ -139,7 +147,7 @@ jobs:
         run: |
           mkdir -p public/data
           cp app/index.html app/style.css app/app.js public/
-          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json public/data/
+          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json data/ledger_health.json data/european_coverage.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:
