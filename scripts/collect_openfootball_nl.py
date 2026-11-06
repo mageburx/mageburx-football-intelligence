@@ -80,7 +80,7 @@ def parsed(raw,season,now):
         date=str(e.get('date',''))[:10]
         try:
             dateobj=dt.date.fromisoformat(date)
-            if dateobj.year not in (int(season[:4]),int(season[:4])+int(season!=CURRENT or season!='2026-27')):
+            if dateobj.year not in (int(season[:4]),int(season[:4])+1):
                 continue
         except (ValueError,TypeError):continue
         home,away=club(e.get('team1')),club(e.get('team2'))
