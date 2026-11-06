@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -447,6 +447,15 @@
       (c.known_european_matches??'—')+'</td><td class="text-right">'+
       (c.teams_with_additional_fixtures??0)+'/'+(c.league_teams??0)+
       '</td><td>'+(c.adequate_minimum_sample?'Amostra mínima':'Incompleta')+'</td></tr>').join('');
+    const europe=state.europeanCoverage?.leagues||{};
+    const euroRows=Object.values(europe).filter(x=>x.season==='2024-2025'||x.season==='2025-2026').map(x=>
+      '<tr><td>'+safe(x.competition.replace('uefa_','').toUpperCase())+'</td>'+
+      '<td>'+safe(x.season.replace('-','/'))+'</td>'+
+      '<td class="text-right">'+(x.observed_matches??0)+'</td>'+
+      '<td class="text-right">'+(x.unqueried_rounds_in_trial_window?.length??'—')+'</td></tr>').join('');
+    const europeanAudit=euroRows?'<h3>Calendário UEFA histórico · cobertura observada</h3>'+
+      '<div class="table-scroll"><table><thead><tr><th>Competição</th><th>Época</th><th class="text-right">Jogos</th><th class="text-right">Rondas não verificadas*</th></tr></thead><tbody>'+euroRows+'</tbody></table></div>'+
+      '<p class="muted fi-factor-note">* Dentro das 10 rondas que o coletor tenta consultar, não do calendário oficial completo. A contagem de jogos é parcial e inclui equipas fora de Portugal e Dinamarca.</p>':'';
     const models=result.models||{};
     const candidates={baseline:'Sem calendário adicional',
       all_competitions_rest:'Descanso considerando taças/UEFA',
@@ -465,6 +474,7 @@
         'Sem melhoria robusta demonstrada')+'</strong></p>'+
       '<div class="table-scroll"><table><thead><tr><th>Época</th><th class="text-right">Jogos adicionais</th><th class="text-right">Taças</th><th class="text-right">UEFA</th><th class="text-right">Equipas abrangidas</th><th>Qualidade</th></tr></thead><tbody>'+coverage+'</tbody></table></div>'+
       (table?'<div class="table-scroll"><table><thead><tr><th>Variante</th><th class="text-right">Brier ↓</th><th class="text-right">Jogos</th></tr></thead><tbody>'+table+'</tbody></table></div>':'')+
+      europeanAudit+
       '<p class="muted fi-factor-note">A cobertura histórica de competições extra não é certificada completa. Não transformamos jogos em falta em dias de descanso confirmados, nem apresentamos melhorias sem um teste independente e replicação prospetiva.</p></div></section>';
   }
   function valueView(){
@@ -601,6 +611,8 @@
     const lid=state.league==='all'?'pt':state.league;
     const audit=state.reliability?.history?.[lid];
     const prospective=state.reliability?.prospective;
+    const ledgerHealth=state.ledgerHealth;
+    const health=ledgerHealth?.states||{};
     const titles={double_1x:'Dupla oportunidade 1X',double_x2:'Dupla oportunidade X2',double_12:'Dupla oportunidade 12',
       over_0_5:'Over 0.5',under_0_5:'Under 0.5',over_1_5:'Over 1.5',under_1_5:'Under 1.5',
       over_2_5:'Over 2.5',under_2_5:'Under 2.5',over_3_5:'Over 3.5',under_3_5:'Under 3.5',
@@ -656,6 +668,12 @@
       missing.map(y=>'<div class="fi-season"><strong>'+safe(y.replace('-','/'))+'</strong><span>0 jogos</span><small>Por importar</small></div>').join('')+
       '</div></div><div class="fi-rel-ledger"><h3>Registo de previsões reais</h3><div class="fi-reliability-kpis"><div><small>Previsões guardadas</small><strong>'+(prospective?.logged??0)+'</strong></div>'+
       '<div><small>Jogos com resultado</small><strong>'+(prospective?.settled??0)+'</strong></div></div>'+
+      (ledgerHealth?'<div class="fi-reliability-kpis"><div><small>Por jogar</small><strong>'+(health.future??0)+'</strong></div>'+
+        '<div><small>Jogos hoje</small><strong>'+(health.today??0)+'</strong></div>'+
+        '<div><small>Passados sem resultado</small><strong>'+(health.past_due_missing_result??0)+'</strong></div>'+
+        '<div><small>Terminado por liquidar</small><strong>'+(health.finished_awaiting_settlement??0)+'</strong></div></div>'+
+        (ledgerHealth.issue_count?'<div class="limit-note">Integridade do registo: '+ledgerHealth.issue_count+' alerta(s) para verificar na fonte.</div>':''):
+        '<p class="muted">Auditoria de pendências ainda não publicada.</p>')+
       '<p class="muted">Estas são previsões preservadas no Git antes da data dos jogos; não confundimos a reconstrução histórica com previsões verdadeiramente emitidas antecipadamente. Alterações ao repositório ainda dependem das permissões do seu proprietário.</p></div>'+
       '<div class="limit-note">Sem previsões de rentabilidade: os testes não utilizam odds de mercado. O histórico foi importado retrospectivamente e continua sujeito a limitações de qualidade e seleção do modelo.</div></div></section>'+integrityView(lid,state.reliabilityMarket);
   }
@@ -696,7 +714,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
