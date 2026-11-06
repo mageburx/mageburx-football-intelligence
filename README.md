@@ -13,6 +13,14 @@
 
 Os números de cobertura e desempenho variam a cada recolha. A fonte de verdade é a branch persistente `football-data` e os JSON publicados no GitHub Pages.
 
+## Comparador prospetivo 1X2: cinco campeonatos
+
+O mesmo registo `data/expansion_1x2_ledger.json` suporta agora **Liga Portugal (`pt`), Superliga dinamarquesa (`dk`), Eredivisie (`nl`), 1. Division (`dk2`) e Eliteserien (`no`)**. Os registos de Portugal e da Superliga começam apenas a partir da implementação: **não são geradas probabilidades retroativas** para jogos anteriores, nem se confundem os mercados do ledger geral com probabilidades 1X2.
+
+O `scripts/audit_expansion_1x2.py` verifica a assinatura (SHA-256), a emissão anterior ao jogo, o mesmo identificador, a data, as probabilidades e o resultado, excluindo previsões inválidas ou com jogo eliminado/alterado. O `scripts/build_league_comparison.py` cria `data/league_comparison.json` a partir **apenas dos resultados válidos da auditoria**, com contagem de previsões, liquidações verificadas, Brier 1X2, Log Loss e pendências por liga. O arquivo é preservado na branch `football-data` e apresentado na secção *Fiabilidade* do dashboard.
+
+Não há ranking de rentabilidade. Com menos de **100 jogos válidos por campeonato**, o painel assinala amostra reduzida. Após pelo menos 30 resultados apresenta um intervalo Brier 95% aproximado, **não corrigido** para a dependência entre partidas. Brier mais baixo mede erro probabilístico 1X2 na amostra; não equivale a odds vantajosas, valor esperado positivo ou lucro. Mesmo após atingir 100 resultados, calendários e adversários diferentes não tornam os campeonatos diretamente comparáveis em termos de rendimento financeiro.
+
 ## Histórico recente e evidência separada nas novas ligas
 
 **Eredivisie:** a fonte OpenFootball [football.json](https://github.com/openfootball/football.json) disponibiliza dados sob **CC0-1.0**. `scripts/collect_openfootball_nl.py` reconcilia os resultados da época 2026/27 com o calendário TheSportsDB, conserva os IDs existentes, bloqueia resultados divergentes e nunca introduz resultados de partidas futuras. Também guarda separadamente até cinco épocas anteriores em `data/nl_history.json`, com bandeira `complete` apenas quando há 306 jogos concluídos e 18 clubes com 34 partidas. Os anos incompletos são explicitamente excluídos do teste histórico reservado.
