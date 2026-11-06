@@ -125,9 +125,13 @@ def save_match(known,item):
     if existing.get('finished') and item.get('finished') and (
         existing.get('home_score'),existing.get('away_score'))!=(
         item.get('home_score'),item.get('away_score')):
-        # Do not silently overwrite conflicting scores.
+        # Quarantine inconsistent provider scores instead of treating either as final.
+        known[item['id']]={**item,'finished':False,'result_verified':False,
+                           'home_score':None,'away_score':None,
+                           'score_conflict':True}
         return
-    if existing.get('finished') and not item.get('finished'):return
+    if existing.get('score_conflict'):return
+    if existing.get('finished') and existing.get('result_verified') and not item.get('finished'):return
     known[item['id']]=item
 
 
