@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, expansionReliability: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, expansionReliability: null, expansionAudit: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga',dk2:'1. Division',nl:'Eredivisie',no:'Eliteserien'};
   const leagueFlags = {pt:'🇵🇹',dk:'🇩🇰',dk2:'🇩🇰',nl:'🇳🇱',no:'🇳🇴'};
   const leagueSeasons = {pt:'2026/27',dk:'2026/27',dk2:'2026/27',nl:'2026/27',no:'2026'};
@@ -760,6 +760,7 @@
           'Reprodução cronológica parcial · não independente';
         const score=m?.n>=30&&Number.isFinite(m.brier)?numberPT.format(m.brier):'—';
         const live=x?.prospective_1x2;
+        const audit=state.expansionAudit?.leagues?.[id];
         const liveBrier=live?.settled>=10&&Number.isFinite(live.brier)?numberPT.format(live.brier):'—';
         return '<article class="ux-league-evidence-item"><div class="ux-league-head">'+
           '<strong>'+safe(leagueFlags[id]+' '+leagueNames[id])+'</strong>'+
@@ -774,6 +775,12 @@
           '<strong>1X2 registado antes do jogo:</strong> '+(live?.issued??0)+
           ' · resultados avaliados: '+(live?.settled??0)+
           ' · Brier prospetivo: '+liveBrier+'. '+
+          (audit?'<br><strong>Integridade 1X2:</strong> '+audit.future+' por jogar · '+
+          audit.today+' hoje · '+audit.past_due+' sem resultado · '+
+          audit.rescheduled+' reagendados · '+audit.invalid+' registos a rever. '+
+          (audit.status==='requires_data_review'?'Existem dados a rever antes de confiar nas métricas.':
+           audit.status==='schedule_change_review'?'Conferir calendário atualizado.':
+           'Registos sob monitorização.'):'')+
 
           (x?.quality==='historical_holdout_available_not_proof_of_profit'?'Há um teste histórico, não uma vantagem económica confirmada.':'Histórico independente ainda insuficiente.')+
           '</small></article>';
@@ -849,7 +856,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['xgExperiment','xg_experiment.json'],['expansionReliability','expansion_reliability.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['xgExperiment','xg_experiment.json'],['expansionReliability','expansion_reliability.json'],['expansionAudit','expansion_1x2_audit.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
@@ -858,6 +865,6 @@
   // Funções matemáticas expostas exclusivamente para testes locais.
   window.FootballLabTest = {standings,poisson,predict,teamForm,parseData:d=>{state.data=d},parseIntelligence:d=>{state.intelligence=d},
     setModelData:d=>{state.model=d},setXGData:d=>{state.xgExperiment=d},
-    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,setExpansionReliability:d=>{state.expansionReliability=d},getStats};
+    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,setExpansionReliability:d=>{state.expansionReliability=d},setExpansionAudit:d=>{state.expansionAudit=d},getStats};
   initialize();
 })();
