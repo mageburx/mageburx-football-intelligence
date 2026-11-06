@@ -76,6 +76,8 @@ jobs:
         run: python scripts/collect_danish_cup.py
       - name: Taça da Dinamarca, fonte secundária permitida (poupança de pedidos)
         run: python scripts/collect_danish_cup_fallback.py --max-seasons 2
+      - name: Completar Taça da Dinamarca 2024/25 em arquivo público (robots)
+        run: python scripts/collect_danish_cup_archive.py
       - name: Verificar onzes observáveis antes dos jogos
         run: python scripts/collect_prematch_lineups.py --max-calls 2
       - name: Atualizar descanso e carga de jogos em todas as competições conhecidas
