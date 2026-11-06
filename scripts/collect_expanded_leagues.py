@@ -143,6 +143,11 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
     quota_exhausted=False
     for lid,c in work.items():
         if calls>=max_calls:break
+        # Norway has a documented secondary research snapshot; skip TSDB bulk
+        # calls while it already supplies almost the entire 2026 fixture list.
+        norwegian=source['leagues'].get('no',{})
+        if lid=='no' and len(c['known'])>=200 and (norwegian.get('fantasy_research') or {}).get('source_matches',0)>=220:
+            continue
         last=c['meta'].get('season_checked_at')
         if last:
             try:
@@ -168,6 +173,9 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
     targets=[]
     for lid,c in work.items():
         cfg=c['cfg'];meta=c['meta'];now_str=now.isoformat()
+        norwegian=source['leagues'].get('no',{})
+        if lid=='no' and len(c['known'])>=200 and (norwegian.get('fantasy_research') or {}).get('source_matches',0)>=220:
+            continue
         verified=set(meta['verified_rounds'])
         attempted=meta['attempted_rounds']
         for rnd in range(1,cfg['rounds']+1):
