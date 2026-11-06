@@ -23,6 +23,13 @@ NEEDED = ('2021-2022', '2022-2023', '2025-2026')
 API = 'https://www.thesportsdb.com/api/v1/json/123/eventsround.php'
 LEAGUE_ID = '4340'
 ROUND_COUNTS = {'2021-2022': 22, '2022-2023': 22, '2025-2026': 32}
+
+
+def expected_round_matches(season: str, round_number: int) -> int:
+    """Older years reuse 1..10 for both six-team final groups."""
+    if season not in ROUND_COUNTS or not 1 <= round_number <= ROUND_COUNTS[season]:
+        raise ValueError('Unknown Danish season/round')
+    return 12 if season in ('2021-2022', '2022-2023') and round_number <= 10 else 6
 # 2021/22 and 2022/23 reuse rounds 1–10 for the playoff stage.
 # Each season also has one separately sourced European play-off fixture.
 
@@ -86,16 +93,22 @@ def collect(path=PATH, max_calls=18, pause=4.0, fetcher=get_round):
             matches = fetcher(season, round_number)
             if not matches:
                 print(f'AVISO {season}: jornada {round_number} vazia; será repetida', flush=True)
+            elif len(matches) != expected_round_matches(season, round_number):
+                print(f'AVISO {season} J{round_number}: apenas {len(matches)}/'
+                      f'{expected_round_matches(season, round_number)} jogos; '
+                      'jornada não confirmada e será repetida', flush=True)
             else:
                 old = dk[season]
                 merged = {m['id']: m for m in old['events']}
                 for event in matches:
-                    merged[event['id']] = event
+                    existing = merged.get(event['id'])
+                    if existing and any(existing.get(k)!=event.get(k)
+                                        for k in ('date','home_score','away_score')):
+                        raise RuntimeError(f'Conflito de ID e resultado na API: {event["id"]}')
+                    merged[event['id']] = existing or event
                 old['events'] = sorted(merged.values(), key=lambda e: (e['date'], e['id']))
                 old['fetched_rounds'] = sorted(set(old.get('fetched_rounds', []) + [round_number]))
                 old['actual_games'] = len(old['events'])
-                # Complete only after the season's real API round layout plus
-                # the separately sourced European play-off match (193 total).
                 required = set(range(1, ROUND_COUNTS[season] + 1))
                 old['complete'] = (set(old['fetched_rounds']) == required and
                                    old['actual_games'] == 193)
