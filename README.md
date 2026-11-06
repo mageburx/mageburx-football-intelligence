@@ -13,6 +13,19 @@
 
 Os números de cobertura e desempenho variam a cada recolha. A fonte de verdade é a branch persistente `football-data` e os JSON publicados no GitHub Pages.
 
+## Laboratório de estatísticas avançadas (remates/xG)
+
+O GitHub Actions executa o coletor `scripts/collect_advanced_signals.py` após a auditoria leve de fontes. O módulo verifica `robots.txt`, usa uma amostra máxima de **3 jogos por liga** e respeita um intervalo mínimo de **22 horas** entre pedidos por liga, restaurando as observações anteriores a partir da branch `football-data`. Se as condições da fonte não puderem ser verificadas, falha sem inserir dados falsos.
+
+- Apenas observa **remates, remates à baliza e xG explicitamente presente**. xG ausente é `null`, nunca uma estimativa automática.
+- Guarda um registo mínimo de cada amostra, com ligação, atribuição e primeira hora de observação. Não copia o ficheiro integral do fornecedor.
+- O `shots_research.json` calcula pressão ofensiva **descritiva** para encontros futuros, a partir de jogos anteriores já observados e de amostras mínimas de 3 partidas por equipa nos últimos 90 dias. Trata-se de um laboratório, **não** de uma alteração aos resultados previstos.
+- Não existem ainda estatísticas avançadas historicamente auditadas para 2024/25–2025/26 em ambas as ligas, pelo que não é possível demonstrar melhoria fora da amostra nem alterar o modelo de produção.
+- A compilação Cornerflick é CC BY 4.0, mas os direitos dos dados subjacentes são distintos. Para utilização comercial ou redistribuição de grandes volumes, confirmar previamente os direitos e as autorizações relevantes.
+
+Testar sem rede: `python -m unittest tests.test_advanced_signals -v`.
+Dados gerados: `data/advanced_signals.json` e `data/shots_research.json`; o dashboard apresenta os respetivos estados. Sem despesas de fornecedores.
+
 ## Dashboard
 
 - **Visão geral** com calendário, classificação e estatísticas por competição.
