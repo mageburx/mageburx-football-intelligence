@@ -49,6 +49,14 @@ def run(season,model,existing=None,now=None):
         'settlements':[]}
     if db.get('schema')!=1:raise ValueError('Unknown ledger schema')
     saved={x['key'] for x in db['predictions']}
+    season_id=season.get('season','unknown')
+    # In the Dutch 18-club home/away schedule each oriented pairing is one
+    # fixture. A provisional-date CC0 ID must never generate a second signed
+    # tip after a primary-source ID replaces it.
+    nl_signed_pairs={(p.get('home'),p.get('away'))
+                     for p in db['predictions']
+                     if p.get('league')=='nl' and
+                     str(p.get('key','')).startswith('nl:'+str(season_id)+':')}
     settled={x['key'] for x in db['settlements']}
     generated=parse_datetime(model.get('generated_at'))
     can_issue=generated is not None and dt.timedelta()<=now-generated<=dt.timedelta(hours=48)
@@ -71,6 +79,10 @@ def run(season,model,existing=None,now=None):
                     settled.add(key)
                 continue
             if not can_issue or finished or event['date']<=today:continue
+            if lid=='nl' and (event.get('home'),event.get('away')) in nl_signed_pairs:
+                # No mutation/deletion of the original signed forecast, and
+                # no second forecast for the same real 1X2 outcome.
+                continue
             p=predictions.get(eid)
             one_x_two=forecast(p)
             if one_x_two is None:continue
@@ -86,6 +98,8 @@ def run(season,model,existing=None,now=None):
                 json.dumps(entry,sort_keys=True,ensure_ascii=False).encode('utf8')).hexdigest()
             db['predictions'].append(entry)
             saved.add(key)
+            if lid=='nl':
+                nl_signed_pairs.add((event.get('home'),event.get('away')))
     return db
 
 

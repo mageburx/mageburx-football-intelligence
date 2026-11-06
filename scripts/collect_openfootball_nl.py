@@ -114,6 +114,15 @@ def merge_current(saved,additional):
     for event in additional:
         k=key(event)
         prior=existing.get(k)
+        if prior is None:
+            # The archive uses provisional Saturday dates where TheSportsDB
+            # can have a confirmed Sunday fixture. Do not create a second
+            # fixture or transfer a score solely from equal team names.
+            peers=[x for x in saved if
+                   (canonical(club(x.get('home'))),canonical(club(x.get('away'))))==
+                   (k[1],k[2])]
+            if len(peers)==1 and peers[0].get('date')!=event.get('date'):
+                continue
         if prior is not None:
             if prior.get('finished') and event.get('finished'):
                 if (prior['home_score'],prior['away_score'])!=(

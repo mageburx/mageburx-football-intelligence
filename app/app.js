@@ -762,7 +762,10 @@
       const ci=Array.isArray(x.brier_ci95)?
         '<small>IC 95% aproximado: '+fmt(x.brier_ci95[0])+'–'+fmt(x.brier_ci95[1])+'</small>':'';
       return '<tr><td><strong>'+safe(leagueFlags[id]+' '+leagueNames[id])+'</strong></td>'+
-        '<td class="text-right">'+(x.issued??0)+'</td>'+
+        '<td class="text-right">'+(x.issued??0)+
+          (x.superseded?'<small>'+x.superseded+' IDs substituídos · não pontuados</small>':'')+
+          (x.fixture_missing?'<small>'+x.fixture_missing+' IDs sem confronto</small>':'')+
+          '</td>'+
         '<td class="text-right"><strong>'+n+'</strong><small>de 100 para análise</small></td>'+
         '<td class="text-right"><strong>'+fmt(x.brier)+'</strong>'+ci+'</td>'+
         '<td class="text-right">'+fmt(x.log_loss)+'</td>'+
@@ -815,7 +818,10 @@
           ' · Brier prospetivo: '+liveBrier+'. '+
           (audit?'<br><strong>Integridade 1X2:</strong> '+audit.future+' por jogar · '+
           audit.today+' hoje · '+audit.past_due+' sem resultado · '+
-          audit.rescheduled+' reagendados · '+audit.invalid+' registos a rever. '+
+          audit.rescheduled+' reagendados · '+
+          (audit.superseded??0)+' IDs substituídos · '+
+          (audit.fixture_missing??0)+' IDs sem correspondência · '+
+          audit.invalid+' registos a rever. '+
           (audit.status==='requires_data_review'?'Existem dados a rever antes de confiar nas métricas.':
            audit.status==='schedule_change_review'?'Conferir calendário atualizado.':
            'Registos sob monitorização.'):'')+
