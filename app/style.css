@@ -382,3 +382,12 @@
 .live-teams strong:last-child{text-align:right}
 .live-score{font-size:24px;font-weight:800;letter-spacing:-.8px;color:#c6ffe1;font-variant-numeric:tabular-nums;white-space:nowrap}
 @media(max-width:800px){.live-grid{grid-template-columns:1fr}.live-teams{margin:19px 0}}
+
+/* Live scoreboard: retain today's known matches even without premium feed. */
+.live-unconfirmed{display:block;margin-top:11px;font-size:10px;color:#e7c58d;line-height:1.5}
+.live-next{padding:16px 20px 20px;border-top:1px solid #233b4b;color:#a4bdca;font-size:11px}
+.live-next strong{color:#e7f4f9}
+.live-next p{line-height:1.8;margin:8px 0 0}
+.live-next-separator{margin:0 6px;color:#58748a}
+.live-footer{flex-wrap:wrap}
+@media(max-width:600px){.live-footer{align-items:start;flex-direction:column;gap:4px}}
