@@ -106,7 +106,8 @@ def collect(out, pause=3.5, max_round=None, fetcher=fetch_round):
     result = {'schema': 1, 'season': SEASON,
               'source': {'name': 'TheSportsDB', 'url': 'https://www.thesportsdb.com/', 'api': 'v1 gratuita'},
               'updated_at': now.replace(microsecond=0).isoformat(),
-              'leagues': {}}
+              'leagues': {key:value for key,value in (old.get('leagues') or {}).items()
+                          if key in ('nl','dk2','no') and isinstance(value,dict)}}
     any_data = False
     for lid, lg in LEAGUES.items():
         prev = old.get('leagues', {}).get(lid, {})
@@ -171,7 +172,7 @@ def collect(out, pause=3.5, max_round=None, fetcher=fetch_round):
     temp = out.with_suffix('.tmp')
     temp.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding='utf-8')
     temp.replace(out)
-    print(f'Atualizado: {out} (PT: {len(result["leagues"]["pt"]["events"])}; DK: {len(result["leagues"]["dk"]["events"])})')
+    print(f'Atualizado: {out} (PT: {len(result["leagues"]["pt"]["events"])}; DK: {len(result["leagues"]["dk"]["events"])}; novas ligas preservadas)')
     return result
 
 if __name__ == '__main__':
