@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Visão geral','Cada resultado tem <em>um contexto.</em>','Acompanha forma, calendário e os sinais que podem mudar o próximo jogo.'],
@@ -316,6 +316,7 @@
     }).join('');
     const qualityTitle=qa?qa.complete_count+' de 5 épocas completas':'Auditoria ainda não publicada';
     const scraper=state.scrapeReport;
+    const advanced=state.statsCoverage?.leagues?.[lid];
     const status=storage?.persisted?'Backup Git gravado na branch football-data':
       'Backup Git não confirmado — apenas recuperação temporária';
     return '<section class="panel fi-v41-panel"><div class="panel-header"><div><h2>Integridade e validação independente</h2>'+
@@ -327,6 +328,15 @@
       ' · Novos jogos: <b>'+(scraper?.imported??0)+'</b> · Confirmados: <b>'+(scraper?.confirmed??0)+'</b> · Conflitos: <b>'+(scraper?.conflicts?.length??0)+'</b>.</p>'+
       '<p class="muted">'+(scraper?.attempts?.some(a=>a.status==="skipped")?'A fonte esteve indisponível ou não permitiu recolha; os jogos existentes foram preservados.':
        'Não foram detetadas falhas no último relatório. O scraper só recolhe resultados públicos permitidos.')+'</p></div>'+
+      '<div class="fi-v41-scraper"><h3>Estatísticas avançadas · estudo de cobertura</h3>'+
+      '<p class="muted">'+(advanced?.status==='sample_available'?'Amostra válida':advanced?.status==='sample_incomplete'?'Amostra parcialmente disponível':advanced?.status==='unavailable'?'Fonte indisponível':'Recolha ainda não efetuada')+
+      ' · Jogos na fonte: '+(advanced?.match_count??'—')+
+      ' · Amostras analisadas: '+(advanced?.sample_checked??0)+'.</p>'+
+      '<p class="muted">Cantos: '+(advanced?.stats_fields_validated?.Corners??0)+
+      ' · Cartões amarelos: '+(advanced?.stats_fields_validated?.["Yellow Cards"]??0)+
+      ' · Remates: '+(advanced?.stats_fields_validated?.Shots??0)+
+      ' jogos com os dois valores disponíveis na amostra.</p>'+
+      '<p class="muted">Fonte: <a href="https://cornerflick.com/data" target="_blank" rel="noopener noreferrer">Cornerflick</a> (compilação CC BY 4.0). Direitos subjacentes por verificar para distribuição comercial. Sem apostas ou modelos novos ativados.</p></div>'+
       '<div class="fi-v41-two"><div class="fi-v41-box"><h3>Qualidade do histórico</h3><p class="muted">'+
       qualityTitle+' · '+(qa?.total_matches??0)+' resultados importados</p>'+
       '<div class="table-scroll"><table><thead><tr><th>Época</th><th class="text-right">Jogos</th><th>Estado</th></tr></thead><tbody>'+coverage+'</tbody></table></div></div>'+
@@ -440,7 +450,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
