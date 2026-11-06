@@ -8,8 +8,8 @@ NOW=dt.datetime(2026,11,6,21,tzinfo=dt.timezone.utc)
 
 def sign(key,lid,date,home='Home',away='Away'):
     pred={'key':key,'league':lid,'match_id':key.split(':',2)[-1],
-          'issued_at':'2026-11-05T12:00:00+00:00',
-          'model_generated_at':'2026-11-05T11:55:00+00:00',
+          'issued_at':'2026-11-03T12:00:00+00:00',
+          'model_generated_at':'2026-11-03T11:55:00+00:00',
           'model':'blend','date':date,'home':home,'away':away,
           'probabilities_1x2':[.4,.3,.3]}
     pred['sha256']=hashlib.sha256(json.dumps(pred,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
