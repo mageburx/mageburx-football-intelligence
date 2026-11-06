@@ -35,9 +35,9 @@ jobs:
         if: github.event_name != 'push' || contains(github.event.head_commit.message, '[full-backfill]')
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
-            python scripts/backfill_history.py --max-calls 80 --pause 3.5
+            python scripts/backfill_history.py --max-calls 12 --pause 6
           else
-            python scripts/backfill_history.py --max-calls 18 --pause 3.5
+            python scripts/backfill_history.py --max-calls 12 --pause 6
           fi
       - name: Scraper oficial DBU (respeita robots, com limites)
         run: |
@@ -66,8 +66,6 @@ jobs:
         run: python scripts/record_predictions.py
       - name: Calcular fiabilidade com épocas históricas e ledger
         run: python scripts/build_reliability.py
-      - name: Testar motor e painel de fiabilidade
-        run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Persistir snapshots na branch football-data
         id: persistent_state
         continue-on-error: true
@@ -101,6 +99,8 @@ jobs:
             data/scrape_report.json
             data/stats_coverage.json
           retention-days: 90
+      - name: Testar motor e painel de fiabilidade
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Validar sintaxe do dashboard
         run: node --check app/app.js
       - name: Preparar dashboard estático
