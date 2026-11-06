@@ -223,6 +223,10 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
         events=sorted(known.values(),key=lambda m:(m['date'],m.get('utc',''),m['id']))
         checked=set(meta['verified_rounds'])
         partial=len(checked)<cfg['rounds'] or c['status']!='partial'
+        previous=source['leagues'].get(lid,{})
+        # Keep the complementary-source audit trail and daily-fetch gates.
+        # Dropping these on each hourly update previously erased signed-ID
+        # provenance and caused redundant Norwegian/DBU HTTP requests.
         source['leagues'][lid]={
             'name':cfg['name'],'id':cfg['id'],'country':cfg['country'],
             'source_season':cfg['source_season'],'events':events,
@@ -233,6 +237,9 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
             'collection':meta,
             'coverage_note':'Partial until every round is independently verified. Norwegian season is calendar year 2026; Danish play-off rounds may reuse numbers.',
         }
+        for field in ('openfootball','fantasy_research','dbu_official'):
+            if isinstance(previous,dict) and isinstance(previous.get(field),dict):
+                source['leagues'][lid][field]=previous[field]
         print(f'{lid}: {len(events)} fixtures, {sum(bool(e["finished"]) for e in events)} finished, verified rounds {len(checked)}/{cfg["rounds"]}; status {c["status"]}',flush=True)
     source['updated_at']=now.replace(microsecond=0).isoformat()
     path.write_text(json.dumps(source,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
