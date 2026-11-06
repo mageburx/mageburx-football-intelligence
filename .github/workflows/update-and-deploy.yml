@@ -66,6 +66,10 @@ jobs:
         run: python scripts/build_shots_research.py
       - name: Adicionar Eredivisie, 1. Division dinamarquesa e Eliteserien
         run: python scripts/collect_expanded_leagues.py --max-calls 6 --pause 2
+      - name: Complementar resultados da Eliteserien 2026 (fonte pública de investigação)
+        run: python scripts/collect_norwegian_fantasy.py
+      - name: Tentar confirmar 1. Division 2026/27 na DBU oficial (robots e limites)
+        run: python scripts/collect_danish_first_official.py
       - name: Completar Eredivisie com arquivo CC0 e reconciliar jogos
         run: python scripts/collect_openfootball_nl.py
       - name: Recolher notícias e ausências documentadas
