@@ -24,7 +24,8 @@ def season(date="2026-11-08",score=None):
     h,a=score if score else (None,None)
     return {'schema':1,'season':'2026-2027','leagues':{'no':{
         'events':[{'id':'fixture1','date':date,'home':'Brann','away':'Molde',
-                   'finished':score is not None,'home_score':h,
+                   'finished':score is not None,'result_verified':score is not None,
+                   'match_status':'FT' if score else '', 'home_score':h,
                    'away_score':a}]}}}
 
 
@@ -41,7 +42,7 @@ class AuditTests(unittest.TestCase):
     def test_only_real_signed_prematch_prediction_gets_brier(self):
         db={'schema':1,'predictions':[forecast()],
             'settlements':[{'key':'no:2026-2027:fixture1',
-                'date':'2026-11-08','home_score':2,'away_score':1}]}
+                'date':'2026-11-08','home_score':2,'away_score':1,'verified_final':True}]}
         report=calculate(db,season(score=(2,1)),NOW)
         no=report['leagues']['no']
         self.assertEqual(no['settled_valid'],1)
@@ -70,7 +71,7 @@ class AuditTests(unittest.TestCase):
     def test_orphan_or_conflicting_settlement_detected(self):
         db={'schema':1,'predictions':[forecast()],
             'settlements':[{'key':'no:2026-2027:fixture1',
-                             'date':'2026-11-08','home_score':0,'away_score':5},
+                             'date':'2026-11-08','home_score':0,'away_score':5,'verified_final':True},
                            {'key':'orphan','date':'2026-11-08',
                              'home_score':1,'away_score':0}]}
         report=calculate(db,season(score=(2,1)),NOW)
