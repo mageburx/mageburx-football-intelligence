@@ -26,6 +26,16 @@ O GitHub Actions executa o coletor `scripts/collect_advanced_signals.py` após a
 Testar sem rede: `python -m unittest tests.test_advanced_signals -v`.
 Dados gerados: `data/advanced_signals.json` e `data/shots_research.json`; o dashboard apresenta os respetivos estados. Sem despesas de fornecedores.
 
+## Nova interface e ensaio Poisson + xG
+
+A interface principal foi simplificada: **Início**, **Analisar jogo**, **Jogos** e **Fiabilidade**. Classificações, modelo detalhado, notícias, ausências e simulador estão dentro de **Mais análises**. O início mostra um jogo em destaque, próximos encontros e um resumo compacto. Os relatórios extensos são expansíveis, não são o ecrã inicial.
+
+O motor de produção **não foi alterado**. O ficheiro `scripts/build_xg_experiment.py` prepara uma experiência prospetiva independente: exige **3 jogos com xG para cada equipa**, observados antes do encontro, nos últimos 90 dias. Quando o critério é cumprido, congela uma previsão Poisson/Dixon–Coles base e uma alternativa conservadora com 20% de contribuição de xG em `xg_shadow_ledger.json`. Só compara os resultados após os jogos terminarem. O limiar indicativo para rever os resultados é 100 encontros liquidados por liga; mesmo nesse caso, a publicação do modelo depende de revisão humana e dos direitos de utilização dos dados.
+
+A falta de cobertura significa **sem experiência disponível**, nunca xG=0 ou melhoria provada. O registo de previsões experimentais é separado do registo oficial. A experiência é gratuita e não envolve contas de apostas.
+
+Testes: `python -m unittest discover -s tests -p 'test_*.py' -v`, `node --test tests/test_model.cjs tests/test_clean_ui.cjs` e `node --check app/app.js`.
+
 ## Dashboard
 
 - **Visão geral** com calendário, classificação e estatísticas por competição.
