@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "generated_at": "2026-11-06T00:49:06+00:00",
+  "source": {
+    "name": "Cornerflick",
+    "url": "https://cornerflick.com",
+    "license": "CC BY 4.0 (published compilation)",
+    "attribution": "Data by Cornerflick — cornerflick.com",
+    "rights_note": "Original match facts originate from other providers. Commercial scale redistribution requires further permission review."
+  },
+  "purpose": "Limited non-commercial feasibility test; no live markets or raw third-party match data.",
+  "leagues": {
+    "pt": {
+      "status": "sample_available",
+      "match_count": 90,
+      "coverage_dates": "2026-08-07/2026-11-02",
+      "sample_checked": 2,
+      "valid_match_samples": 1,
+      "stats_fields_validated": {
+        "Corners": 2,
+        "Yellow Cards": 2,
+        "Red Cards": 1,
+        "Shots": 2,
+        "Shots on Target": 2
+      },
+      "sample_missing_fields": [
+        "Red Cards"
+      ],
+      "reason": null
+    },
+    "dk": {
+      "status": "sample_available",
+      "match_count": 66,
+      "coverage_dates": "2026-08-07/2026-11-02",
+      "sample_checked": 2,
+      "valid_match_samples": 1,
+      "stats_fields_validated": {
+        "Corners": 1,
+        "Yellow Cards": 1,
+        "Red Cards": 1,
+        "Shots": 1,
+        "Shots on Target": 1
+      },
+      "sample_missing_fields": [
+        "Corners",
+        "Yellow Cards",
+        "Red Cards",
+        "Shots",
+        "Shots on Target"
+      ],
+      "reason": null
+    }
+  }
+}
