@@ -47,6 +47,7 @@ ALIASES={
     'boavista':'Boavista','gil vicente':'Gil Vicente','rio ave':'Rio Ave',
     'santa clara':'Santa Clara','casa pia':'Casa Pia',
     'fc copenhagen':'FC Copenhagen','fc kobenhavn':'FC Copenhagen',
+    'f c kobenhavn':'FC Copenhagen','f c copenhagen':'FC Copenhagen',
     'fc kobenhavn':'FC Copenhagen','kobenhavn':'FC Copenhagen',
     'brondby':'Brøndby','brondby if':'Brøndby',
     'agf aarhus':'AGF Aarhus','aarhus gf':'AGF Aarhus','agf':'AGF Aarhus',
