@@ -112,3 +112,41 @@ test('prospective integrity audit separates pending from settled football predic
  assert.ok(view.includes('1 reagendados'));
  assert.ok(view.includes('Conferir calendário atualizado.'));
 });
+
+
+test('five-league real 1X2 scorecard shows missing evidence rather than fake rankings',()=>{
+ app.parseData(snapshot());
+ app.setLeagueComparison({
+   schema:1,
+   ranking_status:'not_rankable_insufficient_or_nonuniform_evidence',
+   leagues:Object.fromEntries(['pt','dk','nl','dk2','no'].map((lid,i)=>[lid,{
+      issued:[153,54,216,51,40][i],settled:0,valid_settled:0,
+      pending:[153,54,216,51,40][i],brier:null,log_loss:null,
+      quality_warning:false,brier_ci95:null
+   }]))
+ });
+ const view=app.renderReliability();
+ assert.ok(view.includes('Comparar as 5 ligas'));
+ assert.ok(view.includes('Previsões reais 1X2') || view.includes('previsões reais 1X2'));
+ for(const label of ['Liga Portugal','Superliga','Eredivisie','1. Division','Eliteserien']){
+   assert.ok(view.includes(label),label);
+ }
+ assert.ok(view.includes('Ainda não há 100 resultados válidos'));
+ assert.ok(view.includes('A aguardar resultados'));
+ assert.ok(!view.includes('melhor liga para apostar'));
+});
+
+test('scorecard shows valid results and independent sample gate',()=>{
+ app.parseData(snapshot());
+ const leagues={};
+ for(const lid of ['pt','dk','nl','dk2','no']){
+   leagues[lid]={issued:101,settled:1,valid_settled:1,brier:.63,
+                 log_loss:1.11,brier_ci95:null,quality_warning:false};
+ }
+ leagues.dk.quality_warning=true;
+ app.setLeagueComparison({schema:1,leagues});
+ const view=app.renderReliability();
+ assert.ok(view.includes('Amostra reduzida'));
+ assert.ok(view.includes('Verificar integridade'));
+ assert.ok(view.includes('de 100 para análise'));
+});
