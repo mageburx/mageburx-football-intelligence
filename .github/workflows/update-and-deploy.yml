@@ -82,6 +82,8 @@ jobs:
         run: python scripts/record_predictions.py
       - name: Guardar previsões 1X2 futuras dos cinco campeonatos
         run: python scripts/record_expansion_1x2.py
+      - name: Recuperar proveniência dos IDs 1X2 da Eredivisie sem alterar previsões
+        run: python scripts/reconcile_nl_forecast_ids.py
       - name: Registar experiência prospetiva Poisson + xG, sem alterar modelo
         run: python scripts/build_xg_experiment.py
       - name: Auditar integridade 1X2 de Portugal, Dinamarca, Países Baixos e Noruega
