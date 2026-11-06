@@ -28,7 +28,7 @@ class HistoricalDanishCupTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'HTML unavailable'):
             parse_archive('<h1>Unavailable</h1>')
         with self.assertRaisesRegex(ValueError,'Unexpected number'):
-            parse_archive(sample_page(3))
+            parse_archive(sample_page(20))
 
     def test_historical_club_aliases_cover_portugal_and_denmark(self):
         pairs=[
