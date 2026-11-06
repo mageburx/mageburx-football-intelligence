@@ -78,6 +78,8 @@ jobs:
         run: python scripts/collect_danish_cup_fallback.py --max-seasons 2
       - name: Completar Taça da Dinamarca 2024/25 em arquivo público (robots)
         run: python scripts/collect_danish_cup_archive.py
+      - name: Recuperar Taça de Portugal e Taça da Liga de 2024/25 a 2025/26
+        run: python scripts/collect_portugal_cup_archive.py
       - name: Verificar onzes observáveis antes dos jogos
         run: python scripts/collect_prematch_lineups.py --max-calls 2
       - name: Atualizar descanso e carga de jogos em todas as competições conhecidas
