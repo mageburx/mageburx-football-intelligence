@@ -1,15 +1,17 @@
-# Afonso OS — Football Intelligence v2 · 2026/27
+# Mageburx Football Intelligence · análise probabilística de futebol
 
 **Dashboard web de pré-jogo para Liga Portugal Betclic e 3F Superliga dinamarquesa.**
 
-## Estado real
+## Estado verificado em 06/11/2026
 
-- **Construído e testado localmente:** app responsiva em HTML/JS/CSS, análise de forma e descanso, separadores de notícias e ausências e dossiê pré-jogo. Recolha de resultados a partir de TheSportsDB (API oficial do fornecedor).
-- **Demonstração offline:** contém um snapshot PARCIAL de 60 jogos consultados em 05/11/2026. As estatísticas derivadas dessa amostra NÃO são estatísticas oficiais da época; o painel avisa.
-- **Notícias RSS:** detetor preparado para consultar buscas do Google Notícias quando a cloud executar `scripts/update_intelligence.py`. No ficheiro de demonstração não há notícias reais, porque não foi executada uma recolha RSS neste ambiente. As manchetes são apenas indicadores para abrir e verificar a fonte, nunca dados confirmados.
-- **Lesões e castigos:** API-Football opcional. Sem chave, a app mostra *cobertura desconhecida*, não «zero lesões». A API de lesões contém jogadores ausentes e «questionable» quando há cobertura; o acesso da época 2026/27 não está garantido no plano gratuito.
-- **Cloud:** ficheiro GitHub Actions preparado para atualizar o dashboard duas vezes por dia, mas **NÃO está publicado**. Precisa de um repositório GitHub e ativação do Pages.
-- **Solverde:** removida do projeto. Não consulta odds, não autentica contas nem executa apostas.
+- **Produção:** repositório público `mageburx/mageburx-football-intelligence`, com GitHub Actions e GitHub Pages. O workflow executa a recolha e a publicação a cada hora (sujeito a atrasos do GitHub), além de aceitar execução manual.
+- **Ligas:** cinco épocas históricas por campeonato (Portugal e Dinamarca, 2021/22–2025/26). A qualidade e a elegibilidade dos jogos para o modelo são auditadas separadamente.
+- **Taças e UEFA:** recolha complementar de Taça de Portugal, Taça da Liga, Taça da Dinamarca e provas UEFA; o calendário histórico extra-liga permanece **parcial**. O painel discrimina jogos adicionais nacionais e europeus.
+- **Backtesting de fadiga:** o ensaio v5.3 testa separadamente 2024/25 e 2025/26, mas **não demonstrou melhoria robusta**; por isso não altera probabilidades de produção.
+- **Fiabilidade:** há backtests históricos, mas o registo prospetivo precisa de jogos terminados e liquidados antes de sustentar afirmações sobre fiabilidade futura.
+- **Apostas:** não executa apostas, não recolhe odds de casas de apostas nem demonstra rentabilidade. As estimativas são apenas investigativas.
+
+Os números de cobertura e desempenho variam a cada recolha. A fonte de verdade é a branch persistente `football-data` e os JSON publicados no GitHub Pages.
 
 ## Dashboard
 
@@ -48,13 +50,12 @@ Também é possível acrescentar manualmente **apenas factos verificados** no fi
 
 ## Publicação GitHub Pages (cloud)
 
-1. Cria um repositório público vazio em [github.com/new](https://github.com/new), por exemplo `afonso-os-football-intelligence`.
-2. Carrega o conteúdo do projeto (não apenas o ZIP). O GitHub já está conectado ao ChatGPT, mas o repositório deve ser criado pelo proprietário.
-3. Em **Settings → Pages → Build and deployment**, seleciona **GitHub Actions**.
-4. Em **Actions**, executa `Football Intelligence — atualizar e publicar` (`workflow_dispatch`).
-5. Depois de a execução terminar com sucesso, poderás aceder a `https://TEU_UTILIZADOR.github.io/afonso-os-football-intelligence/` (substitui o utilizador e verifica o URL real apresentado nas definições do Pages).
-6. O workflow está configurado para executar duas vezes por dia, às **07:17 e 19:17 UTC**, não em tempo real. Os horários programados da GitHub podem sofrer atrasos e estão sujeitos a quotas.
-7. No iPhone, abre o URL no Safari e usa **Partilhar → Adicionar ao ecrã principal**.
+- Repositório: [mageburx/mageburx-football-intelligence](https://github.com/mageburx/mageburx-football-intelligence).
+- Execuções: [Actions](https://github.com/mageburx/mageburx-football-intelligence/actions).
+- URL do dashboard: [mageburx.github.io/mageburx-football-intelligence](https://mageburx.github.io/mageburx-football-intelligence/) (confirmar o endereço publicado nas definições do Pages).
+- O workflow `.github/workflows/update-and-deploy.yml` usa `cron: '17 * * * *'` (uma vez por hora); a execução real pode atrasar.
+- Os dados são persistidos na branch `football-data` e os relatórios de execução são arquivados como artefactos durante 90 dias.
+- No iPhone, abrir o URL no Safari e escolher **Partilhar → Adicionar ao ecrã principal**.
 
 ## Estrutura
 
@@ -72,7 +73,7 @@ data/verified_absences.json # Entradas editoriais verificáveis (vazio por defei
 ## Qualidade dos dados / limitações
 
 - A fonte TheSportsDB é comunitária e pode ter resultados incompletos ou errados.
-- As estatísticas de forma e descanso consideram **só jogos recolhidos da liga**, não taças, provas europeias, jogos de seleções ou dias de viagem. **Se os dados da liga estiverem incompletos, o descanso não é considerado fiável.**
+- O motor de probabilidades continua a usar resultados da liga; o painel experimental de descanso inclui jogos conhecidos de taças e UEFA, mas nunca assume calendários externos completos. Não contabiliza jogos das seleções nem viagens.
 - A classificação da Dinamarca pode divergir da oficial após a divisão em grupos.
 - RSS apenas apresenta manchetes, sem interpretação do artigo completo; menções, rumores e duplicados podem ocorrer. Verificar artigos e comunicados de clubes antes de agir.
 - Não existe uma ponderação validada sobre impacto de jogadores indisponíveis nem prova de retorno financeiro.
