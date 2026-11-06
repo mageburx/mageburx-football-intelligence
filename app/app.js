@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, expansionReliability: null, expansionAudit: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, expansionReliability: null, expansionAudit: null, leagueComparison: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga',dk2:'1. Division',nl:'Eredivisie',no:'Eliteserien'};
   const leagueFlags = {pt:'🇵🇹',dk:'🇩🇰',dk2:'🇩🇰',nl:'🇳🇱',no:'🇳🇴'};
   const leagueSeasons = {pt:'2026/27',dk:'2026/27',dk2:'2026/27',nl:'2026/27',no:'2026'};
@@ -746,6 +746,44 @@
       '<p class="muted">Estas são previsões preservadas no Git antes da data dos jogos; não confundimos a reconstrução histórica com previsões verdadeiramente emitidas antecipadamente. Alterações ao repositório ainda dependem das permissões do seu proprietário.</p></div>'+
       '<div class="limit-note">Sem previsões de rentabilidade: os testes não utilizam odds de mercado. O histórico foi importado retrospectivamente e continua sujeito a limitações de qualidade e seleção do modelo.</div></div></section>'+integrityView(lid,state.reliabilityMarket);
   }
+  function leagueComparisonMarkup(){
+    const report=state.leagueComparison;
+    if(!report?.leagues)return '';
+    const ids=['pt','dk','nl','dk2','no'].filter(id=>
+      (state.league==='all'||id===state.league)&&report.leagues[id]);
+    if(!ids.length)return '';
+    const fmt=x=>Number.isFinite(x)?numberPT.format(x):'—';
+    const rows=ids.map(id=>{
+      const x=report.leagues[id];
+      const n=Number(x.valid_settled)||0;
+      const status=n===0?'A aguardar resultados':n<100?'Amostra reduzida':'Análise descritiva';
+      const flagged=x.quality_warning?
+        '<span class="fi-compare-warning">Verificar integridade</span>':'';
+      const ci=Array.isArray(x.brier_ci95)?
+        '<small>IC 95% aproximado: '+fmt(x.brier_ci95[0])+'–'+fmt(x.brier_ci95[1])+'</small>':'';
+      return '<tr><td><strong>'+safe(leagueFlags[id]+' '+leagueNames[id])+'</strong></td>'+
+        '<td class="text-right">'+(x.issued??0)+'</td>'+
+        '<td class="text-right"><strong>'+n+'</strong><small>de 100 para análise</small></td>'+
+        '<td class="text-right"><strong>'+fmt(x.brier)+'</strong>'+ci+'</td>'+
+        '<td class="text-right">'+fmt(x.log_loss)+'</td>'+
+        '<td>'+status+flagged+'</td></tr>';
+    }).join('');
+    const ready=ids.every(id=>report.leagues[id].valid_settled>=100 &&
+      !report.leagues[id].quality_warning);
+    return '<section class="panel ux-reliability fi-compare-panel"><div class="body-pad">'+
+      '<h2>Comparar as 5 ligas · previsões reais 1X2</h2>'+
+      '<p class="ux-desc">Apenas previsões assinadas e registadas antes do jogo, com resultado final validado. Nunca usamos jogos históricos reconstruídos como previsões reais.</p>'+
+      '<div class="table-scroll"><table class="fi-compare-table"><thead><tr>'+
+      '<th>Liga</th><th class="text-right">Registadas</th>'+
+      '<th class="text-right">Resultados válidos</th>'+
+      '<th class="text-right">Brier ↓</th><th class="text-right">Log Loss ↓</th>'+
+      '<th>Estado</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<p class="ux-note">'+(ready?
+        'Há pelo menos 100 resultados válidos por liga. A comparação continua descritiva: os calendários, adversários e épocas são diferentes.':
+        'Ainda não há 100 resultados válidos em todas as ligas. Não é possível identificar estatisticamente a mais previsível a partir deste painel.')+
+      ' Os intervalos de confiança só surgem após 30 jogos válidos e são aproximados. Sem odds de mercado, Brier e Log Loss não medem rentabilidade.</p>'+
+      '</div></section>';
+  }
   function expansionReliabilityMarkup(){
     const report=state.expansionReliability;
     const ids=['nl','dk2','no'].filter(id=>state.league==='all'||state.league===id);
@@ -801,7 +839,7 @@
       '<div><small>Por jogar</small><strong>'+(future.future??'—')+'</strong></div>'+
       '<div><small>Passados sem resultado</small><strong>'+(future.past_due_missing_result??'—')+'</strong></div></div>'+
       '<p class="ux-note">'+((p?.settled??0)<100?'A amostra prospetiva ainda é pequena: não existe precisão comprovada.':'Existem avaliações prospetivas; confirma os intervalos de incerteza no relatório técnico.')+'</p>'+
-      '</div></section>'+expansionReliabilityMarkup()+
+      '</div></section>'+leagueComparisonMarkup()+expansionReliabilityMarkup()+
       '<section class="panel ux-reliability ux-xg-card"><div class="body-pad"><h2>Poisson + xG · laboratório</h2>'+
       '<div class="ux-stats"><span><b>'+(xg?.xg_observations??0)+'</b> jogos com xG observado</span>'+
       '<span><b>'+(state.xgExperiment?.total_shadow_predictions??0)+'</b> previsões experimentais</span>'+
@@ -856,7 +894,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['xgExperiment','xg_experiment.json'],['expansionReliability','expansion_reliability.json'],['expansionAudit','expansion_1x2_audit.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['xgExperiment','xg_experiment.json'],['expansionReliability','expansion_reliability.json'],['expansionAudit','expansion_1x2_audit.json'],['leagueComparison','league_comparison.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
@@ -865,6 +903,6 @@
   // Funções matemáticas expostas exclusivamente para testes locais.
   window.FootballLabTest = {standings,poisson,predict,teamForm,parseData:d=>{state.data=d},parseIntelligence:d=>{state.intelligence=d},
     setModelData:d=>{state.model=d},setXGData:d=>{state.xgExperiment=d},
-    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,setExpansionReliability:d=>{state.expansionReliability=d},setExpansionAudit:d=>{state.expansionAudit=d},getStats};
+    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,setExpansionReliability:d=>{state.expansionReliability=d},setExpansionAudit:d=>{state.expansionAudit=d},setLeagueComparison:d=>{state.leagueComparison=d},getStats};
   initialize();
 })();
