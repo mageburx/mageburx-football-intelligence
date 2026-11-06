@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, expansionReliability: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga',dk2:'1. Division',nl:'Eredivisie',no:'Eliteserien'};
   const leagueFlags = {pt:'🇵🇹',dk:'🇩🇰',dk2:'🇩🇰',nl:'🇳🇱',no:'🇳🇴'};
   const leagueSeasons = {pt:'2026/27',dk:'2026/27',dk2:'2026/27',nl:'2026/27',no:'2026'};
@@ -746,6 +746,35 @@
       '<p class="muted">Estas são previsões preservadas no Git antes da data dos jogos; não confundimos a reconstrução histórica com previsões verdadeiramente emitidas antecipadamente. Alterações ao repositório ainda dependem das permissões do seu proprietário.</p></div>'+
       '<div class="limit-note">Sem previsões de rentabilidade: os testes não utilizam odds de mercado. O histórico foi importado retrospectivamente e continua sujeito a limitações de qualidade e seleção do modelo.</div></div></section>'+integrityView(lid,state.reliabilityMarket);
   }
+  function expansionReliabilityMarkup(){
+    const report=state.expansionReliability;
+    const ids=['nl','dk2','no'].filter(id=>state.league==='all'||state.league===id);
+    if(!ids.length)return '';
+    return '<section class="panel ux-reliability ux-league-evidence"><div class="body-pad">'+
+      '<h2>Fiabilidade por campeonato</h2><p class="ux-desc">Jogo, histórico e previsão antecipada são indicadores diferentes. Sem odds reais não há ROI verificado.</p>'+
+      '<div class="ux-league-evidence-grid">'+ids.map(id=>{
+        const x=report?.leagues?.[id];
+        const m=x?.best_available_1x2;
+        const label=x?.holdout?.season&&x?.holdout?.metrics?.n?
+          'Teste histórico reservado · '+safe(x.holdout.season):
+          'Reprodução cronológica parcial · não independente';
+        const score=m?.n>=30&&Number.isFinite(m.brier)?numberPT.format(m.brier):'—';
+        return '<article class="ux-league-evidence-item"><div class="ux-league-head">'+
+          '<strong>'+safe(leagueFlags[id]+' '+leagueNames[id])+'</strong>'+
+          '<span>'+safe(leagueSeasons[id])+'</span></div>'+
+          '<div class="ux-league-numbers"><span><b>'+(x?.completed??0)+'</b> resultados</span>'+
+          '<span><b>'+(x?.upcoming??0)+'</b> por jogar</span>'+
+          '<span><b>'+(m?.n??0)+'</b> testes 1X2</span></div>'+
+          '<p>'+label+'</p>'+
+          '<div class="ux-league-score">Brier 1X2 <b>'+score+'</b></div>'+
+          '<small>'+(x?.partial?'Calendário ainda parcial. ':'')+
+          'Previsões antecipadas avaliadas: '+(x?.prospective?.settled??0)+'. '+
+          (x?.quality==='historical_holdout_available_not_proof_of_profit'?'Há um teste histórico, não uma vantagem económica confirmada.':'Histórico independente ainda insuficiente.')+
+          '</small></article>';
+      }).join('')+'</div>'+
+      '<p class="ux-note">Brier mais baixo é melhor. Métricas não comparáveis enquanto as amostras e períodos diferirem. O histórico de 2026 não permite simular apostas como se fossem previsões realmente guardadas.</p>'+
+      '</div></section>';
+  }
   function conciseReliabilityView(){
     const lid=state.league==='all'?'pt':state.league;
     const future=state.ledgerHealth?.states||{};
@@ -759,7 +788,7 @@
       '<div><small>Por jogar</small><strong>'+(future.future??'—')+'</strong></div>'+
       '<div><small>Passados sem resultado</small><strong>'+(future.past_due_missing_result??'—')+'</strong></div></div>'+
       '<p class="ux-note">'+((p?.settled??0)<100?'A amostra prospetiva ainda é pequena: não existe precisão comprovada.':'Existem avaliações prospetivas; confirma os intervalos de incerteza no relatório técnico.')+'</p>'+
-      '</div></section>'+
+      '</div></section>'+expansionReliabilityMarkup()+
       '<section class="panel ux-reliability ux-xg-card"><div class="body-pad"><h2>Poisson + xG · laboratório</h2>'+
       '<div class="ux-stats"><span><b>'+(xg?.xg_observations??0)+'</b> jogos com xG observado</span>'+
       '<span><b>'+(state.xgExperiment?.total_shadow_predictions??0)+'</b> previsões experimentais</span>'+
@@ -814,7 +843,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['xgExperiment','xg_experiment.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
+      for(const [key,file] of [['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['xgExperiment','xg_experiment.json'],['expansionReliability','expansion_reliability.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
@@ -823,6 +852,6 @@
   // Funções matemáticas expostas exclusivamente para testes locais.
   window.FootballLabTest = {standings,poisson,predict,teamForm,parseData:d=>{state.data=d},parseIntelligence:d=>{state.intelligence=d},
     setModelData:d=>{state.model=d},setXGData:d=>{state.xgExperiment=d},
-    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,getStats};
+    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,setExpansionReliability:d=>{state.expansionReliability=d},getStats};
   initialize();
 })();
