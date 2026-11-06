@@ -20,7 +20,7 @@ BRANCH = 'football-data'
 TRACKED = ('history.json', 'ledger.json', 'season.json', 'model.json',
            'reliability.json', 'quality.json', 'validation.json', 'scrape_report.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json',
            'cross_competitions.json', 'schedule_context.json', 'prematch_lineups.json',
-           'multi_competition_impact.json', 'ledger_health.json', 'european_coverage.json', 'advanced_signals.json', 'shots_research.json', 'xg_experiment.json', 'xg_shadow_ledger.json')
+           'multi_competition_impact.json', 'ledger_health.json', 'european_coverage.json', 'advanced_signals.json', 'shots_research.json', 'xg_experiment.json', 'xg_shadow_ledger.json', 'nl_history.json', 'expansion_reliability.json')
 
 def git(*args, cwd=ROOT, check=True):
     return subprocess.run(['git', *args], cwd=cwd, check=check,
@@ -71,7 +71,7 @@ def restore(root=ROOT):
     # For the new partially collected metadata feeds, the data branch is
     # authoritative. Do not accidentally reset the previous successful
     # season-round collection on the next hourly workflow.
-    for filename in ('cross_competitions.json','prematch_lineups.json','advanced_signals.json','xg_shadow_ledger.json'):
+    for filename in ('cross_competitions.json','prematch_lineups.json','advanced_signals.json','xg_shadow_ledger.json','nl_history.json'):
         prior=read_remote(filename)
         if prior is None:continue
         if not isinstance(prior,dict) or prior.get('schema')!=1:
@@ -86,7 +86,7 @@ def save(root=ROOT):
         raise RuntimeError('Persistent branch not reachable: ' + fetch.stderr[-500:])
     for filename in ('history.json', 'ledger.json', 'reliability.json', 'quality.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json',
                      'cross_competitions.json', 'schedule_context.json', 'prematch_lineups.json',
-                     'multi_competition_impact.json', 'ledger_health.json', 'european_coverage.json', 'advanced_signals.json', 'shots_research.json', 'xg_experiment.json', 'xg_shadow_ledger.json'):
+                     'multi_competition_impact.json', 'ledger_health.json', 'european_coverage.json', 'advanced_signals.json', 'shots_research.json', 'xg_experiment.json', 'xg_shadow_ledger.json', 'nl_history.json', 'expansion_reliability.json'):
         filepath=root/'data'/filename
         if not filepath.is_file():
             raise RuntimeError('Missing required persistent data file: '+str(filepath))

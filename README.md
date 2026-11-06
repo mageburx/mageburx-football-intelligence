@@ -13,6 +13,16 @@
 
 Os números de cobertura e desempenho variam a cada recolha. A fonte de verdade é a branch persistente `football-data` e os JSON publicados no GitHub Pages.
 
+## Histórico recente e evidência separada nas novas ligas
+
+**Eredivisie:** a fonte OpenFootball [football.json](https://github.com/openfootball/football.json) disponibiliza dados sob **CC0-1.0**. `scripts/collect_openfootball_nl.py` reconcilia os resultados da época 2026/27 com o calendário TheSportsDB, conserva os IDs existentes, bloqueia resultados divergentes e nunca introduz resultados de partidas futuras. Também guarda separadamente até cinco épocas anteriores em `data/nl_history.json`, com bandeira `complete` apenas quando há 306 jogos concluídos e 18 clubes com 34 partidas. Os anos incompletos são explicitamente excluídos do teste histórico reservado.
+
+**Dinamarca 1. Division e Noruega Eliteserien:** continuam a recolher resultados pela API gratuita, sem exceder o limite de chamadas. Depois de haver pelo menos 30 resultados de referência, o motor pode criar previsões exploratórias; a amostra cronológica da própria época **não é** uma validação independente. O motor não inventa jogos nem extrapola histórico de outra liga.
+
+**Fiabilidade por campeonato:** `scripts/build_expansion_reliability.py` publica `data/expansion_reliability.json`, com jogos disponíveis, antecipações guardadas, Brier/Log Loss 1X2 cronológicos e, no caso da Eredivisie, teste numa época completa reservada depois de treinar só em épocas anteriores. A avaliação prospetiva depende de partidas com previsões emitidas antes do início e efetivamente concluídas. A comparação com odds comerciais / ROI permanece **não verificada**.
+
+A recolha CC0 tem intervalo mínimo de 22 horas, é gratuita e não reclama utilização exclusiva dos dados. Relatórios e arquivo são guardados na branch `football-data`, sujeitos à licença das fontes e à integridade dos resultados.
+
 ## Cinco campeonatos monitorizados
 
 | ID interno | Competição | ID TheSportsDB | Época da fonte |

@@ -62,3 +62,26 @@ test('existing PT/DK fixtures and forecasts remain usable',()=>{
  assert.ok(d.leagues.dk.events.length>0);
  assert.ok(app.renderBriefing().includes('model-match'));
 });
+
+test('separate reliability distinguishes historical Dutch testing from untested leagues',()=>{
+  app.parseData(snapshot());
+  app.setExpansionReliability({leagues:{
+    nl:{completed:65,upcoming:230,partial:true,
+        holdout:{season:'2024-2025',metrics:{n:230}},
+        best_available_1x2:{n:230,brier:0.59},
+        prospective:{settled:0},
+        quality:'historical_holdout_available_not_proof_of_profit'},
+    dk2:{completed:16,upcoming:0,partial:true,
+         best_available_1x2:{n:0,brier:null},prospective:{settled:0},
+         quality:'insufficient_independent_holdout'},
+    no:{completed:16,upcoming:0,partial:true,
+         best_available_1x2:{n:0,brier:null},prospective:{settled:0},
+         quality:'insufficient_independent_holdout'},
+  }});
+  const view=app.renderReliability();
+  for(const label of ['Fiabilidade por campeonato','Eredivisie','Eliteserien','1. Division',
+                      'Teste histórico reservado','Histórico independente ainda insuficiente'])
+    assert.ok(view.includes(label),label);
+  assert.ok(view.includes('2024-2025'));
+  assert.ok(!view.includes('ROI positivo'));
+});

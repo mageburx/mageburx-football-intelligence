@@ -66,6 +66,8 @@ jobs:
         run: python scripts/build_shots_research.py
       - name: Adicionar Eredivisie, 1. Division dinamarquesa e Eliteserien
         run: python scripts/collect_expanded_leagues.py --max-calls 6 --pause 2
+      - name: Completar Eredivisie com arquivo CC0 e reconciliar jogos
+        run: python scripts/collect_openfootball_nl.py
       - name: Recolher notícias e ausências documentadas
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
@@ -80,6 +82,8 @@ jobs:
         run: python scripts/audit_ledger_health.py
       - name: Calcular fiabilidade com épocas históricas e ledger
         run: python scripts/build_reliability.py
+      - name: Auditar separadamente a fiabilidade nas três novas ligas
+        run: python scripts/build_expansion_reliability.py
       - name: Recolher Taça de Portugal, Taça da Liga e competições UEFA
         run: python scripts/collect_cross_competitions.py --max-calls 8 --pause 3.5
       - name: Auditar cobertura histórica UEFA, sem presumir completude
@@ -120,6 +124,8 @@ jobs:
           test -s data/advanced_signals.json
           test -s data/shots_research.json
           test -s data/xg_experiment.json
+          test -s data/nl_history.json
+          test -s data/expansion_reliability.json
           test -s data/xg_shadow_ledger.json
           test -s data/value_engine.json
           test -s data/feature_impact.json
@@ -145,6 +151,8 @@ jobs:
             data/advanced_signals.json
             data/shots_research.json
             data/xg_experiment.json
+            data/nl_history.json
+            data/expansion_reliability.json
             data/xg_shadow_ledger.json
             data/value_engine.json
             data/feature_impact.json
@@ -165,7 +173,7 @@ jobs:
         run: |
           mkdir -p public/data
           cp app/index.html app/style.css app/app.js public/
-          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/advanced_signals.json data/shots_research.json data/xg_experiment.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json data/ledger_health.json data/european_coverage.json public/data/
+          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/advanced_signals.json data/shots_research.json data/xg_experiment.json data/nl_history.json data/expansion_reliability.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json data/ledger_health.json data/european_coverage.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:
