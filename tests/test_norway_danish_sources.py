@@ -6,7 +6,7 @@ from unittest.mock import patch
 from pathlib import Path
 
 from scripts.collect_norwegian_fantasy import parse,reconcile,download
-from scripts.collect_danish_first_official import collect as collect_dbu
+from scripts.collect_danish_first_official import collect as collect_dbu,normalize
 from scripts.collect_expanded_leagues import collect as collect_rounds
 
 
@@ -114,6 +114,13 @@ class NorwaySourceTests(unittest.TestCase):
 
 
 class DanishDBUTests(unittest.TestCase):
+    def test_official_aliases_match_thesportsdb_names(self):
+        self.assertEqual(normalize('Aalborg BK'),'AaB')
+        self.assertEqual(normalize('Vejle BK'),'Vejle')
+        self.assertEqual(normalize('Hobro IK'),'Hobro')
+        with self.assertRaises(ValueError):
+            normalize('Unverified Team')
+
     def test_robots_denied_fails_without_changing_existing_fixtures(self):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/'season.json'
