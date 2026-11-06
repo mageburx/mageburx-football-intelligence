@@ -144,3 +144,37 @@
 .fi-v41-scraper{padding:15px 17px;margin-bottom:16px;border:1px solid #365b6c;border-radius:10px;background:#142e3e}
 .fi-v41-scraper h3{font-size:13px;color:#d7f0f2;margin:0 0 9px}
 .fi-v41-scraper p{font-size:10px;line-height:1.5;margin:6px 0}
+
+
+/* v5 — Manual odds research, calibration and evidence-first comparison */
+.fi-v5-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr);gap:18px;align-items:start}
+.fi-v5-grid>.panel{min-width:0;overflow:hidden}
+.fi-v5-grid .body-pad>.input,.fi-v5-grid .body-pad>select{width:100%}
+.fi-v5-field{margin:18px 0 14px;display:flex;flex-direction:column;gap:8px}
+.fi-v5-field>label,.fi-v5-odds>label{font-size:10px;font-weight:700;color:#a9c4d0;letter-spacing:.035em}
+.fi-v5-field .input{width:100%}
+.fi-v5-analysis{background:#0d2737;border:1px solid #2b4b60;border-radius:13px;padding:16px;margin:15px 0 0}
+.fi-v5-top{display:flex;justify-content:space-between;align-items:flex-start;gap:11px;margin-bottom:16px}
+.fi-v5-top small{display:block;font-size:10px;color:#98b3c2}
+.fi-v5-top h3{margin:7px 0 0;font-size:17px;color:#ecf8fc}
+.fi-v5-state{font-size:9px;color:#b9d2da;background:#254454;padding:7px;border-radius:5px;white-space:nowrap}
+.fi-v5-prob{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.fi-v5-prob>div,.fi-v5-result>div{background:#183647;border:1px solid #355265;padding:12px;border-radius:9px;min-width:0}
+.fi-v5-prob small,.fi-v5-result small{display:block;color:#a6bcca;font-size:10px;line-height:1.5}
+.fi-v5-prob strong,.fi-v5-result strong{display:block;color:#e4f8fb;font-size:19px;margin-top:9px;font-variant-numeric:tabular-nums}
+.fi-v5-odds{margin:16px 0 12px;display:flex;flex-direction:column;gap:8px}
+.fi-v5-odds .input{max-width:230px}
+.fi-v5-result{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.fi-v5-source{font-size:10px;line-height:1.5;margin:12px 0 0}
+.fi-v5-confidence{border:1px solid #5c6a68;background:#1d323a;border-radius:10px;padding:13px;margin-top:18px}
+.fi-v5-confidence>strong{color:#eff1e5;font-size:12px}
+.fi-v5-confidence p,.fi-v5-confidence li{font-size:10px;line-height:1.65;color:#b4c4c7}
+.fi-v5-confidence p{margin:8px 0}
+.fi-v5-confidence ul{margin:8px 0 0;padding-left:17px}
+.fi-v5-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:13px 0 18px}
+.fi-v5-steps>div{padding:10px;background:#143447;border:1px solid #345163;border-radius:8px;min-width:0}
+.fi-v5-steps b{display:block;font-size:14px;color:#e6f6fa}
+.fi-v5-steps span{display:block;font-size:9px;line-height:1.45;color:#9cbbcc;margin-top:6px}
+.fi-v5-grid .body-pad>.muted{font-size:11px;line-height:1.7}
+@media(max-width:1020px){.fi-v5-grid{grid-template-columns:1fr}}
+@media(max-width:530px){.fi-v5-analysis{padding:11px}.fi-v5-prob{grid-template-columns:1fr}.fi-v5-prob>div{display:flex;justify-content:space-between;align-items:center;gap:7px}.fi-v5-prob strong{margin:0}.fi-v5-result{grid-template-columns:1fr}.fi-v5-top{flex-direction:column;gap:8px}}
