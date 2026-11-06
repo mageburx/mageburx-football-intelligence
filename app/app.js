@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'all', modelMatch:''};
+  const state = {data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga'};
   const views = {
     overview:['Início','Os próximos jogos, <em>sem ruído.</em>','Escolhe um jogo. Consulta as probabilidades e aprofunda apenas quando precisares.'],
@@ -151,7 +151,7 @@
     if(state.matchFilter==='upcoming')items=items.filter(e=>!isFinished(e)&&e.date>=new Date().toISOString().slice(0,10));
     if(state.matchFilter==='upcoming')items.sort((a,b)=>String(a.utc||a.date).localeCompare(String(b.utc||b.date)));
     else items.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-    return `<div class="toolbar"><div><span class="pill-label">${items.length} encontros</span> <span class="muted">· Época 2026/27</span></div><div style="display:flex;gap:9px;flex-wrap:wrap"><input id="match-search" class="searchbox" aria-label="Pesquisar clube" placeholder="Pesquisar por clube…" value="${safe(state.search)}" /><select id="match-filter" class="filter-select" aria-label="Filtrar jogos"><option value="all" ${state.matchFilter==='all'?'selected':''}>Todos os jogos</option><option value="finished" ${state.matchFilter==='finished'?'selected':''}>Resultados finais</option><option value="upcoming" ${state.matchFilter==='upcoming'?'selected':''}>Por jogar</option></select></div></div><section class="panel"><div class="panel-header"><div><h2>Calendário e resultados</h2><p>Fonte: TheSportsDB; datas apresentadas no fuso da informação recolhida</p></div></div><div class="match-list">${items.length?items.slice(0,130).map(e=>matchRow(e)).join(''):'<div class="empty"><b>Nenhum jogo encontrado</b>Altera os filtros ou aguarda a próxima atualização.</div>'}</div></section>`;
+    return `<div class="toolbar"><div><span class="pill-label">${items.length} encontros</span> <span class="muted">· Época 2026/27</span></div><div style="display:flex;gap:9px;flex-wrap:wrap"><input id="match-search" class="searchbox" aria-label="Pesquisar clube" placeholder="Pesquisar por clube…" value="${safe(state.search)}" /><select id="match-filter" class="filter-select" aria-label="Filtrar jogos"><option value="all" ${state.matchFilter==='all'?'selected':''}>Todos os jogos</option><option value="finished" ${state.matchFilter==='finished'?'selected':''}>Resultados finais</option><option value="upcoming" ${state.matchFilter==='upcoming'?'selected':''}>Por jogar</option></select></div></div><section class="panel"><div class="panel-header"><div><h2>Calendário e resultados</h2><p>Fonte: TheSportsDB; datas apresentadas no fuso da informação recolhida</p></div></div><div class="match-list">${items.length?items.slice(0,state.matchLimit).map(e=>!isFinished(e)&&e.date>=new Date().toISOString().slice(0,10)?compactFixture(e):matchRow(e)).join(''):'<div class="empty"><b>Nenhum jogo encontrado</b>Altera os filtros ou aguarda a próxima atualização.</div>'}</div>${items.length>state.matchLimit?'<div class="ux-more"><button type="button" class="ux-link" data-more-games="1">Mostrar mais jogos →</button></div>':''}</section>`;
   }
   function tableView(){return activeLeagues().map(lid=>`<section class="panel" style="margin-bottom:20px"><div class="panel-header"><div><h2>${lid==='pt'?'🇵🇹':'🇩🇰'} ${safe(leagueNames[lid])}</h2><p>${rows(lid).filter(isFinished).length} jogos concluídos na fonte · classificação calculada</p></div><span class="tag">2026 / 27</span></div>${tableMarkup(rows(lid),99)}${lid==='dk'?`<div class="body-pad muted">Nota: a Superliga dinamarquesa divide-se em fases; esta classificação é uma soma simples dos jogos disponíveis e não substitui as tabelas oficiais após a divisão.</div>`:''}</section>`).join('');}
   function modelSelect(){const options=forthcoming().filter(e=>rows(e.league).filter(isFinished).length>0).slice(0,90);
@@ -784,8 +784,9 @@
       state.modelMatch=b.dataset.openMatch;
       goto('briefings');
     }));
+    $('[data-more-games]').forEach(b=>b.addEventListener('click',()=>{state.matchLimit+=30;render();}));
     const filter=$('#match-filter'), search=$('#match-search'), sel=$('#model-match');
-    if(filter)filter.addEventListener('change',e=>{state.matchFilter=e.target.value;render();});
+    if(filter)filter.addEventListener('change',e=>{state.matchFilter=e.target.value;state.matchLimit=30;render();});
     if(search)search.addEventListener('input',e=>{const caret=e.target.selectionStart;state.search=e.target.value;render();const n=$('#match-search');if(n){n.focus();n.setSelectionRange(caret,caret);}});
     if(sel)sel.addEventListener('change',e=>{state.modelMatch=e.target.value;render();});
     const nf=$('#news-filter');if(nf)nf.addEventListener('change',e=>{state.newsFilter=e.target.value;render();});
@@ -814,6 +815,8 @@
     render();
   }
   // Funções matemáticas expostas exclusivamente para testes locais.
-  window.FootballLabTest = {standings,poisson,predict,teamForm,parseData:d=>{state.data=d},parseIntelligence:d=>{state.intelligence=d},getStats};
+  window.FootballLabTest = {standings,poisson,predict,teamForm,parseData:d=>{state.data=d},parseIntelligence:d=>{state.intelligence=d},
+    setModelData:d=>{state.model=d},setXGData:d=>{state.xgExperiment=d},
+    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,getStats};
   initialize();
 })();
