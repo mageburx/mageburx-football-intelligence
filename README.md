@@ -23,6 +23,14 @@ Os números de cobertura e desempenho variam a cada recolha. A fonte de verdade 
 
 A recolha CC0 tem intervalo mínimo de 22 horas, é gratuita e não reclama utilização exclusiva dos dados. Relatórios e arquivo são guardados na branch `football-data`, sujeitos à licença das fontes e à integridade dos resultados.
 
+## Jogos futuros oficiais dinamarqueses e previsões 1X2 prospetivas
+
+A página pública e única da [DBU, Betinia Liga 2026/27](https://www.dbu.dk/resultater/pulje/507530/kampprogramFuld) inclui resultados e partidas agendadas. O novo `scripts/parse_dbu_schedule.py` lê **apenas datas futuras** da mesma página que já era consultada pela recolha oficial com verificação de `robots.txt`: valida o número do jogo e as equipas, converte horas do fuso `Europe/Copenhagen`, não inventa horários em falta e **nunca atribui resultados a encontros futuros**. A reconciliação preserva resultados e identificadores anteriores, evita duplicados e marca remarcações apenas quando o número oficial coincide. As jornadas pós-fase regular ainda podem não estar publicadas.
+
+As probabilidades de resultado final **1/X/2** passam a ter um registo próprio: `data/expansion_1x2_ledger.json` (persistido na branch `football-data`). O módulo `scripts/record_expansion_1x2.py` guarda valores `p1/px/p2` **só para jogos de data posterior à emissão**, com carimbo temporal e SHA-256, e nunca altera registos já emitidos. Só liquida resultados depois da data do jogo, com placares válidos e chave original. As previsões de outros mercados guardadas no registo anterior **não são retroativamente convertidas em previsões 1X2**.
+
+A página *Fiabilidade* distingue o número de previsões 1X2 efetivamente guardadas das métricas históricas, e publica **Brier** e **Log Loss** apenas à medida que existirem jogos realmente concluídos. São indicadores experimentais, não uma demonstração de vantagem monetária ou aconselhamento de apostas. O algoritmo não foi reajustado por esta mudança; custo adicional **0 €**.
+
 ## Fontes alternativas 2026 (Noruega e Dinamarca)
 
 - **Noruega / Eliteserien:** `scripts/collect_norwegian_fantasy.py` lê exclusivamente o CSV público de calendário/resultados 2026 de [TopMarx/eliteserien](https://github.com/TopMarx/eliteserien), reconcilia pares de equipas e datas com a API principal e guarda apenas os factos necessários para o modelo. O projeto de código é MIT, **mas os dados são propriedade da liga/fornecedores**; a disponibilização no GitHub não concede direitos de exploração comercial. Não usar este feed como produto comercial sem autorização. O coletor exige 16 clubes, um mínimo de 100 partidas na fonte, verifica a época, respeita o limite diário e não aceita resultados do próprio dia nem posteriores.
