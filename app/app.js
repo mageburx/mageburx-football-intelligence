@@ -870,58 +870,110 @@
     const stamp=Date.parse(raw+(/[Zz]$|[+-]\d\d:\d\d$/.test(raw)?'':'Z'));
     return Number.isFinite(stamp)?stamp:null;
   }
-  function liveCandidates(){
-    const now=Date.now(),today=new Date().toISOString().slice(0,10);
+  function liveCandidates(now=Date.now()){
+    // The old window compared kickoff-now > -45 min: it hid matches during the
+    // second half. The page must always show ALL fixtures dated today.
+    const today=new Date(now).toISOString().slice(0,10);
     return games().filter(e=>{
+      const kickoff=utcKickoff(e);
+      const hoursSince=kickoff===null?Infinity:(now-kickoff)/3600000;
+      return e.date===today || (hoursSince>=0 && hoursSince<=8);
+    }).sort((a,b)=>{
+      const af=isFinished(a),bf=isFinished(b);
+      if(af!==bf)return af?1:-1;
+      return String(a.utc||a.date).localeCompare(String(b.utc||b.date));
+    });
+  }
+  function liveLookupCandidates(now=Date.now()){
+    // Only events with the provider's numeric identifier can be queried.
+    // Keep the browser request budget small and focus on matches near kickoff.
+    return liveCandidates(now).filter(e=>{
       if(!/^\d{4,10}$/.test(String(e.id||'')))return false;
       const kickoff=utcKickoff(e);
-      return kickoff!==null ? (kickoff-now>-45*60000 && kickoff-now<5*3600000) : e.date===today;
-    }).sort((a,b)=>Math.abs((utcKickoff(a)||now)-now)-Math.abs((utcKickoff(b)||now)-now));
+      if(kickoff===null)return e.date===new Date(now).toISOString().slice(0,10);
+      const elapsed=now-kickoff;
+      return elapsed>=-90*60000 && elapsed<=8*3600000;
+    }).slice(0,8);
   }
   function liveView(){
     const candidates=liveCandidates();
-    const monitored=candidates.slice(0,8);
+    const monitored=liveLookupCandidates();
+    const snapTime=state.data?.updated_at?fullDate(state.data.updated_at):'Desconhecida';
     const sourceError=liveState.error?'<p class="limit-note">'+safe(liveState.error)+'</p>':'';
     const cards=candidates.map(e=>{
       const cached=liveState.items[e.league+':'+e.id]||null;
-      // A status from an hourly snapshot or a stale lookup is NOT live proof.
       const entry=cached && Date.now()-cached.checkedAt<5*60000?cached.data:null;
-      const status=normalizeMatchStatus(entry?.strStatus);
-      const observed=Boolean(entry);
-      const inplay=liveStates.has(status);
-      const isFinal=finalStates.has(status);
-      const label=inplay?'EM JOGO':isFinal?'FINAL NA FONTE':status==='NS'?'POR INICIAR':'POR CONFIRMAR';
-      // Never show a stale snapshot as a verified live score.
-      const hs=observed && entry.intHomeScore!=null && entry.intHomeScore!==''?Number(entry.intHomeScore):null;
-      const as=observed && entry.intAwayScore!=null && entry.intAwayScore!==''?Number(entry.intAwayScore):null;
-      const showScores=(inplay||isFinal) && Number.isInteger(hs) && Number.isInteger(as);
-      const progress=entry?.strProgress?String(entry.strProgress):'';
+      const fresh=Boolean(entry);
+      const status=normalizeMatchStatus(fresh?entry.strStatus:e.match_status);
+      const playing=fresh && liveStates.has(status);
+      const isFinal=isFinished(e) || (fresh && finalStates.has(status));
+      const snapshotProgress=String(e.progress||'');
+      const progress=fresh?String(entry.strProgress||''):snapshotProgress;
+      const scoreNumber=(value)=>{
+        if(value==null || value==='')return null;
+        const v=Number(value);
+        return Number.isInteger(v)&&v>=0&&v<100?v:null;
+      };
+      const home=scoreNumber(fresh?entry.intHomeScore:
+        isFinished(e)?e.home_score:e.live_home_score);
+      const away=scoreNumber(fresh?entry.intAwayScore:
+        isFinished(e)?e.away_score:e.live_away_score);
+      const hasScore=home!==null && away!==null;
+      const statusText=status==='HT'?'INTERVALO':status==='NS'?'POR INICIAR':
+        status==='1H'?'1.ª PARTE':status==='2H'?'2.ª PARTE':
+        status==='FT'?'FINAL':status||'ESTADO INDISPONÍVEL';
+      const label=playing?'EM JOGO':isFinal?'FINAL CONFIRMADO':
+        fresh && status==='HT'?'INTERVALO':
+        !fresh && status==='HT'?'INTERVALO · ÚLTIMO REGISTO':
+        !fresh && liveStates.has(status)?'ESTADO ANTIGO · POR CONFIRMAR':
+        status==='NS'?'POR INICIAR':'POR CONFIRMAR';
+      const origin=fresh?'Consulta direta recente':
+        isFinal?'Resultado confirmado na última recolha':
+        'Última recolha '+snapTime+' · não é live';
       const start=utcKickoff(e);
-      const startLabel=start?fullDate(new Date(start).toISOString()):formatDate(e.date)+' · hora não confirmada';
-      return '<article class="live-game '+(inplay?'live-game-active':'')+'"><div class="live-top"><span>'+safe(leagueFlags[e.league]+' '+leagueNames[e.league])+'</span>'+
-        '<span class="live-state '+(inplay?'live-state-on':'')+'">'+safe(label)+'</span></div>'+
-        '<div class="live-teams"><strong>'+safe(e.home)+'</strong><div class="live-score">'+(showScores?hs+' : '+as:'– : –')+'</div><strong>'+safe(e.away)+'</strong></div>'+
-        '<div class="live-footer"><span>'+safe(progress&&inplay?progress:startLabel)+'</span>'+
-        '<span>'+safe(observed?'Consulta à fonte efetuada':'Sem consulta recente')+'</span></div></article>';
+      const startLabel=start?fullDate(new Date(start).toISOString()):formatDate(e.date)+' · hora desconhecida';
+      const playingMinute=playing&&progress?progress+' · ':'';
+      return '<article class="live-game '+(playing?'live-game-active':'')+'"><div class="live-top"><span>'+
+        safe(leagueFlags[e.league]+' '+leagueNames[e.league])+'</span>'+
+        '<span class="live-state '+(playing?'live-state-on':'')+'">'+safe(label)+'</span></div>'+
+        '<div class="live-teams"><strong>'+safe(e.home)+'</strong><div class="live-score">'+
+        (hasScore?home+' : '+away:'– : –')+'</div><strong>'+safe(e.away)+'</strong></div>'+
+        '<div class="live-footer"><span>'+safe(playingMinute+(statusText==='ESTADO INDISPONÍVEL'?startLabel:statusText+' · '+startLabel))+
+        '</span><span>'+safe(origin)+'</span></div>'+
+        (!fresh&&hasScore&&!isFinal?'<small class="live-unconfirmed">Último marcador conhecido — pode estar desatualizado.</small>':'')+
+        (!/^\d{4,10}$/.test(String(e.id||''))?'<small class="live-unconfirmed">Esta fonte não permite consulta direta por ID.</small>':'')+
+        '</article>';
     }).join('');
-    const active=candidates.filter(e=>{const cached=liveState.items[e.league+':'+e.id];return cached && Date.now()-cached.checkedAt<5*60000 && liveStates.has(normalizeMatchStatus(cached.data?.strStatus));}).length;
+    const active=candidates.filter(e=>{
+      const cached=liveState.items[e.league+':'+e.id];
+      return cached && Date.now()-cached.checkedAt<5*60000 &&
+        liveStates.has(normalizeMatchStatus(cached.data?.strStatus));
+    }).length;
+    const next=games().filter(e=>e.date>new Date().toISOString().slice(0,10)&&!isFinished(e))
+      .slice(0,5);
+    const nextMarkup=!candidates.length && next.length?
+      '<div class="live-next"><strong>Próximos jogos conhecidos</strong><p>'+
+      next.map(e=>safe(leagueFlags[e.league]+' '+e.home+' – '+e.away+' · '+formatDate(e.date))).join('<span class="live-next-separator"> | </span>')+
+      '</p></div>':'';
     return '<div class="live-toolbar"><div><span class="pill-label">'+active+' em jogo confirmados</span> '+
-      '<span class="muted">'+candidates.length+' jogos próximos desta janela · '+monitored.length+' consultados por ciclo</span></div>'+
+      '<span class="muted">'+candidates.length+' jogos de hoje ou recentemente iniciados · '+
+      monitored.length+' consultáveis neste ciclo</span></div>'+
       '<button id="live-refresh" type="button" class="secondary-button" '+(liveState.loading?'disabled':'')+'>'+
       (liveState.loading?'A consultar…':'↻ Atualizar agora')+'</button></div>'+
-      '<div class="callout intel-callout"><b>Monitorização indicativa, não um feed live oficial.</b>'+
-      '<div>Os estados e marcadores são consultados na API gratuita TheSportsDB, jogo a jogo, de 2 em 2 minutos enquanto esta página estiver aberta. Atualizações, minutos e cobertura podem falhar ou chegar com atraso. Nenhum marcador em curso é usado para liquidar previsões.</div></div>'+
+      '<div class="callout intel-callout"><b>Jogos de hoje, incluindo marcadores ainda não confirmados em direto.</b>'+
+      '<div>Apresentamos todos os jogos identificados para hoje, mesmo que não exista um feed live. Tentamos consultar os jogos com ID do fornecedor de 2 em 2 minutos, com a página aberta. O marcador do último snapshot é identificado como tal e nunca é usado para liquidar previsões.</div></div>'+
       sourceError+
-      '<section class="panel"><div class="panel-header"><div><h2>Jogos a decorrer</h2>'+
-      '<p>'+(liveState.updatedAt?'Última consulta: '+safe(fullDate(liveState.updatedAt)):'Ainda sem consulta direta à fonte')+
+      '<section class="panel"><div class="panel-header"><div><h2>Jogos a decorrer · calendário de hoje</h2>'+
+      '<p>'+(liveState.updatedAt?'Última consulta direta: '+safe(fullDate(liveState.updatedAt)):
+      'Último snapshot: '+safe(snapTime))+
       '</p></div><span class="tag">SEM CUSTO ADICIONAL</span></div><div class="live-grid">'+
-      (cards||'<div class="empty"><b>Sem jogos na janela de monitorização</b>Consulta mais tarde ou altera a liga selecionada. Não significa que todas as competições estejam paradas.</div>')+
-      '</div></section>';
+      (cards||'<div class="empty"><b>Sem jogos hoje nas competições selecionadas</b>Os próximos encontros disponíveis aparecem abaixo; algumas fontes podem ter cobertura incompleta.</div>')+
+      '</div>'+nextMarkup+'</section>';
   }
   async function refreshLive(force=false){
     if(state.view!=='live'||liveState.loading||!state.data)return;
     if(Date.now()-liveState.lastRequest<(force?45000:115000))return;
-    const candidates=liveCandidates().slice(0,8);
+    const candidates=liveLookupCandidates();
     if(!candidates.length){liveState.error=null;render();return;}
     liveState.loading=true;liveState.error=null;liveState.lastRequest=Date.now();render();
     const results=await Promise.allSettled(candidates.map(async e=>{
