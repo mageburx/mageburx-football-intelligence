@@ -1,6 +1,6 @@
 # Mageburx Football Intelligence · análise probabilística de futebol
 
-**Dashboard web de pré-jogo para Liga Portugal Betclic e 3F Superliga dinamarquesa.**
+**Dashboard web de pré-jogo para Portugal, Dinamarca (duas divisões), Países Baixos e Noruega.**
 
 ## Estado verificado em 06/11/2026
 
@@ -12,6 +12,22 @@
 - **Apostas:** não executa apostas, não recolhe odds de casas de apostas nem demonstra rentabilidade. As estimativas são apenas investigativas.
 
 Os números de cobertura e desempenho variam a cada recolha. A fonte de verdade é a branch persistente `football-data` e os JSON publicados no GitHub Pages.
+
+## Cinco campeonatos monitorizados
+
+| ID interno | Competição | ID TheSportsDB | Época da fonte |
+|---|---|---:|---|
+| `pt` | Liga Portugal | 4344 | 2026-2027 |
+| `dk` | 3F Superliga | 4340 | 2026-2027 |
+| `dk2` | Danish 1st Division / Betinia Liga | 4683 | 2026-2027 |
+| `nl` | Eredivisie (Países Baixos) | 4337 | 2026-2027 |
+| `no` | Eliteserien (Noruega) | 4358 | **2026** |
+
+A recolha de `dk2`, `nl` e `no` está em `scripts/collect_expanded_leagues.py`, com orçamento de **até seis consultas por execução**, intervalo entre pedidos, interrupção no HTTP 429 e progresso guardado em `season.json` na branch `football-data`. A nova recolha corre depois das duas ligas iniciais e antes do modelo, reutilizando Poisson/Dixon–Coles/Elo com resultados efetivamente disponíveis. O endpoint da época pode devolver um subconjunto de resultados; por isso não confirma automaticamente a completude. São consultadas jornadas aos poucos, sem inventar as que faltam.
+
+**Atenção aos limites:** o histórico auditado de cinco épocas, a calibração independente, as estatísticas xG, e os feeds específicos de notícias/lesões continuam inicialmente limitados às ligas anteriormente suportadas. A cobertura histórica das três novas ligas é **parcial e não certificada**; nunca interpretar probabilidades iniciais como validação de rentabilidade. Na Dinamarca os play-offs podem reutilizar numeração de jornadas; a classificação é indicativa, não a oficial após o desdobramento.
+
+Testes: `python -m unittest tests.test_expanded_leagues -v`.
 
 ## Laboratório de estatísticas avançadas (remates/xG)
 
