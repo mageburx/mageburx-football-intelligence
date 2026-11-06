@@ -178,3 +178,23 @@
 .fi-v5-grid .body-pad>.muted{font-size:11px;line-height:1.7}
 @media(max-width:1020px){.fi-v5-grid{grid-template-columns:1fr}}
 @media(max-width:530px){.fi-v5-analysis{padding:11px}.fi-v5-prob{grid-template-columns:1fr}.fi-v5-prob>div{display:flex;justify-content:space-between;align-items:center;gap:7px}.fi-v5-prob strong{margin:0}.fi-v5-result{grid-template-columns:1fr}.fi-v5-top{flex-direction:column;gap:8px}}
+
+
+/* v5.1 — context factors and historical ablation */
+.fi-factor-panel{margin-top:19px;overflow:hidden}
+.fi-factor-panel .body-pad{min-width:0}
+.fi-factor-panel .table-scroll{margin:17px 0}
+.fi-factor-panel .table-scroll table{min-width:520px}
+.fi-factor-panel .table-scroll td,.fi-factor-panel .table-scroll th{font-size:11px;padding:11px 9px}
+.fi-factor-panel td small{display:block;color:#8dacae;font-size:9px;margin-top:5px}
+.fi-factor-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:15px}
+.fi-factor-kpis>div{border:1px solid #365368;border-radius:9px;background:#153449;padding:14px}
+.fi-factor-kpis small{display:block;color:#9db6c7;font-size:10px}
+.fi-factor-kpis strong{display:block;margin-top:10px;color:#e3f5f7;font-size:14px;line-height:1.5}
+.fi-factor-subtitle{font-size:14px;color:#dff1f5;margin:16px 0 11px}
+.fi-factor-teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fi-factor-team{background:#153347;border:1px solid #2b4e63;border-radius:9px;padding:14px;display:flex;flex-direction:column;gap:9px}
+.fi-factor-team b{font-size:13px;color:#e1f4f7}
+.fi-factor-team span{font-size:11px;color:#b0c7d1}
+.fi-factor-note{font-size:11px;line-height:1.7;margin:15px 0}
+@media(max-width:560px){.fi-factor-kpis,.fi-factor-teams{grid-template-columns:1fr}}
