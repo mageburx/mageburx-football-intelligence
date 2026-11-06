@@ -51,12 +51,18 @@ def build(audit,now=None):
                                or any(type(z) not in (int,float) or not 0<=z<=2 for z in ci)
                                or ci[0]>ci[1]):
             raise ValueError('Invalid approximate confidence interval: '+lid)
+        superseded=int(a.get('superseded',0))
+        if not 0<=superseded<=issued:
+            raise ValueError('Contradictory superseded-ID count: '+lid)
         needs_review=sum(int(a.get(field,0)) for field in
                          ('invalid','rescheduled','fixture_missing','superseded','past_due'))
         leagues[lid]={
             'name':name,'issued':issued,'settled':settled,
             'valid_settled':valid,
-            'pending':issued-settled,'excluded_or_flagged':invalid,
+            'pending':issued-settled,
+            'active_ids':issued-superseded,
+            'superseded_signed_ids':superseded,
+            'excluded_or_flagged':invalid,
             'past_due':int(a.get('past_due',0)),
             'rescheduled':int(a.get('rescheduled',0)),
             'superseded':int(a.get('superseded',0)),
@@ -81,6 +87,8 @@ def build(audit,now=None):
         'ranking_status':('descriptive_only_not_a_financial_ranking' if all_ready else
                           'not_rankable_insufficient_or_nonuniform_evidence'),
         'totals':{'issued':sum(x['issued'] for x in leagues.values()),
+                  'active_ids':sum(x['active_ids'] for x in leagues.values()),
+                  'superseded_signed_ids':sum(x['superseded_signed_ids'] for x in leagues.values()),
                   'settled_valid':sum(x['valid_settled'] for x in leagues.values()),
                   'leagues_with_results':sum(x['valid_settled']>0 for x in leagues.values())},
         'leagues':leagues,
