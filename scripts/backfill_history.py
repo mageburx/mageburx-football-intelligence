@@ -33,6 +33,10 @@ def expected_round_matches(season: str, round_number: int) -> int:
 # 2021/22 and 2022/23 reuse rounds 1–10 for the playoff stage.
 # Each season also has one separately sourced European play-off fixture.
 
+class RateLimitError(RuntimeError):
+    """Shared free API rate limit; stop and resume in a later scheduled run."""
+
+
 def get_round(season: str, round_number: int, retries: int = 2):
     url = API + '?' + urllib.parse.urlencode({'id': LEAGUE_ID, 's': season, 'r': round_number})
     for attempt in range(retries):
@@ -63,6 +67,12 @@ def get_round(season: str, round_number: int, retries: int = 2):
                                'home': home, 'away': away, 'home_score': h,
                                'away_score': a, 'finished': True})
             return result
+        except urllib.error.HTTPError as exc:
+            if exc.code == 429:
+                raise RateLimitError(f'{season} J{round_number}: HTTP 429, retomar no próximo ciclo') from exc
+            if attempt + 1 >= retries:
+                raise RuntimeError(f'{season} jornada {round_number}: {exc}') from exc
+            time.sleep(10 * (attempt + 1))
         except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
             if attempt + 1 >= retries:
                 raise RuntimeError(f'{season} jornada {round_number}: {exc}') from exc
@@ -115,6 +125,9 @@ def collect(path=PATH, max_calls=18, pause=4.0, fetcher=get_round):
                 ok += 1
                 changed = True
                 print(f'{season} J{round_number}: {len(matches)} jogos; total {old["actual_games"]}', flush=True)
+        except RateLimitError as exc:
+            print('LIMITE_API', exc, '— interromper lote e preservar o progresso', flush=True)
+            break
         except RuntimeError as exc:
             print('AVISO', exc, flush=True)
         if pause and attempted < min(len(needed), max_calls):
@@ -125,7 +138,7 @@ def collect(path=PATH, max_calls=18, pause=4.0, fetcher=get_round):
         temp.replace(path)
     print(json.dumps({'attempted': attempted, 'successful_rounds': ok,
                       'coverage': {s: {'rounds': len(dk[s].get('fetched_rounds', [])),
-                                       'games': dk[s]['actual_games'],
+                                       'games': dk[s].get('actual_games', len(dk[s].get('events', []))),
                                        'complete': dk[s]['complete']} for s in NEEDED}}))
     return history
 
