@@ -2,8 +2,8 @@
 """Freeze and settle genuinely forward-looking 1X2 predictions by league.
 
 The general-purpose market ledger predates 1X2 storage; DO NOT retrospectively
-attach 1X2 values to its older predictions. This separate ledger starts NOW,
-only on matches strictly after the recording date. No odds, no ROI claims.
+attach 1X2 values to its older predictions. This separate ledger initially covered NL/DK2/NO and now covers PT/DK too,
+only on matches strictly after each forecast's original recording date. No odds, no ROI claims.
 """
 from __future__ import annotations
 import argparse
@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 PATH=ROOT/'data'/'expansion_1x2_ledger.json'
-LEAGUES=('nl','dk2','no')
+LEAGUES=('pt','dk','nl','dk2','no')
 
 
 def parse_datetime(value):
