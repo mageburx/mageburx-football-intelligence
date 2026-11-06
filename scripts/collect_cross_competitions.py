@@ -38,6 +38,13 @@ MAX_ROUND={'domestic_cup':9,'european':10}
 ALIASES={
     # League archives (OpenFootball) and European schedules use different names.
     'sporting clube de portugal':'Sporting CP',
+    'sporting de braga':'Braga',
+    'sl benfica':'Benfica',
+    'fc do porto':'Porto',
+    'vitoria sc guimaraes':'Vitória de Guimarães',
+    'vitoria sc':'Vitória de Guimarães',
+    'cd santa clara acores':'Santa Clara',
+    'avs futebol':'AVS',
     'sport lisboa e benfica':'Benfica',
     'sporting clube de braga':'Braga',
     'sport lisboa benfica':'Benfica',
