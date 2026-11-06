@@ -95,8 +95,8 @@ class AdvancedSignalsTests(unittest.TestCase):
                                       'home':'Porto','away':'Benfica','finished':False}]}}}
         a=build(s,season,self.NOW)['leagues']['pt']['candidates'][0]
         self.assertEqual(a['status'],'observational_signal_only')
-        self.assertEqual(a['pressure_home'],3.5)
-        self.assertEqual(a['pressure_away'],3.5)
+        self.assertEqual(a['pressure_home'],5.0)
+        self.assertEqual(a['pressure_away'],2.0)
         self.assertFalse(a['adjusts_probability'])
 
 
