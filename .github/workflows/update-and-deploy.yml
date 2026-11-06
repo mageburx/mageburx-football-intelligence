@@ -92,6 +92,8 @@ jobs:
         run: python scripts/build_league_comparison.py
       - name: Auditar saúde e pendências das previsões prospetivas
         run: python scripts/audit_ledger_health.py
+      - name: Construir Centro de Validação 1X2 sem reescrever previsões
+        run: python scripts/build_validation_center.py
       - name: Calcular fiabilidade com épocas históricas e ledger
         run: python scripts/build_reliability.py
       - name: Auditar separadamente a fiabilidade nas três novas ligas
@@ -141,6 +143,7 @@ jobs:
           test -s data/expansion_1x2_ledger.json
           test -s data/expansion_1x2_audit.json
           test -s data/league_comparison.json
+          test -s data/validation_center.json
           test -s data/xg_shadow_ledger.json
           test -s data/value_engine.json
           test -s data/feature_impact.json
@@ -171,6 +174,7 @@ jobs:
             data/expansion_1x2_ledger.json
             data/expansion_1x2_audit.json
             data/league_comparison.json
+            data/validation_center.json
             data/xg_shadow_ledger.json
             data/value_engine.json
             data/feature_impact.json
@@ -184,14 +188,14 @@ jobs:
       - name: Testar motor e painel de fiabilidade
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Testar navegação simplificada e modelo JavaScript
-        run: node --test tests/test_model.cjs tests/test_clean_ui.cjs tests/test_league_expansion.cjs
+        run: node --test tests/test_model.cjs tests/test_clean_ui.cjs tests/test_league_expansion.cjs tests/test_validation_ui.cjs
       - name: Validar sintaxe do dashboard
-        run: node --check app/app.js
+        run: node --check app/app.js && node --check app/validation.js
       - name: Preparar dashboard estático
         run: |
           mkdir -p public/data
-          cp app/index.html app/style.css app/app.js public/
-          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/advanced_signals.json data/shots_research.json data/xg_experiment.json data/nl_history.json data/expansion_reliability.json data/expansion_1x2_audit.json data/league_comparison.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json data/ledger_health.json data/european_coverage.json public/data/
+          cp app/index.html app/style.css app/app.js app/validation.js public/
+          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/advanced_signals.json data/shots_research.json data/xg_experiment.json data/nl_history.json data/expansion_reliability.json data/expansion_1x2_audit.json data/league_comparison.json data/validation_center.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json data/ledger_health.json data/european_coverage.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:
