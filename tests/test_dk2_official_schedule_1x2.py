@@ -83,6 +83,25 @@ class OfficialFixtureTests(unittest.TestCase):
             self.assertEqual(len(again['leagues']['dk2']['events']),3)
             self.assertEqual(len(calls),1)
 
+    def test_upgrade_fetches_future_schedule_even_after_recent_results_check(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/'season.json'
+            prior=season()
+            prior['leagues']['dk2']['dbu_official']={
+                'checked_at':'2026-11-06T17:00:00+00:00',
+                'status':'sample_available','added':18,'matched':60,
+                'conflicts':0,'error':None}
+            path.write_text(json.dumps(prior),encoding='utf8')
+            calls=[]
+            def fetch(_):
+                calls.append(1)
+                return HTML
+            first=collect(path,fetch,NOW)
+            self.assertEqual(len(calls),1)
+            self.assertEqual(first['leagues']['dk2']['dbu_official']['upcoming_added'],2)
+            collect(path,fetch,NOW+dt.timedelta(hours=1))
+            self.assertEqual(len(calls),1)
+
     def test_full_schedule_only_future_is_accepted(self):
         text=HTML.replace('1 - 1','')
         with tempfile.TemporaryDirectory() as temp:
