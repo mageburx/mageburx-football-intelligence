@@ -1,7 +1,7 @@
 {
   "schema": 4,
   "method": "Poisson independente; Dixon-Coles (rho fixo); Elo; mistura 80/20",
-  "generated_at": "2026-11-06T17:35:17+00:00",
+  "generated_at": "2026-11-06T17:50:45+00:00",
   "note": "Avaliação walk-forward na época atual; seleção exploratória, não teste independente. Sem xG, lesões ou notícias quantificados.",
   "leagues": {
     "nl": {
@@ -7537,8 +7537,24 @@
       "data_partial": true
     },
     "dk2": {
-      "played": 18,
-      "evaluations": {},
+      "played": 36,
+      "evaluations": {
+        "poisson": {
+          "n": 6,
+          "brier": 0.7774,
+          "log_loss": 1.2533
+        },
+        "dc": {
+          "n": 6,
+          "brier": 0.7741,
+          "log_loss": 1.2504
+        },
+        "blend": {
+          "n": 6,
+          "brier": 0.748,
+          "log_loss": 1.2123
+        }
+      },
       "selected": "poisson",
       "predictions": {},
       "market_audit": {
@@ -7547,71 +7563,375 @@
         "double_chance_note": "Os backtests de dupla oportunidade usam Dixon-Coles fixo, não o modelo 1X2 selecionado no presente.",
         "metrics": {
           "double_1x": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2193,
+            "log_loss": 0.6296,
+            "baseline_brier": 0.1789,
+            "brier_skill": -0.2257,
+            "calibration_error": 0.2634,
+            "event_frequency": 0.8333,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 5,
+                "mean_prediction": 0.5453,
+                "observed_frequency": 0.8
+              },
+              {
+                "range": "60-80%",
+                "n": 1,
+                "mean_prediction": 0.6931,
+                "observed_frequency": 1.0
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "double_x2": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.3272,
+            "log_loss": 0.8674,
+            "baseline_brier": 0.2825,
+            "brier_skill": -0.1582,
+            "calibration_error": 0.3272,
+            "event_frequency": 0.5,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 1,
+                "mean_prediction": 0.5771,
+                "observed_frequency": 1.0
+              },
+              {
+                "range": "60-80%",
+                "n": 5,
+                "mean_prediction": 0.7081,
+                "observed_frequency": 0.4
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "double_12": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2276,
+            "log_loss": 0.6499,
+            "baseline_brier": 0.2235,
+            "brier_skill": -0.0181,
+            "calibration_error": 0.0771,
+            "event_frequency": 0.6667,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 6,
+                "mean_prediction": 0.7438,
+                "observed_frequency": 0.6667
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "over_0_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2966,
+            "log_loss": 0.9841,
+            "baseline_brier": 0.2896,
+            "brier_skill": -0.0244,
+            "calibration_error": 0.2718,
+            "event_frequency": 0.6667,
+            "calibration_bins": [
+              {
+                "range": "80-100%",
+                "n": 6,
+                "mean_prediction": 0.9385,
+                "observed_frequency": 0.6667
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "under_0_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2966,
+            "log_loss": 0.9841,
+            "baseline_brier": 0.2896,
+            "brier_skill": -0.0244,
+            "calibration_error": 0.2718,
+            "event_frequency": 0.3333,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 6,
+                "mean_prediction": 0.0615,
+                "observed_frequency": 0.3333
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "over_1_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2408,
+            "log_loss": 0.6917,
+            "baseline_brier": 0.2422,
+            "brier_skill": 0.0056,
+            "calibration_error": 0.1269,
+            "event_frequency": 0.6667,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 4,
+                "mean_prediction": 0.7781,
+                "observed_frequency": 0.75
+              },
+              {
+                "range": "80-100%",
+                "n": 2,
+                "mean_prediction": 0.8246,
+                "observed_frequency": 0.5
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "under_1_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2408,
+            "log_loss": 0.6917,
+            "baseline_brier": 0.2422,
+            "brier_skill": 0.0056,
+            "calibration_error": 0.1269,
+            "event_frequency": 0.3333,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 2,
+                "mean_prediction": 0.1754,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "20-40%",
+                "n": 4,
+                "mean_prediction": 0.2219,
+                "observed_frequency": 0.25
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "over_2_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2483,
+            "log_loss": 0.6902,
+            "baseline_brier": 0.2536,
+            "brier_skill": 0.021,
+            "calibration_error": 0.149,
+            "event_frequency": 0.5,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 5,
+                "mean_prediction": 0.5449,
+                "observed_frequency": 0.6
+              },
+              {
+                "range": "60-80%",
+                "n": 1,
+                "mean_prediction": 0.6183,
+                "observed_frequency": 0.0
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "under_2_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2483,
+            "log_loss": 0.6902,
+            "baseline_brier": 0.2536,
+            "brier_skill": 0.021,
+            "calibration_error": 0.149,
+            "event_frequency": 0.5,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 1,
+                "mean_prediction": 0.3817,
+                "observed_frequency": 1.0
+              },
+              {
+                "range": "40-60%",
+                "n": 5,
+                "mean_prediction": 0.4551,
+                "observed_frequency": 0.4
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "over_3_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.1582,
+            "log_loss": 0.5009,
+            "baseline_brier": 0.1515,
+            "brier_skill": -0.0439,
+            "calibration_error": 0.1677,
+            "event_frequency": 0.1667,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 6,
+                "mean_prediction": 0.3344,
+                "observed_frequency": 0.1667
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "under_3_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.1582,
+            "log_loss": 0.5009,
+            "baseline_brier": 0.1515,
+            "brier_skill": -0.0439,
+            "calibration_error": 0.1677,
+            "event_frequency": 0.8333,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 6,
+                "mean_prediction": 0.6656,
+                "observed_frequency": 0.8333
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "btts_yes": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2578,
+            "log_loss": 0.7095,
+            "baseline_brier": 0.2726,
+            "brier_skill": 0.0542,
+            "calibration_error": 0.087,
+            "event_frequency": 0.5,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 4,
+                "mean_prediction": 0.5692,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "60-80%",
+                "n": 2,
+                "mean_prediction": 0.6225,
+                "observed_frequency": 0.5
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "btts_no": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2578,
+            "log_loss": 0.7095,
+            "baseline_brier": 0.2726,
+            "brier_skill": 0.0542,
+            "calibration_error": 0.087,
+            "event_frequency": 0.5,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 2,
+                "mean_prediction": 0.3775,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "40-60%",
+                "n": 4,
+                "mean_prediction": 0.4308,
+                "observed_frequency": 0.5
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "home_over_0_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.3264,
+            "log_loss": 0.8736,
+            "baseline_brier": 0.3231,
+            "brier_skill": -0.0104,
+            "calibration_error": 0.2328,
+            "event_frequency": 0.5,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 6,
+                "mean_prediction": 0.7328,
+                "observed_frequency": 0.5
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "home_over_1_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2938,
+            "log_loss": 0.7857,
+            "baseline_brier": 0.2644,
+            "brier_skill": -0.1112,
+            "calibration_error": 0.4039,
+            "event_frequency": 0.5,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 4,
+                "mean_prediction": 0.3583,
+                "observed_frequency": 0.75
+              },
+              {
+                "range": "40-60%",
+                "n": 2,
+                "mean_prediction": 0.4283,
+                "observed_frequency": 0.0
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "away_over_0_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2224,
+            "log_loss": 0.6401,
+            "baseline_brier": 0.2422,
+            "brier_skill": 0.0819,
+            "calibration_error": 0.126,
+            "event_frequency": 0.6667,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 2,
+                "mean_prediction": 0.7398,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "80-100%",
+                "n": 4,
+                "mean_prediction": 0.8191,
+                "observed_frequency": 0.75
+              }
+            ],
             "status": "amostra_insuficiente"
           },
           "away_over_1_5": {
-            "n": 0,
+            "n": 6,
+            "brier": 0.2464,
+            "log_loss": 0.6848,
+            "baseline_brier": 0.2408,
+            "brier_skill": -0.0234,
+            "calibration_error": 0.3039,
+            "event_frequency": 0.1667,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 1,
+                "mean_prediction": 0.3463,
+                "observed_frequency": 0.0
+              },
+              {
+                "range": "40-60%",
+                "n": 5,
+                "mean_prediction": 0.4954,
+                "observed_frequency": 0.2
+              }
+            ],
             "status": "amostra_insuficiente"
           }
         }
@@ -7620,86 +7940,1917 @@
       "data_partial": true
     },
     "no": {
-      "played": 24,
-      "evaluations": {},
+      "played": 200,
+      "evaluations": {
+        "poisson": {
+          "n": 169,
+          "brier": 0.602,
+          "log_loss": 1.0104
+        },
+        "dc": {
+          "n": 169,
+          "brier": 0.6035,
+          "log_loss": 1.0138
+        },
+        "blend": {
+          "n": 169,
+          "brier": 0.5993,
+          "log_loss": 1.0054
+        }
+      },
       "selected": "poisson",
-      "predictions": {},
+      "predictions": {
+        "fantasy-no:2026:203": {
+          "p1": 0.40443,
+          "px": 0.23065,
+          "p2": 0.36491,
+          "over": 0.63719,
+          "btts": 0.65581,
+          "markets": {
+            "over_0_5": 0.95643,
+            "under_0_5": 0.04357,
+            "over_1_5": 0.84541,
+            "under_1_5": 0.15459,
+            "over_2_5": 0.63719,
+            "under_2_5": 0.36281,
+            "over_3_5": 0.41595,
+            "under_3_5": 0.58405,
+            "home_over_0_5": 0.81519,
+            "home_over_1_5": 0.50315,
+            "home_over_2_5": 0.23972,
+            "away_over_0_5": 0.79705,
+            "away_over_1_5": 0.47339,
+            "away_over_2_5": 0.2153,
+            "btts_yes": 0.65581,
+            "btts_no": 0.34419,
+            "double_1x": 0.63509,
+            "double_x2": 0.59557,
+            "double_12": 0.76935
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.688,
+          "lambdaA": 1.595,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:206": {
+          "p1": 0.78621,
+          "px": 0.12588,
+          "p2": 0.08791,
+          "over": 0.7691,
+          "btts": 0.60044,
+          "markets": {
+            "over_0_5": 0.97942,
+            "under_0_5": 0.02058,
+            "over_1_5": 0.91516,
+            "under_1_5": 0.08484,
+            "over_2_5": 0.7691,
+            "under_2_5": 0.2309,
+            "over_3_5": 0.5762,
+            "under_3_5": 0.4238,
+            "home_over_0_5": 0.95334,
+            "home_over_1_5": 0.81034,
+            "home_over_2_5": 0.59119,
+            "away_over_0_5": 0.62652,
+            "away_over_1_5": 0.25868,
+            "away_over_2_5": 0.07754,
+            "btts_yes": 0.60044,
+            "btts_no": 0.39956,
+            "double_1x": 0.91209,
+            "double_x2": 0.21379,
+            "double_12": 0.87412
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 3.065,
+          "lambdaA": 0.985,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:201": {
+          "p1": 0.35904,
+          "px": 0.2583,
+          "p2": 0.38267,
+          "over": 0.50543,
+          "btts": 0.55516,
+          "markets": {
+            "over_0_5": 0.92518,
+            "under_0_5": 0.07482,
+            "over_1_5": 0.75799,
+            "under_1_5": 0.24201,
+            "over_2_5": 0.50543,
+            "under_2_5": 0.49457,
+            "over_3_5": 0.28505,
+            "under_3_5": 0.71495,
+            "home_over_0_5": 0.73352,
+            "home_over_1_5": 0.38111,
+            "home_over_2_5": 0.14809,
+            "away_over_0_5": 0.74683,
+            "away_over_1_5": 0.39905,
+            "away_over_2_5": 0.16018,
+            "btts_yes": 0.55516,
+            "btts_no": 0.44484,
+            "double_1x": 0.61733,
+            "double_x2": 0.64096,
+            "double_12": 0.7417
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.322,
+          "lambdaA": 1.374,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:202": {
+          "p1": 0.26785,
+          "px": 0.22424,
+          "p2": 0.50791,
+          "over": 0.62231,
+          "btts": 0.62832,
+          "markets": {
+            "over_0_5": 0.95363,
+            "under_0_5": 0.04637,
+            "over_1_5": 0.83622,
+            "under_1_5": 0.16378,
+            "over_2_5": 0.62231,
+            "under_2_5": 0.37769,
+            "over_3_5": 0.39985,
+            "under_3_5": 0.60015,
+            "home_over_0_5": 0.73301,
+            "home_over_1_5": 0.38044,
+            "home_over_2_5": 0.14764,
+            "away_over_0_5": 0.84894,
+            "away_over_1_5": 0.56343,
+            "away_over_2_5": 0.29361,
+            "btts_yes": 0.62832,
+            "btts_no": 0.37168,
+            "double_1x": 0.49209,
+            "double_x2": 0.73215,
+            "double_12": 0.77576
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.321,
+          "lambdaA": 1.89,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:204": {
+          "p1": 0.74069,
+          "px": 0.14221,
+          "p2": 0.1171,
+          "over": 0.77718,
+          "btts": 0.65088,
+          "markets": {
+            "over_0_5": 0.98019,
+            "under_0_5": 0.01981,
+            "over_1_5": 0.91932,
+            "under_1_5": 0.08068,
+            "over_2_5": 0.77718,
+            "under_2_5": 0.22282,
+            "over_3_5": 0.58717,
+            "under_3_5": 0.41283,
+            "home_over_0_5": 0.9481,
+            "home_over_1_5": 0.79455,
+            "home_over_2_5": 0.56742,
+            "away_over_0_5": 0.68298,
+            "away_over_1_5": 0.31879,
+            "away_over_2_5": 0.1096,
+            "btts_yes": 0.65088,
+            "btts_no": 0.34912,
+            "double_1x": 0.8829,
+            "double_x2": 0.25931,
+            "double_12": 0.85779
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.958,
+          "lambdaA": 1.149,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:205": {
+          "p1": 0.32216,
+          "px": 0.2433,
+          "p2": 0.43454,
+          "over": 0.56494,
+          "btts": 0.59742,
+          "markets": {
+            "over_0_5": 0.94074,
+            "under_0_5": 0.05926,
+            "over_1_5": 0.79965,
+            "under_1_5": 0.20035,
+            "over_2_5": 0.56494,
+            "under_2_5": 0.43506,
+            "over_3_5": 0.341,
+            "under_3_5": 0.659,
+            "home_over_0_5": 0.73989,
+            "home_over_1_5": 0.38961,
+            "home_over_2_5": 0.15376,
+            "away_over_0_5": 0.79827,
+            "away_over_1_5": 0.47533,
+            "away_over_2_5": 0.21685,
+            "btts_yes": 0.59742,
+            "btts_no": 0.40258,
+            "double_1x": 0.56546,
+            "double_x2": 0.67784,
+            "double_12": 0.7567
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.347,
+          "lambdaA": 1.601,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:208": {
+          "p1": 0.44084,
+          "px": 0.22304,
+          "p2": 0.33612,
+          "over": 0.66872,
+          "btts": 0.67733,
+          "markets": {
+            "over_0_5": 0.96242,
+            "under_0_5": 0.03758,
+            "over_1_5": 0.86375,
+            "under_1_5": 0.13625,
+            "over_2_5": 0.66872,
+            "under_2_5": 0.33128,
+            "over_3_5": 0.4513,
+            "under_3_5": 0.5487,
+            "home_over_0_5": 0.84263,
+            "home_over_1_5": 0.55162,
+            "home_over_2_5": 0.28257,
+            "away_over_0_5": 0.79712,
+            "away_over_1_5": 0.4735,
+            "away_over_2_5": 0.21539,
+            "btts_yes": 0.67733,
+            "btts_no": 0.32267,
+            "double_1x": 0.66388,
+            "double_x2": 0.55916,
+            "double_12": 0.77696
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.849,
+          "lambdaA": 1.595,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:207": {
+          "p1": 0.36053,
+          "px": 0.25229,
+          "p2": 0.38718,
+          "over": 0.53235,
+          "btts": 0.57594,
+          "markets": {
+            "over_0_5": 0.93252,
+            "under_0_5": 0.06748,
+            "over_1_5": 0.77734,
+            "under_1_5": 0.22266,
+            "over_2_5": 0.53235,
+            "under_2_5": 0.46765,
+            "over_3_5": 0.30975,
+            "under_3_5": 0.69025,
+            "home_over_0_5": 0.747,
+            "home_over_1_5": 0.39929,
+            "home_over_2_5": 0.16034,
+            "away_over_0_5": 0.76146,
+            "away_over_1_5": 0.41958,
+            "away_over_2_5": 0.17458,
+            "btts_yes": 0.57594,
+            "btts_no": 0.42406,
+            "double_1x": 0.61282,
+            "double_x2": 0.63947,
+            "double_12": 0.74771
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.374,
+          "lambdaA": 1.433,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:210": {
+          "p1": 0.43662,
+          "px": 0.22406,
+          "p2": 0.33932,
+          "over": 0.66467,
+          "btts": 0.67462,
+          "markets": {
+            "over_0_5": 0.96168,
+            "under_0_5": 0.03832,
+            "over_1_5": 0.86145,
+            "under_1_5": 0.13855,
+            "over_2_5": 0.66467,
+            "under_2_5": 0.33533,
+            "over_3_5": 0.44666,
+            "under_3_5": 0.55334,
+            "home_over_0_5": 0.83945,
+            "home_over_1_5": 0.54577,
+            "home_over_2_5": 0.27719,
+            "away_over_0_5": 0.79686,
+            "away_over_1_5": 0.47308,
+            "away_over_2_5": 0.21505,
+            "btts_yes": 0.67462,
+            "btts_no": 0.32538,
+            "double_1x": 0.66068,
+            "double_x2": 0.56338,
+            "double_12": 0.77594
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.829,
+          "lambdaA": 1.594,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:216": {
+          "p1": 0.40482,
+          "px": 0.26639,
+          "p2": 0.3288,
+          "over": 0.46685,
+          "btts": 0.52334,
+          "markets": {
+            "over_0_5": 0.91367,
+            "under_0_5": 0.08633,
+            "over_1_5": 0.72876,
+            "under_1_5": 0.27124,
+            "over_2_5": 0.46685,
+            "under_2_5": 0.53315,
+            "over_3_5": 0.25139,
+            "under_3_5": 0.74861,
+            "home_over_0_5": 0.74109,
+            "home_over_1_5": 0.39124,
+            "home_over_2_5": 0.15486,
+            "away_over_0_5": 0.69592,
+            "away_over_1_5": 0.33392,
+            "away_over_2_5": 0.11845,
+            "btts_yes": 0.52334,
+            "btts_no": 0.47666,
+            "double_1x": 0.6712,
+            "double_x2": 0.59518,
+            "double_12": 0.73361
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.351,
+          "lambdaA": 1.19,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:211": {
+          "p1": 0.37279,
+          "px": 0.22661,
+          "p2": 0.40059,
+          "over": 0.65868,
+          "btts": 0.67238,
+          "markets": {
+            "over_0_5": 0.96055,
+            "under_0_5": 0.03945,
+            "over_1_5": 0.85803,
+            "under_1_5": 0.14197,
+            "over_2_5": 0.65868,
+            "under_2_5": 0.34132,
+            "over_3_5": 0.43985,
+            "under_3_5": 0.56015,
+            "home_over_0_5": 0.81033,
+            "home_over_1_5": 0.49502,
+            "home_over_2_5": 0.23291,
+            "away_over_0_5": 0.82259,
+            "away_over_1_5": 0.5158,
+            "away_over_2_5": 0.25053,
+            "btts_yes": 0.67238,
+            "btts_no": 0.32762,
+            "double_1x": 0.59941,
+            "double_x2": 0.62721,
+            "double_12": 0.77339
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.662,
+          "lambdaA": 1.729,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:213": {
+          "p1": 0.72865,
+          "px": 0.14736,
+          "p2": 0.12399,
+          "over": 0.76926,
+          "btts": 0.65195,
+          "markets": {
+            "over_0_5": 0.97909,
+            "under_0_5": 0.02091,
+            "over_1_5": 0.91558,
+            "under_1_5": 0.08442,
+            "over_2_5": 0.76926,
+            "under_2_5": 0.23074,
+            "over_3_5": 0.57641,
+            "under_3_5": 0.42359,
+            "home_over_0_5": 0.94446,
+            "home_over_1_5": 0.78392,
+            "home_over_2_5": 0.55188,
+            "away_over_0_5": 0.68658,
+            "away_over_1_5": 0.32294,
+            "away_over_2_5": 0.112,
+            "btts_yes": 0.65195,
+            "btts_no": 0.34805,
+            "double_1x": 0.87601,
+            "double_x2": 0.27135,
+            "double_12": 0.85264
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.891,
+          "lambdaA": 1.16,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:209": {
+          "p1": 0.19719,
+          "px": 0.16934,
+          "p2": 0.63347,
+          "over": 0.80909,
+          "btts": 0.74493,
+          "markets": {
+            "over_0_5": 0.98375,
+            "under_0_5": 0.01625,
+            "over_1_5": 0.93443,
+            "under_1_5": 0.06557,
+            "over_2_5": 0.80909,
+            "under_2_5": 0.19091,
+            "over_3_5": 0.63213,
+            "under_3_5": 0.36787,
+            "home_over_0_5": 0.79003,
+            "home_over_1_5": 0.46231,
+            "home_over_2_5": 0.20656,
+            "away_over_0_5": 0.93866,
+            "away_over_1_5": 0.76743,
+            "away_over_2_5": 0.52847,
+            "btts_yes": 0.74493,
+            "btts_no": 0.25507,
+            "double_1x": 0.36653,
+            "double_x2": 0.80281,
+            "double_12": 0.83066
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.561,
+          "lambdaA": 2.791,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:212": {
+          "p1": 0.41909,
+          "px": 0.23947,
+          "p2": 0.34144,
+          "over": 0.58908,
+          "btts": 0.61787,
+          "markets": {
+            "over_0_5": 0.94632,
+            "under_0_5": 0.05368,
+            "over_1_5": 0.81553,
+            "under_1_5": 0.18447,
+            "over_2_5": 0.58908,
+            "under_2_5": 0.41092,
+            "over_3_5": 0.36515,
+            "under_3_5": 0.63485,
+            "home_over_0_5": 0.80146,
+            "home_over_1_5": 0.48047,
+            "home_over_2_5": 0.22098,
+            "away_over_0_5": 0.76272,
+            "away_over_1_5": 0.4214,
+            "away_over_2_5": 0.17589,
+            "btts_yes": 0.61787,
+            "btts_no": 0.38213,
+            "double_1x": 0.65856,
+            "double_x2": 0.58091,
+            "double_12": 0.76053
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.617,
+          "lambdaA": 1.439,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:215": {
+          "p1": 0.36238,
+          "px": 0.23998,
+          "p2": 0.39764,
+          "over": 0.59055,
+          "btts": 0.62037,
+          "markets": {
+            "over_0_5": 0.94663,
+            "under_0_5": 0.05337,
+            "over_1_5": 0.8165,
+            "under_1_5": 0.1835,
+            "over_2_5": 0.59055,
+            "under_2_5": 0.40945,
+            "over_3_5": 0.36665,
+            "under_3_5": 0.63335,
+            "home_over_0_5": 0.77475,
+            "home_over_1_5": 0.439,
+            "home_over_2_5": 0.18878,
+            "away_over_0_5": 0.79226,
+            "away_over_1_5": 0.4658,
+            "away_over_2_5": 0.20929,
+            "btts_yes": 0.62037,
+            "btts_no": 0.37963,
+            "double_1x": 0.60236,
+            "double_x2": 0.63762,
+            "double_12": 0.76002
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.491,
+          "lambdaA": 1.571,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:214": {
+          "p1": 0.30293,
+          "px": 0.26602,
+          "p2": 0.43105,
+          "over": 0.4604,
+          "btts": 0.51481,
+          "markets": {
+            "over_0_5": 0.91167,
+            "under_0_5": 0.08833,
+            "over_1_5": 0.72364,
+            "under_1_5": 0.27636,
+            "over_2_5": 0.4604,
+            "under_2_5": 0.5396,
+            "over_3_5": 0.24594,
+            "under_3_5": 0.75406,
+            "home_over_0_5": 0.6747,
+            "home_over_1_5": 0.30939,
+            "home_over_2_5": 0.10426,
+            "away_over_0_5": 0.75178,
+            "away_over_1_5": 0.4059,
+            "away_over_2_5": 0.16492,
+            "btts_yes": 0.51481,
+            "btts_no": 0.48519,
+            "double_1x": 0.56895,
+            "double_x2": 0.69707,
+            "double_12": 0.73398
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.123,
+          "lambdaA": 1.393,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:219": {
+          "p1": 0.68311,
+          "px": 0.17368,
+          "p2": 0.14322,
+          "over": 0.68134,
+          "btts": 0.59917,
+          "markets": {
+            "over_0_5": 0.96553,
+            "under_0_5": 0.03447,
+            "over_1_5": 0.86999,
+            "under_1_5": 0.13001,
+            "over_2_5": 0.68134,
+            "under_2_5": 0.31866,
+            "over_3_5": 0.46592,
+            "under_3_5": 0.53408,
+            "home_over_0_5": 0.91475,
+            "home_over_1_5": 0.70485,
+            "home_over_2_5": 0.44645,
+            "away_over_0_5": 0.64995,
+            "away_over_1_5": 0.28251,
+            "away_over_2_5": 0.08966,
+            "btts_yes": 0.59917,
+            "btts_no": 0.40083,
+            "double_1x": 0.85678,
+            "double_x2": 0.31689,
+            "double_12": 0.82632
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.462,
+          "lambdaA": 1.05,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:224": {
+          "p1": 0.53698,
+          "px": 0.19453,
+          "p2": 0.26849,
+          "over": 0.77014,
+          "btts": 0.74154,
+          "markets": {
+            "over_0_5": 0.97856,
+            "under_0_5": 0.02144,
+            "over_1_5": 0.91665,
+            "under_1_5": 0.08335,
+            "over_2_5": 0.77014,
+            "under_2_5": 0.22986,
+            "over_3_5": 0.57759,
+            "under_3_5": 0.42241,
+            "home_over_0_5": 0.90786,
+            "home_over_1_5": 0.68816,
+            "home_over_2_5": 0.42623,
+            "away_over_0_5": 0.81224,
+            "away_over_1_5": 0.49819,
+            "away_over_2_5": 0.23555,
+            "btts_yes": 0.74154,
+            "btts_no": 0.25846,
+            "double_1x": 0.73151,
+            "double_x2": 0.46302,
+            "double_12": 0.80547
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.384,
+          "lambdaA": 1.673,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:218": {
+          "p1": 0.36792,
+          "px": 0.2555,
+          "p2": 0.37659,
+          "over": 0.51827,
+          "btts": 0.56527,
+          "markets": {
+            "over_0_5": 0.92875,
+            "under_0_5": 0.07125,
+            "over_1_5": 0.76733,
+            "under_1_5": 0.23267,
+            "over_2_5": 0.51827,
+            "under_2_5": 0.48173,
+            "over_3_5": 0.29671,
+            "under_3_5": 0.70329,
+            "home_over_0_5": 0.74461,
+            "home_over_1_5": 0.39601,
+            "home_over_2_5": 0.1581,
+            "away_over_0_5": 0.74941,
+            "away_over_1_5": 0.4026,
+            "away_over_2_5": 0.16263,
+            "btts_yes": 0.56527,
+            "btts_no": 0.43473,
+            "double_1x": 0.62341,
+            "double_x2": 0.63208,
+            "double_12": 0.7445
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.365,
+          "lambdaA": 1.384,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:220": {
+          "p1": 0.42287,
+          "px": 0.25255,
+          "p2": 0.32458,
+          "over": 0.52401,
+          "btts": 0.56676,
+          "markets": {
+            "over_0_5": 0.93034,
+            "under_0_5": 0.06966,
+            "over_1_5": 0.77139,
+            "under_1_5": 0.22861,
+            "over_2_5": 0.52401,
+            "under_2_5": 0.47599,
+            "over_3_5": 0.30199,
+            "under_3_5": 0.69801,
+            "home_over_0_5": 0.77563,
+            "home_over_1_5": 0.44031,
+            "home_over_2_5": 0.18976,
+            "away_over_0_5": 0.72147,
+            "away_over_1_5": 0.36545,
+            "away_over_2_5": 0.13791,
+            "btts_yes": 0.56676,
+            "btts_no": 0.43324,
+            "double_1x": 0.67542,
+            "double_x2": 0.57713,
+            "double_12": 0.74745
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.494,
+          "lambdaA": 1.278,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:221": {
+          "p1": 0.33002,
+          "px": 0.25271,
+          "p2": 0.41727,
+          "over": 0.52492,
+          "btts": 0.5681,
+          "markets": {
+            "over_0_5": 0.93058,
+            "under_0_5": 0.06942,
+            "over_1_5": 0.77205,
+            "under_1_5": 0.22795,
+            "over_2_5": 0.52492,
+            "under_2_5": 0.47508,
+            "over_3_5": 0.30284,
+            "under_3_5": 0.69716,
+            "home_over_0_5": 0.72535,
+            "home_over_1_5": 0.37044,
+            "home_over_2_5": 0.14111,
+            "away_over_0_5": 0.77332,
+            "away_over_1_5": 0.43688,
+            "away_over_2_5": 0.1872,
+            "btts_yes": 0.5681,
+            "btts_no": 0.4319,
+            "double_1x": 0.58273,
+            "double_x2": 0.66998,
+            "double_12": 0.74729
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.292,
+          "lambdaA": 1.484,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:223": {
+          "p1": 0.5803,
+          "px": 0.19768,
+          "p2": 0.22202,
+          "over": 0.70326,
+          "btts": 0.67175,
+          "markets": {
+            "over_0_5": 0.96869,
+            "under_0_5": 0.03131,
+            "over_1_5": 0.88253,
+            "under_1_5": 0.11747,
+            "over_2_5": 0.70326,
+            "under_2_5": 0.29674,
+            "over_3_5": 0.49202,
+            "under_3_5": 0.50798,
+            "home_over_0_5": 0.89712,
+            "home_over_1_5": 0.66316,
+            "home_over_2_5": 0.39711,
+            "away_over_0_5": 0.74332,
+            "away_over_1_5": 0.39426,
+            "away_over_2_5": 0.15691,
+            "btts_yes": 0.67175,
+            "btts_no": 0.32825,
+            "double_1x": 0.77798,
+            "double_x2": 0.4197,
+            "double_12": 0.80232
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.274,
+          "lambdaA": 1.36,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:217": {
+          "p1": 0.75731,
+          "px": 0.13269,
+          "p2": 0.11,
+          "over": 0.80727,
+          "btts": 0.67003,
+          "markets": {
+            "over_0_5": 0.98398,
+            "under_0_5": 0.01602,
+            "over_1_5": 0.93317,
+            "under_1_5": 0.06683,
+            "over_2_5": 0.80727,
+            "under_2_5": 0.19273,
+            "over_3_5": 0.6295,
+            "under_3_5": 0.3705,
+            "home_over_0_5": 0.95683,
+            "home_over_1_5": 0.82116,
+            "home_over_2_5": 0.60798,
+            "away_over_0_5": 0.69719,
+            "away_over_1_5": 0.33543,
+            "away_over_2_5": 0.11935,
+            "btts_yes": 0.67003,
+            "btts_no": 0.32997,
+            "double_1x": 0.89,
+            "double_x2": 0.24269,
+            "double_12": 0.86731
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 3.143,
+          "lambdaA": 1.195,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:222": {
+          "p1": 0.48706,
+          "px": 0.21151,
+          "p2": 0.30144,
+          "over": 0.71008,
+          "btts": 0.7031,
+          "markets": {
+            "over_0_5": 0.96956,
+            "under_0_5": 0.03044,
+            "over_1_5": 0.88642,
+            "under_1_5": 0.11358,
+            "over_2_5": 0.71008,
+            "under_2_5": 0.28992,
+            "over_3_5": 0.50033,
+            "under_3_5": 0.49967,
+            "home_over_0_5": 0.8738,
+            "home_over_1_5": 0.61257,
+            "home_over_2_5": 0.34223,
+            "away_over_0_5": 0.79886,
+            "away_over_1_5": 0.47629,
+            "away_over_2_5": 0.21762,
+            "btts_yes": 0.7031,
+            "btts_no": 0.2969,
+            "double_1x": 0.69856,
+            "double_x2": 0.51294,
+            "double_12": 0.78849
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.07,
+          "lambdaA": 1.604,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:232": {
+          "p1": 0.48992,
+          "px": 0.22527,
+          "p2": 0.28481,
+          "over": 0.63049,
+          "btts": 0.63923,
+          "markets": {
+            "over_0_5": 0.95523,
+            "under_0_5": 0.04477,
+            "over_1_5": 0.84125,
+            "under_1_5": 0.15875,
+            "over_2_5": 0.63049,
+            "under_2_5": 0.36951,
+            "over_3_5": 0.40866,
+            "under_3_5": 0.59134,
+            "home_over_0_5": 0.84573,
+            "home_over_1_5": 0.55738,
+            "home_over_2_5": 0.28792,
+            "away_over_0_5": 0.74874,
+            "away_over_1_5": 0.40168,
+            "away_over_2_5": 0.16199,
+            "btts_yes": 0.63923,
+            "btts_no": 0.36077,
+            "double_1x": 0.71519,
+            "double_x2": 0.51008,
+            "double_12": 0.77473
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.869,
+          "lambdaA": 1.381,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:229": {
+          "p1": 0.19706,
+          "px": 0.17235,
+          "p2": 0.63059,
+          "over": 0.79405,
+          "btts": 0.73201,
+          "markets": {
+            "over_0_5": 0.9819,
+            "under_0_5": 0.0181,
+            "over_1_5": 0.92764,
+            "under_1_5": 0.07236,
+            "over_2_5": 0.79405,
+            "under_2_5": 0.20595,
+            "over_3_5": 0.61062,
+            "under_3_5": 0.38938,
+            "home_over_0_5": 0.77983,
+            "home_over_1_5": 0.44664,
+            "home_over_2_5": 0.19452,
+            "away_over_0_5": 0.93408,
+            "away_over_1_5": 0.75482,
+            "away_over_2_5": 0.51109,
+            "btts_yes": 0.73201,
+            "btts_no": 0.26799,
+            "double_1x": 0.36941,
+            "double_x2": 0.80294,
+            "double_12": 0.82765
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.513,
+          "lambdaA": 2.719,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:228": {
+          "p1": 0.33618,
+          "px": 0.22293,
+          "p2": 0.44089,
+          "over": 0.66934,
+          "btts": 0.6778,
+          "markets": {
+            "over_0_5": 0.96253,
+            "under_0_5": 0.03747,
+            "over_1_5": 0.8641,
+            "under_1_5": 0.1359,
+            "over_2_5": 0.66934,
+            "under_2_5": 0.33066,
+            "over_3_5": 0.45201,
+            "under_3_5": 0.54799,
+            "home_over_0_5": 0.79744,
+            "home_over_1_5": 0.47401,
+            "home_over_2_5": 0.21579,
+            "away_over_0_5": 0.84289,
+            "away_over_1_5": 0.55211,
+            "away_over_2_5": 0.28302,
+            "btts_yes": 0.6778,
+            "btts_no": 0.3222,
+            "double_1x": 0.55911,
+            "double_x2": 0.66382,
+            "double_12": 0.77707
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.597,
+          "lambdaA": 1.851,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:227": {
+          "p1": 0.33861,
+          "px": 0.23105,
+          "p2": 0.43034,
+          "over": 0.6294,
+          "btts": 0.64797,
+          "markets": {
+            "over_0_5": 0.9549,
+            "under_0_5": 0.0451,
+            "over_1_5": 0.8407,
+            "under_1_5": 0.1593,
+            "over_2_5": 0.6294,
+            "under_2_5": 0.3706,
+            "over_3_5": 0.40748,
+            "under_3_5": 0.59252,
+            "home_over_0_5": 0.78003,
+            "home_over_1_5": 0.44694,
+            "home_over_2_5": 0.19474,
+            "away_over_0_5": 0.82284,
+            "away_over_1_5": 0.51623,
+            "away_over_2_5": 0.2509,
+            "btts_yes": 0.64797,
+            "btts_no": 0.35203,
+            "double_1x": 0.56966,
+            "double_x2": 0.66139,
+            "double_12": 0.76895
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.514,
+          "lambdaA": 1.731,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:225": {
+          "p1": 0.31681,
+          "px": 0.26519,
+          "p2": 0.418,
+          "over": 0.46847,
+          "btts": 0.52318,
+          "markets": {
+            "over_0_5": 0.91421,
+            "under_0_5": 0.08579,
+            "over_1_5": 0.73,
+            "under_1_5": 0.27,
+            "over_2_5": 0.46847,
+            "under_2_5": 0.53153,
+            "over_3_5": 0.25275,
+            "under_3_5": 0.74725,
+            "home_over_0_5": 0.68864,
+            "home_over_1_5": 0.32534,
+            "home_over_2_5": 0.11339,
+            "away_over_0_5": 0.74875,
+            "away_over_1_5": 0.40169,
+            "away_over_2_5": 0.162,
+            "btts_yes": 0.52318,
+            "btts_no": 0.47682,
+            "double_1x": 0.582,
+            "double_x2": 0.68319,
+            "double_12": 0.73481
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.167,
+          "lambdaA": 1.381,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:226": {
+          "p1": 0.72088,
+          "px": 0.16457,
+          "p2": 0.11455,
+          "over": 0.65112,
+          "btts": 0.54173,
+          "markets": {
+            "over_0_5": 0.96044,
+            "under_0_5": 0.03956,
+            "over_1_5": 0.85232,
+            "under_1_5": 0.14768,
+            "over_2_5": 0.65112,
+            "under_2_5": 0.34888,
+            "over_3_5": 0.43135,
+            "under_3_5": 0.56865,
+            "home_over_0_5": 0.91534,
+            "home_over_1_5": 0.70631,
+            "home_over_2_5": 0.44825,
+            "away_over_0_5": 0.58683,
+            "away_over_1_5": 0.22163,
+            "away_over_2_5": 0.06023,
+            "btts_yes": 0.54173,
+            "btts_no": 0.45827,
+            "double_1x": 0.88545,
+            "double_x2": 0.27912,
+            "double_12": 0.83543
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.469,
+          "lambdaA": 0.884,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:230": {
+          "p1": 0.50407,
+          "px": 0.23039,
+          "p2": 0.26555,
+          "over": 0.5913,
+          "btts": 0.60441,
+          "markets": {
+            "over_0_5": 0.947,
+            "under_0_5": 0.053,
+            "over_1_5": 0.81676,
+            "under_1_5": 0.18324,
+            "over_2_5": 0.5913,
+            "under_2_5": 0.4087,
+            "over_3_5": 0.36741,
+            "under_3_5": 0.63259,
+            "home_over_0_5": 0.8363,
+            "home_over_1_5": 0.54005,
+            "home_over_2_5": 0.27198,
+            "away_over_0_5": 0.71511,
+            "away_over_1_5": 0.35739,
+            "away_over_2_5": 0.1328,
+            "btts_yes": 0.60441,
+            "btts_no": 0.39559,
+            "double_1x": 0.73445,
+            "double_x2": 0.49593,
+            "double_12": 0.76961
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.81,
+          "lambdaA": 1.256,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:231": {
+          "p1": 0.29951,
+          "px": 0.22845,
+          "p2": 0.47204,
+          "over": 0.62461,
+          "btts": 0.63824,
+          "markets": {
+            "over_0_5": 0.954,
+            "under_0_5": 0.046,
+            "over_1_5": 0.83772,
+            "under_1_5": 0.16228,
+            "over_2_5": 0.62461,
+            "under_2_5": 0.37539,
+            "over_3_5": 0.40231,
+            "under_3_5": 0.59769,
+            "home_over_0_5": 0.75514,
+            "home_over_1_5": 0.41061,
+            "home_over_2_5": 0.16821,
+            "away_over_0_5": 0.8371,
+            "away_over_1_5": 0.54151,
+            "away_over_2_5": 0.2733,
+            "btts_yes": 0.63824,
+            "btts_no": 0.36176,
+            "double_1x": 0.52796,
+            "double_x2": 0.70049,
+            "double_12": 0.77155
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.407,
+          "lambdaA": 1.815,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:233": {
+          "p1": 0.76239,
+          "px": 0.12853,
+          "p2": 0.10908,
+          "over": 0.82677,
+          "btts": 0.68804,
+          "markets": {
+            "over_0_5": 0.98623,
+            "under_0_5": 0.01377,
+            "over_1_5": 0.94176,
+            "under_1_5": 0.05824,
+            "over_2_5": 0.82677,
+            "under_2_5": 0.17323,
+            "over_3_5": 0.65823,
+            "under_3_5": 0.34177,
+            "home_over_0_5": 0.96144,
+            "home_over_1_5": 0.83589,
+            "home_over_2_5": 0.63154,
+            "away_over_0_5": 0.71283,
+            "away_over_1_5": 0.35453,
+            "away_over_2_5": 0.13101,
+            "btts_yes": 0.68804,
+            "btts_no": 0.31196,
+            "double_1x": 0.89092,
+            "double_x2": 0.23761,
+            "double_12": 0.87147
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 3.255,
+          "lambdaA": 1.248,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:234": {
+          "p1": 0.30648,
+          "px": 0.22818,
+          "p2": 0.46533,
+          "over": 0.62987,
+          "btts": 0.64358,
+          "markets": {
+            "over_0_5": 0.95505,
+            "under_0_5": 0.04495,
+            "over_1_5": 0.84093,
+            "under_1_5": 0.15907,
+            "over_2_5": 0.62987,
+            "under_2_5": 0.37013,
+            "over_3_5": 0.40798,
+            "under_3_5": 0.59202,
+            "home_over_0_5": 0.76201,
+            "home_over_1_5": 0.42036,
+            "home_over_2_5": 0.17515,
+            "away_over_0_5": 0.83663,
+            "away_over_1_5": 0.54065,
+            "away_over_2_5": 0.27252,
+            "btts_yes": 0.64358,
+            "btts_no": 0.35642,
+            "double_1x": 0.53467,
+            "double_x2": 0.69352,
+            "double_12": 0.77182
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.436,
+          "lambdaA": 1.812,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:235": {
+          "p1": 0.49262,
+          "px": 0.20646,
+          "p2": 0.30093,
+          "over": 0.73521,
+          "btts": 0.72225,
+          "markets": {
+            "over_0_5": 0.97349,
+            "under_0_5": 0.02651,
+            "over_1_5": 0.89948,
+            "under_1_5": 0.10052,
+            "over_2_5": 0.73521,
+            "under_2_5": 0.26479,
+            "over_3_5": 0.53174,
+            "under_3_5": 0.46826,
+            "home_over_0_5": 0.88446,
+            "home_over_1_5": 0.63511,
+            "home_over_2_5": 0.36604,
+            "away_over_0_5": 0.81128,
+            "away_over_1_5": 0.49658,
+            "away_over_2_5": 0.23421,
+            "btts_yes": 0.72225,
+            "btts_no": 0.27775,
+            "double_1x": 0.69907,
+            "double_x2": 0.50738,
+            "double_12": 0.79354
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.158,
+          "lambdaA": 1.667,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:236": {
+          "p1": 0.47899,
+          "px": 0.23242,
+          "p2": 0.28859,
+          "over": 0.59877,
+          "btts": 0.61642,
+          "markets": {
+            "over_0_5": 0.94857,
+            "under_0_5": 0.05143,
+            "over_1_5": 0.82162,
+            "under_1_5": 0.17838,
+            "over_2_5": 0.59877,
+            "under_2_5": 0.40123,
+            "over_3_5": 0.37509,
+            "under_3_5": 0.62491,
+            "home_over_0_5": 0.82986,
+            "home_over_1_5": 0.52852,
+            "home_over_2_5": 0.26166,
+            "away_over_0_5": 0.73514,
+            "away_over_1_5": 0.38326,
+            "away_over_2_5": 0.14951,
+            "btts_yes": 0.61642,
+            "btts_no": 0.38358,
+            "double_1x": 0.71141,
+            "double_x2": 0.52101,
+            "double_12": 0.76758
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.771,
+          "lambdaA": 1.329,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:237": {
+          "p1": 0.61203,
+          "px": 0.20042,
+          "p2": 0.18756,
+          "over": 0.63801,
+          "btts": 0.60209,
+          "markets": {
+            "over_0_5": 0.9572,
+            "under_0_5": 0.0428,
+            "over_1_5": 0.84529,
+            "under_1_5": 0.15471,
+            "over_2_5": 0.63801,
+            "under_2_5": 0.36199,
+            "over_3_5": 0.41685,
+            "under_3_5": 0.58315,
+            "home_over_0_5": 0.88548,
+            "home_over_1_5": 0.6373,
+            "home_over_2_5": 0.36842,
+            "away_over_0_5": 0.67382,
+            "away_over_1_5": 0.3084,
+            "away_over_2_5": 0.10371,
+            "btts_yes": 0.60209,
+            "btts_no": 0.39791,
+            "double_1x": 0.81244,
+            "double_x2": 0.38797,
+            "double_12": 0.79958
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.167,
+          "lambdaA": 1.12,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:238": {
+          "p1": 0.41632,
+          "px": 0.26456,
+          "p2": 0.31911,
+          "over": 0.47168,
+          "btts": 0.52597,
+          "markets": {
+            "over_0_5": 0.91521,
+            "under_0_5": 0.08479,
+            "over_1_5": 0.7325,
+            "under_1_5": 0.2675,
+            "over_2_5": 0.47168,
+            "under_2_5": 0.52832,
+            "over_3_5": 0.25549,
+            "under_3_5": 0.74451,
+            "home_over_0_5": 0.74933,
+            "home_over_1_5": 0.4025,
+            "home_over_2_5": 0.16256,
+            "away_over_0_5": 0.69185,
+            "away_over_1_5": 0.3291,
+            "away_over_2_5": 0.1156,
+            "btts_yes": 0.52597,
+            "btts_no": 0.47403,
+            "double_1x": 0.68089,
+            "double_x2": 0.58368,
+            "double_12": 0.73544
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.384,
+          "lambdaA": 1.177,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:239": {
+          "p1": 0.62527,
+          "px": 0.19109,
+          "p2": 0.18364,
+          "over": 0.67711,
+          "btts": 0.62945,
+          "markets": {
+            "over_0_5": 0.96447,
+            "under_0_5": 0.03553,
+            "over_1_5": 0.86794,
+            "under_1_5": 0.13206,
+            "over_2_5": 0.67711,
+            "under_2_5": 0.32289,
+            "over_3_5": 0.46099,
+            "under_3_5": 0.53901,
+            "home_over_0_5": 0.90037,
+            "home_over_1_5": 0.6706,
+            "home_over_2_5": 0.40563,
+            "away_over_0_5": 0.69355,
+            "away_over_1_5": 0.33111,
+            "away_over_2_5": 0.11678,
+            "btts_yes": 0.62945,
+            "btts_no": 0.37055,
+            "double_1x": 0.81636,
+            "double_x2": 0.37473,
+            "double_12": 0.80891
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 2.306,
+          "lambdaA": 1.183,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
+        "fantasy-no:2026:240": {
+          "p1": 0.45347,
+          "px": 0.22399,
+          "p2": 0.32254,
+          "over": 0.65856,
+          "btts": 0.66787,
+          "markets": {
+            "over_0_5": 0.96058,
+            "under_0_5": 0.03942,
+            "over_1_5": 0.85792,
+            "under_1_5": 0.14208,
+            "over_2_5": 0.65856,
+            "under_2_5": 0.34144,
+            "over_3_5": 0.43972,
+            "under_3_5": 0.56028,
+            "home_over_0_5": 0.84331,
+            "home_over_1_5": 0.55289,
+            "home_over_2_5": 0.28374,
+            "away_over_0_5": 0.78513,
+            "away_over_1_5": 0.45472,
+            "away_over_2_5": 0.20068,
+            "btts_yes": 0.66787,
+            "btts_no": 0.33213,
+            "double_1x": 0.67746,
+            "double_x2": 0.54653,
+            "double_12": 0.77601
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.853,
+          "lambdaA": 1.538,
+          "leagueMatches": 200,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        }
+      },
       "market_audit": {
         "method": "Dixon-Coles fixo para os mercados binários; baseline histórico causal com suavização de Laplace",
         "sample_policy": "Amostras abaixo de 100 previsões são insuficientes; acima disso continua a faltar validação independente.",
         "double_chance_note": "Os backtests de dupla oportunidade usam Dixon-Coles fixo, não o modelo 1X2 selecionado no presente.",
         "metrics": {
           "double_1x": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.2103,
+            "log_loss": 0.6131,
+            "baseline_brier": 0.2137,
+            "brier_skill": 0.0158,
+            "calibration_error": 0.0501,
+            "event_frequency": 0.6982,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 1,
+                "mean_prediction": 0.3807,
+                "observed_frequency": 1.0
+              },
+              {
+                "range": "40-60%",
+                "n": 22,
+                "mean_prediction": 0.5434,
+                "observed_frequency": 0.5909
+              },
+              {
+                "range": "60-80%",
+                "n": 97,
+                "mean_prediction": 0.7129,
+                "observed_frequency": 0.6701
+              },
+              {
+                "range": "80-100%",
+                "n": 49,
+                "mean_prediction": 0.85,
+                "observed_frequency": 0.7959
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "double_x2": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.2357,
+            "log_loss": 0.6636,
+            "baseline_brier": 0.253,
+            "brier_skill": 0.0685,
+            "calibration_error": 0.0586,
+            "event_frequency": 0.497,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 2,
+                "mean_prediction": 0.1623,
+                "observed_frequency": 0.0
+              },
+              {
+                "range": "20-40%",
+                "n": 29,
+                "mean_prediction": 0.3225,
+                "observed_frequency": 0.2069
+              },
+              {
+                "range": "40-60%",
+                "n": 94,
+                "mean_prediction": 0.5034,
+                "observed_frequency": 0.5426
+              },
+              {
+                "range": "60-80%",
+                "n": 44,
+                "mean_prediction": 0.6712,
+                "observed_frequency": 0.6136
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "double_12": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.1575,
+            "log_loss": 0.4931,
+            "baseline_brier": 0.1587,
+            "brier_skill": 0.0072,
+            "calibration_error": 0.0453,
+            "event_frequency": 0.8047,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 142,
+                "mean_prediction": 0.7467,
+                "observed_frequency": 0.7746
+              },
+              {
+                "range": "80-100%",
+                "n": 27,
+                "mean_prediction": 0.8265,
+                "observed_frequency": 0.963
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "over_0_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.03,
+            "log_loss": 0.1411,
+            "baseline_brier": 0.0293,
+            "brier_skill": -0.0237,
+            "calibration_error": 0.0324,
+            "event_frequency": 0.9704,
+            "calibration_bins": [
+              {
+                "range": "80-100%",
+                "n": 169,
+                "mean_prediction": 0.938,
+                "observed_frequency": 0.9704
+              }
+            ],
+            "status": "nao_supera_baseline"
           },
           "under_0_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.03,
+            "log_loss": 0.1411,
+            "baseline_brier": 0.0293,
+            "brier_skill": -0.0237,
+            "calibration_error": 0.0324,
+            "event_frequency": 0.0296,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 169,
+                "mean_prediction": 0.062,
+                "observed_frequency": 0.0296
+              }
+            ],
+            "status": "nao_supera_baseline"
           },
           "over_1_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.1166,
+            "log_loss": 0.3949,
+            "baseline_brier": 0.1101,
+            "brier_skill": -0.0595,
+            "calibration_error": 0.0801,
+            "event_frequency": 0.8757,
+            "calibration_bins": [
+              {
+                "range": "60-80%",
+                "n": 88,
+                "mean_prediction": 0.7365,
+                "observed_frequency": 0.8295
+              },
+              {
+                "range": "80-100%",
+                "n": 81,
+                "mean_prediction": 0.8598,
+                "observed_frequency": 0.9259
+              }
+            ],
+            "status": "nao_supera_baseline"
           },
           "under_1_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.1166,
+            "log_loss": 0.3949,
+            "baseline_brier": 0.1101,
+            "brier_skill": -0.0595,
+            "calibration_error": 0.0801,
+            "event_frequency": 0.1243,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 81,
+                "mean_prediction": 0.1402,
+                "observed_frequency": 0.0741
+              },
+              {
+                "range": "20-40%",
+                "n": 88,
+                "mean_prediction": 0.2635,
+                "observed_frequency": 0.1705
+              }
+            ],
+            "status": "nao_supera_baseline"
           },
           "over_2_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.2289,
+            "log_loss": 0.6502,
+            "baseline_brier": 0.2322,
+            "brier_skill": 0.0142,
+            "calibration_error": 0.0957,
+            "event_frequency": 0.6568,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 9,
+                "mean_prediction": 0.3566,
+                "observed_frequency": 0.3333
+              },
+              {
+                "range": "40-60%",
+                "n": 95,
+                "mean_prediction": 0.5092,
+                "observed_frequency": 0.6526
+              },
+              {
+                "range": "60-80%",
+                "n": 62,
+                "mean_prediction": 0.6796,
+                "observed_frequency": 0.7097
+              },
+              {
+                "range": "80-100%",
+                "n": 3,
+                "mean_prediction": 0.8227,
+                "observed_frequency": 0.6667
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "under_2_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.2289,
+            "log_loss": 0.6502,
+            "baseline_brier": 0.2322,
+            "brier_skill": 0.0142,
+            "calibration_error": 0.0957,
+            "event_frequency": 0.3432,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 3,
+                "mean_prediction": 0.1773,
+                "observed_frequency": 0.3333
+              },
+              {
+                "range": "20-40%",
+                "n": 62,
+                "mean_prediction": 0.3204,
+                "observed_frequency": 0.2903
+              },
+              {
+                "range": "40-60%",
+                "n": 95,
+                "mean_prediction": 0.4908,
+                "observed_frequency": 0.3474
+              },
+              {
+                "range": "60-80%",
+                "n": 9,
+                "mean_prediction": 0.6434,
+                "observed_frequency": 0.6667
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "over_3_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.2381,
+            "log_loss": 0.6703,
+            "baseline_brier": 0.2394,
+            "brier_skill": 0.0055,
+            "calibration_error": 0.0814,
+            "event_frequency": 0.3846,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 11,
+                "mean_prediction": 0.1723,
+                "observed_frequency": 0.2727
+              },
+              {
+                "range": "20-40%",
+                "n": 102,
+                "mean_prediction": 0.3009,
+                "observed_frequency": 0.3824
+              },
+              {
+                "range": "40-60%",
+                "n": 53,
+                "mean_prediction": 0.4788,
+                "observed_frequency": 0.4151
+              },
+              {
+                "range": "60-80%",
+                "n": 3,
+                "mean_prediction": 0.6523,
+                "observed_frequency": 0.3333
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "under_3_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.2381,
+            "log_loss": 0.6703,
+            "baseline_brier": 0.2394,
+            "brier_skill": 0.0055,
+            "calibration_error": 0.0814,
+            "event_frequency": 0.6154,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 3,
+                "mean_prediction": 0.3477,
+                "observed_frequency": 0.6667
+              },
+              {
+                "range": "40-60%",
+                "n": 53,
+                "mean_prediction": 0.5212,
+                "observed_frequency": 0.5849
+              },
+              {
+                "range": "60-80%",
+                "n": 102,
+                "mean_prediction": 0.6991,
+                "observed_frequency": 0.6176
+              },
+              {
+                "range": "80-100%",
+                "n": 11,
+                "mean_prediction": 0.8277,
+                "observed_frequency": 0.7273
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "btts_yes": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.2333,
+            "log_loss": 0.6597,
+            "baseline_brier": 0.2418,
+            "brier_skill": 0.0352,
+            "calibration_error": 0.041,
+            "event_frequency": 0.6095,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 3,
+                "mean_prediction": 0.3806,
+                "observed_frequency": 0.3333
+              },
+              {
+                "range": "40-60%",
+                "n": 101,
+                "mean_prediction": 0.5195,
+                "observed_frequency": 0.5446
+              },
+              {
+                "range": "60-80%",
+                "n": 65,
+                "mean_prediction": 0.6576,
+                "observed_frequency": 0.7231
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "btts_no": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.2333,
+            "log_loss": 0.6597,
+            "baseline_brier": 0.2418,
+            "brier_skill": 0.0352,
+            "calibration_error": 0.041,
+            "event_frequency": 0.3905,
+            "calibration_bins": [
+              {
+                "range": "20-40%",
+                "n": 65,
+                "mean_prediction": 0.3424,
+                "observed_frequency": 0.2769
+              },
+              {
+                "range": "40-60%",
+                "n": 101,
+                "mean_prediction": 0.4805,
+                "observed_frequency": 0.4554
+              },
+              {
+                "range": "60-80%",
+                "n": 3,
+                "mean_prediction": 0.6194,
+                "observed_frequency": 0.6667
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "home_over_0_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.1308,
+            "log_loss": 0.428,
+            "baseline_brier": 0.1407,
+            "brier_skill": 0.0702,
+            "calibration_error": 0.0513,
+            "event_frequency": 0.8343,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 1,
+                "mean_prediction": 0.5595,
+                "observed_frequency": 1.0
+              },
+              {
+                "range": "60-80%",
+                "n": 69,
+                "mean_prediction": 0.7475,
+                "observed_frequency": 0.7101
+              },
+              {
+                "range": "80-100%",
+                "n": 99,
+                "mean_prediction": 0.8622,
+                "observed_frequency": 0.9192
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "home_over_1_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.233,
+            "log_loss": 0.6576,
+            "baseline_brier": 0.249,
+            "brier_skill": 0.064,
+            "calibration_error": 0.0765,
+            "event_frequency": 0.568,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 1,
+                "mean_prediction": 0.1984,
+                "observed_frequency": 0.0
+              },
+              {
+                "range": "20-40%",
+                "n": 27,
+                "mean_prediction": 0.3521,
+                "observed_frequency": 0.2963
+              },
+              {
+                "range": "40-60%",
+                "n": 102,
+                "mean_prediction": 0.4942,
+                "observed_frequency": 0.598
+              },
+              {
+                "range": "60-80%",
+                "n": 35,
+                "mean_prediction": 0.6752,
+                "observed_frequency": 0.6857
+              },
+              {
+                "range": "80-100%",
+                "n": 4,
+                "mean_prediction": 0.8187,
+                "observed_frequency": 0.75
+              }
+            ],
+            "status": "exploratorio_sem_validacao_externa"
           },
           "away_over_0_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.1935,
+            "log_loss": 0.5777,
+            "baseline_brier": 0.1916,
+            "brier_skill": -0.0101,
+            "calibration_error": 0.0976,
+            "event_frequency": 0.7456,
+            "calibration_bins": [
+              {
+                "range": "40-60%",
+                "n": 27,
+                "mean_prediction": 0.5466,
+                "observed_frequency": 0.5556
+              },
+              {
+                "range": "60-80%",
+                "n": 116,
+                "mean_prediction": 0.6956,
+                "observed_frequency": 0.8017
+              },
+              {
+                "range": "80-100%",
+                "n": 26,
+                "mean_prediction": 0.8438,
+                "observed_frequency": 0.6923
+              }
+            ],
+            "status": "nao_supera_baseline"
           },
           "away_over_1_5": {
-            "n": 0,
-            "status": "amostra_insuficiente"
+            "n": 169,
+            "brier": 0.2539,
+            "log_loss": 0.7078,
+            "baseline_brier": 0.2456,
+            "brier_skill": -0.0339,
+            "calibration_error": 0.069,
+            "event_frequency": 0.4142,
+            "calibration_bins": [
+              {
+                "range": "0-20%",
+                "n": 18,
+                "mean_prediction": 0.1734,
+                "observed_frequency": 0.4444
+              },
+              {
+                "range": "20-40%",
+                "n": 102,
+                "mean_prediction": 0.3054,
+                "observed_frequency": 0.3627
+              },
+              {
+                "range": "40-60%",
+                "n": 44,
+                "mean_prediction": 0.4837,
+                "observed_frequency": 0.5
+              },
+              {
+                "range": "60-80%",
+                "n": 5,
+                "mean_prediction": 0.6446,
+                "observed_frequency": 0.6
+              }
+            ],
+            "status": "nao_supera_baseline"
           }
         }
       },
-      "sample_warning": true,
+      "sample_warning": false,
       "data_partial": true
     },
     "pt": {
