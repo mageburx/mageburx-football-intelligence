@@ -23,10 +23,10 @@ ROOT=Path(__file__).resolve().parents[1]
 PATH=ROOT/'data'/'season.json'
 URL='https://www.dbu.dk/resultater/pulje/507530/kampprogramFuld'
 ALIASES={
-    'Hvidovre':'Hvidovre','Vejle Boldklub':'Vejle',
+    'Hvidovre':'Hvidovre','Vejle Boldklub':'Vejle','Vejle BK':'Vejle',
     'FC Fredericia':'Fredericia','AB':'AB Gladsaxe',
     'Aarhus Fremad':'Aarhus Fremad','Hobro IK':'Hobro',
-    'Kolding IF':'Kolding','AaB':'AaB',
+    'Kolding IF':'Kolding','AaB':'AaB','Aalborg BK':'AaB',
     'Hillerød Fodbold':'Hillerød','Vendsyssel FF':'Vendsyssel',
     'HB Køge':'Køge','Esbjerg fB':'Esbjerg',
 }
@@ -57,7 +57,12 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
         known={str(e['id']):e for e in league.get('events',[]) if e.get('id')}
         for event in records:
             if event['date']>=now.date().isoformat():continue
-            home,away=normalize(event['home']),normalize(event['away'])
+            try:
+                home,away=normalize(event['home']),normalize(event['away'])
+            except ValueError:
+                report.setdefault('unrecognized_clubs',0)
+                report['unrecognized_clubs']+=1
+                continue
             key=(event['date'],home,away)
             existing=next((e for e in known.values()
                            if (e.get('date'),e.get('home'),e.get('away'))==key),None)
