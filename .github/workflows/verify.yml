@@ -1,0 +1,24 @@
+name: Football Intelligence - fast checks
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Python unit tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Validate dashboard JavaScript
+        run: node --check app/app.js
+      - name: JavaScript model tests
+        run: node --test tests/test_model.cjs
