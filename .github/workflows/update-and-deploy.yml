@@ -80,12 +80,14 @@ jobs:
         run: python scripts/build_model.py
       - name: Guardar previsões antes dos jogos
         run: python scripts/record_predictions.py
-      - name: Guardar previsões 1X2 futuras de Eredivisie, 1. Division e Eliteserien
+      - name: Guardar previsões 1X2 futuras dos cinco campeonatos
         run: python scripts/record_expansion_1x2.py
       - name: Registar experiência prospetiva Poisson + xG, sem alterar modelo
         run: python scripts/build_xg_experiment.py
-      - name: Auditar integridade do ledger 1X2 por campeonato
+      - name: Auditar integridade 1X2 de Portugal, Dinamarca, Países Baixos e Noruega
         run: python scripts/audit_expansion_1x2.py
+      - name: Comparar previsões reais 1X2 das cinco ligas
+        run: python scripts/build_league_comparison.py
       - name: Auditar saúde e pendências das previsões prospetivas
         run: python scripts/audit_ledger_health.py
       - name: Calcular fiabilidade com épocas históricas e ledger
@@ -136,6 +138,7 @@ jobs:
           test -s data/expansion_reliability.json
           test -s data/expansion_1x2_ledger.json
           test -s data/expansion_1x2_audit.json
+          test -s data/league_comparison.json
           test -s data/xg_shadow_ledger.json
           test -s data/value_engine.json
           test -s data/feature_impact.json
@@ -165,6 +168,7 @@ jobs:
             data/expansion_reliability.json
             data/expansion_1x2_ledger.json
             data/expansion_1x2_audit.json
+            data/league_comparison.json
             data/xg_shadow_ledger.json
             data/value_engine.json
             data/feature_impact.json
@@ -185,7 +189,7 @@ jobs:
         run: |
           mkdir -p public/data
           cp app/index.html app/style.css app/app.js public/
-          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/advanced_signals.json data/shots_research.json data/xg_experiment.json data/nl_history.json data/expansion_reliability.json data/expansion_1x2_audit.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json data/ledger_health.json data/european_coverage.json public/data/
+          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/advanced_signals.json data/shots_research.json data/xg_experiment.json data/nl_history.json data/expansion_reliability.json data/expansion_1x2_audit.json data/league_comparison.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json data/ledger_health.json data/european_coverage.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:
