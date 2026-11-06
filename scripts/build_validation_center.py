@@ -146,7 +146,7 @@ def build(ledger,season,audit,health=None,now=None):
     h=health if isinstance(health,dict) else {}
     general={'active_settlements':int(h.get('states',{}).get('settled',0)),
              'integrity_alerts':int(h.get('issue_count',0)),
-             'quarantined':len([])}  # generic ledger quarantine is read separately
+             'quarantined':0}  # general ledger read separately in main()
     return {'schema':1,'generated_at':now.replace(microsecond=0).isoformat(),
             'source_generated_at':season.get('updated_at'),
             'method':'Only original signed prospective 1X2 predictions and the same provider fixture ID',
