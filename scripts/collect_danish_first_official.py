@@ -48,7 +48,10 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
     # A previous parser rejection caused by an unrecognized club alias can
     # be retried immediately after the parser is fixed. Other failures still
     # respect the daily interval to avoid hammering the official website.
-    if last and not str(meta.get('error') or '').startswith('Unknown official Danish club'):
+    # On first upgrade from results-only collection, fetch the future schedule
+    # immediately even when the previous result-only check was recent.
+    if (last and meta.get('future_schedule_checked_at') and
+        not str(meta.get('error') or '').startswith('Unknown official Danish club')):
         try:
             if (now-dt.datetime.fromisoformat(last)).total_seconds()<min_hours*3600:
                 return data
@@ -56,7 +59,8 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
     report={'source_url':URL,'checked_at':now.replace(microsecond=0).isoformat(),
             'status':'unavailable_or_unverified','added':0,'matched':0,
             'conflicts':0,'error':None,
-            'upcoming_added':0,'upcoming_matched':0,'unknown_future_clubs':[]}
+            'upcoming_added':0,'upcoming_matched':0,'unknown_future_clubs':[],
+            'future_schedule_checked_at':now.replace(microsecond=0).isoformat()}
     try:
         html=getter(URL)
         future,unknown=future_schedule(html,now,normalize)
