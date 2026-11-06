@@ -18,7 +18,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 BRANCH = 'football-data'
 TRACKED = ('history.json', 'ledger.json', 'season.json', 'model.json',
-           'reliability.json', 'quality.json', 'validation.json', 'scrape_report.json', 'stats_coverage.json', 'value_engine.json')
+           'reliability.json', 'quality.json', 'validation.json', 'scrape_report.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json')
 
 def git(*args, cwd=ROOT, check=True):
     return subprocess.run(['git', *args], cwd=cwd, check=check,
@@ -59,7 +59,7 @@ def save(root=ROOT):
     fetch = git('fetch', '--no-tags', 'origin', f'+refs/heads/{BRANCH}:refs/remotes/origin/{BRANCH}', check=False)
     if fetch.returncode:
         raise RuntimeError('Persistent branch not reachable: ' + fetch.stderr[-500:])
-    for filename in ('history.json', 'ledger.json', 'reliability.json', 'quality.json', 'stats_coverage.json', 'value_engine.json'):
+    for filename in ('history.json', 'ledger.json', 'reliability.json', 'quality.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json'):
         filepath=root/'data'/filename
         if not filepath.is_file():
             raise RuntimeError('Missing required persistent data file: '+str(filepath))
