@@ -2,9 +2,10 @@ import datetime as dt
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
-from scripts.collect_norwegian_fantasy import parse,reconcile
+from scripts.collect_norwegian_fantasy import parse,reconcile,download
 from scripts.collect_danish_first_official import collect as collect_dbu
 from scripts.collect_expanded_leagues import collect as collect_rounds
 
@@ -82,6 +83,29 @@ class NorwaySourceTests(unittest.TestCase):
         parsed=parse(data,NOW)
         self.assertFalse(parsed[0]['finished'])
         self.assertIsNone(parsed[0]['home_score'])
+
+    def test_download_decodes_utf8_with_bom(self):
+        class Response:
+            status=200
+            def __enter__(self):return self
+            def __exit__(self,*args):return False
+            def read(self,n):return b'\xef\xbb\xbf'+csvfile().encode('utf8')
+        with patch('scripts.collect_norwegian_fantasy.urllib.request.urlopen',
+                   return_value=Response()):
+            self.assertEqual(download(),csvfile())
+
+    def test_unavailable_supplement_preserves_prior_matches(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'season.json'
+            path.write_text(json.dumps(season()),encoding='utf8')
+            def unavailable():
+                raise OSError('Remote source temporarily inaccessible')
+            r=reconcile(path,unavailable,NOW)
+            self.assertEqual(len(r['leagues']['no']['events']),1)
+            self.assertEqual(r['leagues']['no']['fantasy_research']['status'],
+                             'source_unavailable')
+            self.assertIn('temporarily inaccessible',
+                          r['leagues']['no']['fantasy_research']['last_error'])
 
     def test_invalid_fixture_count_rejected(self):
         tiny=csvfile().splitlines()
