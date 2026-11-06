@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - 'data/**'
   schedule:
-    - cron: '17 */3 * * *'
+    - cron: '17 * * * *'
 permissions:
   contents: write
   pages: write
@@ -34,6 +34,8 @@ jobs:
       - name: Importar incrementalmente épocas dinamarquesas
         if: github.event_name != 'push'
         run: python scripts/backfill_history.py --max-calls 18 --pause 3.5
+      - name: Reconciliar nomes de clubes e play-offs oficiais da Dinamarca
+        run: python scripts/reconcile_danish_history.py
       - name: Auditar 5 épocas por campeonato
         run: python scripts/audit_history.py --strict
       - name: Validar modelos com teste histórico independente
