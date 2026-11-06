@@ -196,6 +196,17 @@ def collect(season_path=SEASON_FILE,archive_path=ARCHIVE_FILE,fetcher=get_json,n
     if prev:
         try:
             if (now-dt.datetime.fromisoformat(prev)).total_seconds()<min_hours*3600:
+                # Even without a new HTTP fetch, reconcile newly restored
+                # or primary-source duplicated future fixtures every run.
+                current=doc['leagues']['nl']
+                current['events'],superseded=reconcile_rescheduled_fixtures(
+                    current.get('events',[]))
+                if superseded:
+                    details=current.setdefault('openfootball',{})
+                    by_id={x['id']:x for x in details.get('superseded',[])+superseded}
+                    details['superseded']=list(by_id.values())
+                    details['newly_reconciled']=len(superseded)
+                    season_path.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf8')
                 return doc,archive
         except (ValueError,TypeError):pass
     archive['last_attempt_at']=now.replace(microsecond=0).isoformat()
