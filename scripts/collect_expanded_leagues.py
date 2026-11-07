@@ -131,8 +131,13 @@ def save_match(known,item):
                            'score_conflict':True}
         return
     if existing.get('score_conflict'):return
-    if existing.get('finished') and existing.get('result_verified') and not item.get('finished'):return
-    known[item['id']]=item
+    if existing.get('finished') and not item.get('finished'):
+        # Never discard a previously observed score just because an API
+        # round snapshot omits FT status. It remains *unverified* unless
+        # independent evidence confirmed it.
+        return
+    # Retain audit provenance and cooldown through routine API refreshes.
+    known[item['id']]={**existing,**item}
 
 
 def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
@@ -251,7 +256,7 @@ def collect(path=PATH,max_calls=6,fetcher=fetch,pause=2.0,now=None):
             'collection':meta,
             'coverage_note':'Partial until every round is independently verified. Norwegian season is calendar year 2026; Danish play-off rounds may reuse numbers.',
         }
-        for field in ('openfootball','fantasy_research','dbu_official'):
+        for field in ('openfootball','fantasy_research','dbu_official','result_recovery'):
             if isinstance(previous,dict) and isinstance(previous.get(field),dict):
                 source['leagues'][lid][field]=previous[field]
         print(f'{lid}: {len(events)} fixtures, {sum(bool(e["finished"]) for e in events)} finished, verified rounds {len(checked)}/{cfg["rounds"]}; status {c["status"]}',flush=True)
