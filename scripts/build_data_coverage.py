@@ -101,6 +101,11 @@ def build(season,history,nl_history,stats,shots,now=None):
         duplicate_pairs=[{'date':date,'home':home,'away':away,'ids':ids[:4]}
                          for (date,home,away),ids in seen.items() if len(ids)>1]
         confirmed_count=sum(confirmed(e) for e in known.values())
+        source_counts=Counter(str(e.get('result_source') or 'TheSportsDB original round/season')
+                              for e in known.values() if confirmed(e))
+        pending_research=sum(e.get('finished') is True and e.get('result_verified') is not True and
+                              str(e.get('id') or '').startswith('fantasy-no:')
+                              for e in known.values())
         past=[e for e in known.values() if str(e.get('date') or '')<day]
         past_not_final=[e for e in past if not confirmed(e)]
         current=lg.get('collection',{})
@@ -183,6 +188,16 @@ def build(season,history,nl_history,stats,shots,now=None):
                       'verified':verified_rounds,'unverified':unverified_rounds,
                       'unverified_count':len(unverified_rounds) if unverified_rounds is not None else None},
             'history':history_report,'stats':stats_report,
+            'result_evidence':{
+                'confirmed_total':confirmed_count,
+                'confirmed_by_source':dict(source_counts),
+                'unverified_research_only':pending_research,
+                'exact_id_provider_checks':int(lg.get('result_recovery',{}).get('checked',0) or 0),
+                'exact_id_provider_newly_verified':int(lg.get('result_recovery',{}).get('verified',0) or 0),
+                'official_or_cc0_evidence_refresh':bool(
+                    lg.get('openfootball',{}).get('result_evidence_v1') or
+                    lg.get('dbu_official',{}).get('result_evidence_v1')),
+            },
             'sources':source_flags,'issues':issues
         }
         for x in issues:

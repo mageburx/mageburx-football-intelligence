@@ -63,6 +63,15 @@
         safe(l.sources?.source||'Por verificar')+' · '+
         number(l.inventory?.past_unverified)+' resultados passados sem confirmação · '+
         number(l.sources?.conflicts||0)+' conflitos de fonte</div>'+
+        '<div class="dc-detail"><b>Origem das confirmações finais</b><span>'+
+        (Object.keys(l.result_evidence?.confirmed_by_source||{}).length?
+          Object.entries(l.result_evidence.confirmed_by_source)
+            .map(([source,n])=>safe(source)+' · '+number(n)).join(' | '):
+          'Sem provas suficientes para certificar os resultados')+
+        (l.result_evidence?.unverified_research_only?
+          ' | '+number(l.result_evidence.unverified_research_only)+
+          ' resultados de investigação ainda não certificados':'')+
+        '</span></div>'+
         ((l.rounds?.unverified_count||0)>0?
           '<div class="dc-detail"><b>Jornadas por verificar ('+
           l.rounds.unverified_count+')</b> '+safe(l.rounds.unverified.slice(0,18).join(', '))+

@@ -53,10 +53,19 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
     if (last and meta.get('future_schedule_checked_at') and
         not str(meta.get('error') or '').startswith('Unknown official Danish club')):
         try:
-            if (now-dt.datetime.fromisoformat(last)).total_seconds()<min_hours*3600:
+            recent=(now-dt.datetime.fromisoformat(last)).total_seconds()<min_hours*3600
+            upgrade=meta.get('result_evidence_v1') is not True
+            # One extra read on upgrade; after a failed attempt retain daily cooldown.
+            attempted=meta.get('result_evidence_attempted_at')
+            if attempted:
+                upgrade=upgrade and (now-dt.datetime.fromisoformat(attempted)).total_seconds()>=min_hours*3600
+            if recent and not upgrade:
                 return data
         except (ValueError,TypeError):pass
     report={'source_url':URL,'checked_at':now.replace(microsecond=0).isoformat(),
+            'result_evidence_attempted_at':now.replace(microsecond=0).isoformat(),
+            'result_evidence_v1':False,'verified_results':0,
+            'unconfirmed_cross_ids':0,
             'status':'unavailable_or_unverified','added':0,'matched':0,
             'conflicts':0,'error':None,
             'upcoming_added':0,'upcoming_matched':0,'unknown_future_clubs':[],
@@ -80,24 +89,52 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
                 report['unrecognized_clubs']+=1
                 continue
             key=(event['date'],home,away)
-            existing=next((e for e in known.values()
-                           if (e.get('date'),e.get('home'),e.get('away'))==key),None)
+            matches=[e for e in known.values()
+                     if (e.get('date'),e.get('home'),e.get('away'))==key]
+            if len(matches)>1:
+                # A score cannot be used to settle either ambiguous identity.
+                report['conflicts']+=1
+                for candidate in matches:
+                    candidate['score_conflict']=True
+                    candidate['result_verified']=False
+                continue
+            existing=matches[0] if matches else None
             if existing:
-                if existing.get('finished') and (
-                    existing.get('home_score'),existing.get('away_score'))!=(
-                    event['home_score'],event['away_score']):
+                already=(existing.get('home_score'),existing.get('away_score'))
+                official=(event['home_score'],event['away_score'])
+                if existing.get('finished') and already!=official:
+                    existing['score_conflict']=True
+                    existing['result_verified']=False
                     report['conflicts']+=1
                     continue
+                # Only the same DBU number, or an already-scored identical
+                # fixture, may inherit official FT evidence. No cross-ID
+                # score transfer for an as-yet-unknown result.
+                same_official=(existing.get('id')==event['id'] or
+                               str(existing.get('dbu_match_id') or '')==
+                               str(event['dbu_match_id']))
                 if not existing.get('finished'):
-                    existing.update({'finished':True,'home_score':event['home_score'],
-                                     'away_score':event['away_score']})
+                    if not same_official:
+                        report['unconfirmed_cross_ids']+=1
+                        continue
+                    existing.update({'finished':True,'home_score':official[0],
+                                     'away_score':official[1]})
+                if not existing.get('score_conflict'):
+                    existing.update({'result_verified':True,'match_status':'FT',
+                                     'result_source':'DBU official fixture final',
+                                     'dbu_match_id':event['dbu_match_id']})
+                    report['verified_results']+=1
                 report['matched']+=1
                 continue
             row={'id':event['id'],'date':event['date'],'utc':'','round':0,
                  'home':home,'away':away,'home_score':event['home_score'],
-                 'away_score':event['away_score'],'finished':True}
-            save_match(known,row)
+                 'away_score':event['away_score'],'finished':True,
+                 'result_verified':True,'match_status':'FT',
+                 'result_source':'DBU official fixture final',
+                 'dbu_match_id':event['dbu_match_id']}
+            known[row['id']]=row
             report['added']+=1
+            report['verified_results']+=1
         for event in future:
             # Prefer a previously recorded TheSportsDB or DBU identity, so
             # forecast ledger keys remain stable after the match is played.
@@ -122,6 +159,7 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
             report['upcoming_added']+=1
         league['events']=sorted(known.values(),key=lambda e:(e['date'],str(e.get('id'))))
         report['status']='partial_verified_source' if report['conflicts'] else 'sample_available'
+        report['result_evidence_v1']=True
     except (OSError,PermissionError,RuntimeError,ValueError,TypeError,
             urllib.error.URLError) as exc:
         report['error']=str(exc)[:170]
