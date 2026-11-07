@@ -46,6 +46,27 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(nl['sources']['superseded_signed_ids_preserved'],1)
         self.assertEqual(nl['history']['complete_seasons'],0)
         self.assertEqual(result['production_model_changed'],False)
+    def test_expanded_cc0_archive_uses_calendar_years_and_avoids_false_completeness(self):
+        args=inputs()
+        historical_event=fixture('hist1','2023-04-04',True,True,(2,1))
+        archive={'schema':1,'leagues':{
+            'no':{'seasons':{'2023':{'events':[historical_event],
+                                 'expected_games':1,'complete':True,'license':'CC0-1.0',
+                                 'source_url':'https://raw.githubusercontent.com/openfootball/europe/master/norway/2023_no1.txt'}}},
+            'dk2':{'seasons':{'2024-2025':{'events':[historical_event],
+                                  'expected_games':192,'complete':False,'license':'CC0-1.0'}}}}}
+        result=build(*args,now=NOW,expanded_history=archive)
+        no=result['leagues']['no']['history']
+        dk=result['leagues']['dk2']['history']
+        self.assertEqual([s['season'] for s in no['seasons']],
+                         ['2021','2022','2023','2024','2025'])
+        self.assertEqual(no['complete_seasons'],1)
+        self.assertEqual(no['archived_matches'],1)
+        self.assertEqual(dk['complete_seasons'],0)
+        self.assertEqual(dk['archived_matches'],1)
+        self.assertEqual(dk['seasons'][3]['status'],'incomplete')
+        self.assertFalse(result['production_model_changed'])
+
     def test_reference_count_is_not_automatic_full_coverage(self):
         args=list(inputs())
         args[0]['leagues']['nl']['events']=[
