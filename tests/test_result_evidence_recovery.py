@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from scripts.recover_verified_results import recover,verify_one
+from scripts.collect_expanded_leagues import save_match
 from scripts.collect_openfootball_nl import parsed,merge_current
 from scripts.collect_danish_first_official import collect as collect_dbu
 from scripts.match_status import verified_event
@@ -85,6 +86,67 @@ class ResultRecoveryTests(unittest.TestCase):
         sources['2398991']['strAwayTeam']='Viking'
         sources['2398991']['dateEvent']='2026-03-15'
         self.assertEqual(verify_one(first,'no',sources['2398991'],NOW),'fixture_identity_conflict')
+
+class TwoSourceDanishTests(unittest.TestCase):
+    def disagreement(self):
+        e=event('2488421','2026-11-06','AB Gladsaxe','Vendsyssel',(2,0),True)
+        e['score_conflict']=True
+        e['result_dispute']={'status':'pending_independent_confirmation',
+             'stored_score':[2,0],'official_score':[3,0],
+             'official_source':'DBU official fixture table',
+             'official_match_id':'176500','checked_at':NOW.isoformat()}
+        return e
+
+    def test_two_sources_confirm_different_score_without_erasing_old_value(self):
+        e=self.disagreement()
+        new=api('2488421',4683,'2026-2027','2026-11-06',
+                'AB Gladsaxe','Vendsyssel',(3,0))
+        status=verify_one(e,'dk2',new,NOW)
+        self.assertEqual(status,'verified_two_source')
+        self.assertTrue(verified_event(e))
+        self.assertEqual(e['id'],'2488421')
+        self.assertEqual((e['home_score'],e['away_score']),(3,0))
+        self.assertEqual(e['result_dispute']['stored_score'],[2,0])
+        self.assertEqual(e['result_dispute']['status'],'resolved_two_source_agreement')
+        self.assertFalse(e['score_conflict'])
+        self.assertEqual(e['result_source'],'DBU official + TheSportsDB exact original ID')
+
+    def test_provider_does_not_agree_official_result(self):
+        e=self.disagreement()
+        new=api('2488421',4683,'2026-2027','2026-11-06',
+                'AB Gladsaxe','Vendsyssel',(4,0))
+        self.assertEqual(verify_one(e,'dk2',new,NOW),'source_disagreement')
+        self.assertTrue(e['score_conflict'])
+        self.assertFalse(verified_event(e))
+        self.assertEqual((e['home_score'],e['away_score']),(2,0))
+
+    def test_round_snapshot_does_not_erase_conflicted_original(self):
+        original=event('2488421','2026-11-06','AB Gladsaxe','Vendsyssel',(2,0),True)
+        known={'2488421':original}
+        new={**original,'home_score':3,'away_score':0,
+             'result_verified':True,'match_status':'FT'}
+        save_match(known,new)
+        self.assertEqual((known['2488421']['home_score'],known['2488421']['away_score']),(2,0))
+        self.assertTrue(known['2488421']['score_conflict'])
+        self.assertFalse(known['2488421']['result_verified'])
+        again=known['2488421']['result_dispute'].copy()
+        save_match(known,new)
+        self.assertEqual(known['2488421']['result_dispute'],again)
+
+    def test_recovery_prioritizes_dispute_without_cross_id_substitution(self):
+        e=self.disagreement()
+        old=event('2488341','2026-07-24','Vejle','AB Gladsaxe',(2,2),True)
+        doc={'schema':1,'season':'2026-2027','leagues':{
+          'no':{'events':[]},'nl':{'events':[]},'dk2':{'events':[old,e]}}}
+        source=api('2488421',4683,'2026-2027','2026-11-06',
+                   'AB Gladsaxe','Vendsyssel',(3,0))
+        calls=[]
+        def fetch(id):calls.append(id);return [source]
+        report=recover(doc,fetch,NOW,{'no':0,'nl':0,'dk2':1})
+        self.assertEqual(calls,['2488421'])
+        self.assertEqual(report['resolved_disputes'],1)
+        self.assertEqual(report['verified'],1)
+        self.assertFalse(old['result_verified'])
 
 class CC0EvidenceTests(unittest.TestCase):
     def test_only_explicit_ft_is_valid_evidence(self):

@@ -55,16 +55,24 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
         try:
             recent=(now-dt.datetime.fromisoformat(last)).total_seconds()<min_hours*3600
             upgrade=meta.get('result_evidence_v1') is not True
-            # One extra read on upgrade; after a failed attempt retain daily cooldown.
+            # Separate one-time source-dispute schema upgrade from the
+            # existing verified-FT refresh. Each has its own 22h cooldown.
+            provenance_upgrade=meta.get('dispute_provenance_v2') is not True
             attempted=meta.get('result_evidence_attempted_at')
             if attempted:
                 upgrade=upgrade and (now-dt.datetime.fromisoformat(attempted)).total_seconds()>=min_hours*3600
-            if recent and not upgrade:
+            dispute_attempted=meta.get('dispute_provenance_attempted_at')
+            if dispute_attempted:
+                provenance_upgrade=(provenance_upgrade and
+                    (now-dt.datetime.fromisoformat(dispute_attempted)).total_seconds()>=min_hours*3600)
+            if recent and not (upgrade or provenance_upgrade):
                 return data
         except (ValueError,TypeError):pass
     report={'source_url':URL,'checked_at':now.replace(microsecond=0).isoformat(),
             'result_evidence_attempted_at':now.replace(microsecond=0).isoformat(),
             'result_evidence_v1':False,'verified_results':0,
+            'dispute_provenance_v2':False,
+            'dispute_provenance_attempted_at':now.replace(microsecond=0).isoformat(),
             'unconfirmed_cross_ids':0,
             'status':'unavailable_or_unverified','added':0,'matched':0,
             'conflicts':0,'error':None,
@@ -103,8 +111,19 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
                 already=(existing.get('home_score'),existing.get('away_score'))
                 official=(event['home_score'],event['away_score'])
                 if existing.get('finished') and already!=official:
+                    # The earlier, possibly in-progress score remains in
+                    # the record. An independent exact-ID provider FT must
+                    # agree with the official DBU final before correction.
                     existing['score_conflict']=True
                     existing['result_verified']=False
+                    prior_dispute=existing.get('result_dispute',{})
+                    existing['result_dispute']={
+                        'status':'pending_independent_confirmation',
+                        'stored_score':prior_dispute.get('stored_score',list(already)),
+                        'official_score':list(official),
+                        'official_source':'DBU official fixture table',
+                        'official_match_id':event['dbu_match_id'],
+                        'checked_at':now.replace(microsecond=0).isoformat()}
                     report['conflicts']+=1
                     continue
                 # Only the same DBU number, or an already-scored identical
@@ -160,6 +179,7 @@ def collect(path=PATH,getter=fetch_allowed,now=None,min_hours=22):
         league['events']=sorted(known.values(),key=lambda e:(e['date'],str(e.get('id'))))
         report['status']='partial_verified_source' if report['conflicts'] else 'sample_available'
         report['result_evidence_v1']=True
+        report['dispute_provenance_v2']=True
     except (OSError,PermissionError,RuntimeError,ValueError,TypeError,
             urllib.error.URLError) as exc:
         report['error']=str(exc)[:170]

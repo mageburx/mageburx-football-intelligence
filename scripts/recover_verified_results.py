@@ -48,7 +48,12 @@ def eligible(e,now):
     eid=str(e.get('id') or '')
     if not (eid.isdigit() and 5<=len(eid)<=10):return False
     if not e.get('date') or e['date']>=now.date().isoformat():return False
-    if e.get('result_verified') is True or e.get('score_conflict') is True:return False
+    dispute=e.get('result_dispute') or {}
+    eligible_dispute=(e.get('score_conflict') is True and
+        dispute.get('status')=='pending_independent_confirmation' and
+        dispute.get('official_source')=='DBU official fixture table')
+    if e.get('result_verified') is True or (e.get('score_conflict') is True and not eligible_dispute):
+        return False
     last=e.get('verification_checked_at')
     if last:
         try:
@@ -72,6 +77,30 @@ def verify_one(event,lid,raw,now):
         return 'no_explicit_full_time'
     original=(event.get('home_score'),event.get('away_score'))
     updated=(parsed.get('home_score'),parsed.get('away_score'))
+    if event.get('score_conflict') is True:
+        dispute=event.get('result_dispute') or {}
+        official=dispute.get('official_score')
+        stored=dispute.get('stored_score')
+        if (lid!='dk2' or dispute.get('status')!='pending_independent_confirmation'
+                or dispute.get('official_source')!='DBU official fixture table'
+                or not isinstance(official,list) or not isinstance(stored,list)
+                or len(official)!=2 or len(stored)!=2 or
+                tuple(stored)!=original):
+            return 'score_conflict'
+        if tuple(official)!=updated:
+            return 'source_disagreement'
+        # Two independent sources agree on the same oriented fixture and
+        # exact original provider ID: retain the old score for audit.
+        event['result_dispute']={**dispute,'status':'resolved_two_source_agreement',
+                                 'provider_score':list(updated),
+                                 'provider_id':str(event['id']),
+                                 'resolved_at':now.replace(microsecond=0).isoformat()}
+        event['score_conflict']=False
+        event.update({'finished':True,'home_score':updated[0],'away_score':updated[1],
+                      'result_verified':True,'match_status':parsed['match_status'],
+                      'result_source':'DBU official + TheSportsDB exact original ID',
+                      'result_verified_at':now.replace(microsecond=0).isoformat()})
+        return 'verified_two_source'
     if event.get('finished') is True and original!=updated:
         event['score_conflict']=True
         event['result_verified']=False
@@ -96,15 +125,15 @@ def recover(season,fetcher=fetch_event,now=None,quotas=QUOTAS):
     report={'checked_at':now.replace(microsecond=0).isoformat(),
             'source':'TheSportsDB lookupevent.php (free)',
             'max_requests':sum(quotas.values()),'requests':0,'verified':0,
-            'conflicts':0,'rate_limited':False,'leagues':{}}
+            'resolved_disputes':0,'conflicts':0,'rate_limited':False,'leagues':{}}
     stop=False
     for lid,quota in quotas.items():
         league=season['leagues'][lid]
         candidates=sorted((e for e in league.get('events',[])
             if isinstance(e,dict) and eligible(e,now)),
-            key=lambda x:(x.get('date',''),str(x.get('id'))))
+            key=lambda x:(not bool(x.get('score_conflict')),x.get('date',''),str(x.get('id'))))
         result={'candidates':len(candidates),'checked':0,'verified':0,
-                'no_final':0,'conflicts':0,'source_errors':0,
+                'resolved_disputes':0,'no_final':0,'conflicts':0,'source_errors':0,
                 'not_found':0,'identity_errors':0,'unverified_research_results':0}
         for e in candidates[:min(max(0,int(quota)),8)]:
             if stop:break
@@ -125,10 +154,12 @@ def recover(season,fetcher=fetch_event,now=None,quotas=QUOTAS):
                     urllib.error.URLError,json.JSONDecodeError):
                 outcome='source_error'
             e['verification_last_status']=outcome
-            if outcome=='verified':
+            if outcome in ('verified','verified_two_source'):
                 result['verified']+=1;report['verified']+=1
+                if outcome=='verified_two_source':
+                    result['resolved_disputes']+=1;report['resolved_disputes']+=1
             elif outcome=='no_explicit_full_time':result['no_final']+=1
-            elif outcome=='score_conflict':
+            elif outcome in ('score_conflict','source_disagreement'):
                 result['conflicts']+=1;report['conflicts']+=1
             elif outcome=='missing_exact_id':result['not_found']+=1
             elif outcome=='fixture_identity_conflict':result['identity_errors']+=1

@@ -143,6 +143,14 @@ def build(season,history,nl_history,stats,shots,now=None):
                           'rights':meta.get('rights')}
         else:
             source_flags={'source':'TheSportsDB','status':'observed'}
+        unresolved_events=sum(e.get('score_conflict') is True for e in known.values())
+        resolved_disputes=sum((e.get('result_dispute') or {}).get('status')=='resolved_two_source_agreement'
+                              for e in known.values())
+        # Keep the DBU source's historical count without mistaking already
+        # resolved disagreements for unresolved quality failures.
+        unresolved_sources=max(0,int(source_flags.get('conflicts',0))-resolved_disputes)
+        source_flags['unresolved_conflicts']=max(unresolved_events,unresolved_sources)
+        source_flags['resolved_disputes']=resolved_disputes
         missing_reference=max(0,reference-observed) if reference is not None else None
         stats_report=sample_stats(lid,stats,shots)
         issues=[]
@@ -151,7 +159,8 @@ def build(season,history,nl_history,stats,shots,now=None):
                 issues.append({'code':code,'count':count,'priority':priority,'meaning':meaning})
         issue('duplicate_identifiers',duplicates,'critical','Same ID repeated; review before reusing results')
         issue('potential_duplicate_fixtures',len(duplicate_pairs),'high','Distinct IDs with same date and teams; audit without merging')
-        issue('source_result_conflicts',source_flags.get('conflicts',0),'critical','Sources disagree; do not overwrite scores')
+        issue('source_result_conflicts',source_flags['unresolved_conflicts'],'critical',
+              'Unresolved source disagreements remain blocked from settlement')
         issue('past_not_final',len(past_not_final),'high','Past fixture lacks a verified final score')
         issue('unverified_rounds',len(unverified_rounds or []),'high','Rounds not confirmed by the primary season feed')
         issue('history_incomplete',len(HIST_YEARS)-history_report['complete_seasons'],'high','Historical season lacks complete verified coverage')
@@ -166,7 +175,7 @@ def build(season,history,nl_history,stats,shots,now=None):
             inventory='format_variable_count_not_certified'
         else:
             inventory='below_reference_count'
-        if source_flags.get('conflicts',0)>0 or duplicates:
+        if source_flags['unresolved_conflicts']>0 or duplicates:
             quality='requires_review'
         elif duplicate_pairs or past_not_final or (unverified_rounds is not None and len(unverified_rounds)>0):
             quality='partial'

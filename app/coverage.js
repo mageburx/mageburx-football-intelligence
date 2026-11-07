@@ -62,7 +62,9 @@
         '<div class="dc-sources"><b>Fontes e integridade</b> '+
         safe(l.sources?.source||'Por verificar')+' · '+
         number(l.inventory?.past_unverified)+' resultados passados sem confirmação · '+
-        number(l.sources?.conflicts||0)+' conflitos de fonte</div>'+
+        number(l.sources?.unresolved_conflicts??l.sources?.conflicts??0)+
+        ' conflitos por resolver · '+
+        number(l.sources?.resolved_disputes||0)+' resolvidos com dupla confirmação</div>'+
         '<div class="dc-detail"><b>Origem das confirmações finais</b><span>'+
         (Object.keys(l.result_evidence?.confirmed_by_source||{}).length?
           Object.entries(l.result_evidence.confirmed_by_source)
