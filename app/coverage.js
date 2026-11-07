@@ -55,7 +55,9 @@
          'A recolha não preserva prova de todas as jornadas':
          'Jornadas observadas na fonte primária')+'</em></div>'+
         '<div><small>Histórico completo</small><b>'+
-        number(hist.complete_seasons)+' / 5</b><em>Épocas 2021/22 a 2025/26</em></div>'+
+        number(hist.complete_seasons)+' / 5</b><em>'+
+        (hist.season_format==='calendar'?'Épocas 2021 a 2025':
+          'Épocas 2021/22 a 2025/26')+'</em></div>'+
         '<div><small>Remates / xG</small><b>'+
         (shots.sample_checked?'Amostra: '+shots.sample_checked:'Sem amostra')+'</b>'+
         '<em>xG em investigação; nunca assumir disponibilidade</em></div></div>'+
@@ -82,7 +84,10 @@
           '<div class="dc-detail"><b>Exemplos de resultados por confirmar</b><span>'+
           l.inventory.past_unverified_sample.slice(0,4).map(x=>safe(
             x.date+' · '+x.home+' – '+x.away)).join(' | ')+'</span></div>':'')+
-        '<div class="dc-detail"><b>Histórico</b><span>'+
+        '<div class="dc-detail"><b>Arquivo histórico</b><span>'+
+        safe(hist.source||'Fonte por verificar')+' · '+number(hist.archived_matches??0)+
+        ' resultados documentados; épocas incompletas não contam como completas</span></div>'+
+        '<div class="dc-detail"><b>Histórico por época</b><span>'+
         (hist.seasons||[]).map(x=>'<span class="dc-season">'+
           safe(x.season)+' · '+(x.status==='source_complete'?'Completa':
             x.status==='incomplete'?number(x.completed_matches)+' / '+number(x.expected):'Sem dados')+

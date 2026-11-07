@@ -23,6 +23,7 @@ LABELS={'pt':'Liga Portugal','dk':'Superliga','nl':'Eredivisie',
 REF={'pt':(34,9,306),'dk':(32,None,None),'nl':(34,9,306),
      'dk2':(32,6,None),'no':(30,8,240)}
 HIST_YEARS=tuple(f'{y}-{y+1}' for y in range(2021,2026))
+NORWEGIAN_HIST_YEARS=tuple(str(y) for y in range(2021,2026))
 
 def normalize(value):
     value=unicodedata.normalize('NFKD',str(value or ''))
@@ -36,28 +37,42 @@ def confirmed(e):
             and type(e.get('home_score')) is int and type(e.get('away_score')) is int
             and 0<=e['home_score']<100 and 0<=e['away_score']<100)
 
-def historical(lid,history,nl_history):
+def historical(lid,history,nl_history,expanded_history=None):
+    # Norwegian football uses calendar years, unlike the other four leagues.
+    years=NORWEGIAN_HIST_YEARS if lid=='no' else HIST_YEARS
     if lid=='nl':
         seasons=nl_history.get('seasons',{})
         source='OpenFootball CC0'
+    elif lid in ('dk2','no'):
+        expanded=expanded_history if isinstance(expanded_history,dict) else {}
+        seasons=expanded.get('leagues',{}).get(lid,{}).get('seasons',{})
+        source='OpenFootball Europe football.txt CC0-1.0 (histórico isolado)'
     else:
         seasons=history.get('leagues',{}).get(lid,{}).get('seasons',{})
-        source='Historico verificado no projeto' if lid in ('pt','dk') else 'Sem arquivo historico validado'
+        source='Histórico verificado no projeto'
     rows=[]
-    for year in HIST_YEARS:
+    for year in years:
         record=seasons.get(year)
         if not isinstance(record,dict):
-            rows.append({'season':year,'status':'not_observed','completed_matches':None,'expected':None})
+            rows.append({'season':year,'status':'not_observed','completed_matches':None,
+                         'expected':None})
             continue
         events=record.get('events',[])
         n=len(events) if isinstance(events,list) else 0
         expected=record.get('expected_games')
         good=(type(expected) is int and expected>0 and n==expected and
-              record.get('complete') is True)
-        rows.append({'season':year,'status':'source_complete' if good else 'incomplete',
-                     'completed_matches':n,'expected':expected})
+              record.get('complete') is True and
+              (lid not in ('dk2','no') or record.get('license')=='CC0-1.0'))
+        status=('source_complete' if good else
+                'unavailable' if record.get('status')=='unavailable' else 'incomplete')
+        rows.append({'season':year,'status':status,'completed_matches':n,
+                     'expected':expected,'source_url':record.get('source_url'),
+                     'license':record.get('license'),
+                     'fetched_at':record.get('fetched_at')})
     return {'source':source,'complete_seasons':sum(x['status']=='source_complete' for x in rows),
-            'required_seasons':len(HIST_YEARS),'seasons':rows}
+            'required_seasons':len(years),'season_format':'calendar' if lid=='no' else 'split',
+            'archived_matches':sum(x['completed_matches'] or 0 for x in rows),
+            'seasons':rows}
 
 def sample_stats(lid,meta,shots):
     entry=meta.get('leagues',{}).get(lid,{})
@@ -74,7 +89,7 @@ def sample_stats(lid,meta,shots):
             'not_certified':'Samples do not establish full-season coverage or legal reuse rights.'}
     return result
 
-def build(season,history,nl_history,stats,shots,now=None):
+def build(season,history,nl_history,stats,shots,now=None,expanded_history=None):
     now=now or dt.datetime.now(dt.timezone.utc)
     if now.tzinfo is None:raise ValueError('UTC-aware timestamp required')
     if season.get('schema')!=1 or 'leagues' not in season:raise ValueError('Invalid season snapshot')
@@ -121,7 +136,7 @@ def build(season,history,nl_history,stats,shots,now=None):
             round_mode='source_checked_subset'
             verified_rounds=len(checked)
             unverified_rounds=[r for r in range(1,rounds+1) if r not in checked]
-        history_report=historical(lid,history,nl_history)
+        history_report=historical(lid,history,nl_history,expanded_history)
         observed=len(known)
         source_flags={}
         if lid=='nl':
@@ -163,7 +178,7 @@ def build(season,history,nl_history,stats,shots,now=None):
               'Unresolved source disagreements remain blocked from settlement')
         issue('past_not_final',len(past_not_final),'high','Past fixture lacks a verified final score')
         issue('unverified_rounds',len(unverified_rounds or []),'high','Rounds not confirmed by the primary season feed')
-        issue('history_incomplete',len(HIST_YEARS)-history_report['complete_seasons'],'high','Historical season lacks complete verified coverage')
+        issue('history_incomplete',history_report['required_seasons']-history_report['complete_seasons'],'high','Historical season lacks complete verified coverage')
         issue('missing_reference_inventory',missing_reference or 0,'medium','Below format reference; some future fixtures may be unpublished')
         issue('shots_no_verified_sample',int(stats_report['sample_checked']==0),'medium','No independent match-stat sample checked')
         if reference is not None and observed>reference:
@@ -229,13 +244,14 @@ def main():
     p.add_argument('--season',type=Path,default=ROOT/'data'/'season.json')
     p.add_argument('--history',type=Path,default=ROOT/'data'/'history.json')
     p.add_argument('--nl-history',type=Path,default=ROOT/'data'/'nl_history.json')
+    p.add_argument('--expanded-history',type=Path,default=ROOT/'data'/'expanded_history.json')
     p.add_argument('--stats',type=Path,default=ROOT/'data'/'stats_coverage.json')
     p.add_argument('--shots',type=Path,default=ROOT/'data'/'shots_research.json')
     p.add_argument('--output',type=Path,default=ROOT/'data'/'data_coverage.json')
     args=p.parse_args()
     read=lambda x:json.loads(x.read_text(encoding='utf-8')) if x.is_file() else {}
     result=build(read(args.season),read(args.history),read(args.nl_history),
-                 read(args.stats),read(args.shots))
+                 read(args.stats),read(args.shots),expanded_history=read(args.expanded_history))
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8')
     print('Data Coverage Engine',json.dumps({
