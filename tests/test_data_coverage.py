@@ -66,6 +66,18 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(pt['history']['complete_seasons'],5)
         self.assertIsNone(pt['rounds']['verified'])
         self.assertEqual(pt['rounds']['verification'],'not_persisted')
+    def test_resolved_dispute_no_longer_counts_as_unresolved(self):
+        args=list(inputs())
+        args[0]['leagues']['dk2']['events']=[{**fixture('dbu:001','2026-10-11',True,True,(3,0)),
+          'result_dispute':{'status':'resolved_two_source_agreement',
+                            'stored_score':[2,0],'official_score':[3,0]}}]
+        args[0]['leagues']['dk2']['dbu_official']={'conflicts':1}
+        report=build(*args,now=NOW)
+        self.assertEqual(report['leagues']['dk2']['sources']['resolved_disputes'],1)
+        self.assertEqual(report['leagues']['dk2']['sources']['unresolved_conflicts'],0)
+        self.assertFalse(any(i['code']=='source_result_conflicts'
+                         for i in report['leagues']['dk2']['issues']))
+
     def test_source_conflicts_trigger_review_without_mutating_scores(self):
         args=list(inputs())
         orig=args[0]['leagues']['nl']['events'][0].copy()
