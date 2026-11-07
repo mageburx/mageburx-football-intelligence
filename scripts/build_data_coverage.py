@@ -152,8 +152,11 @@ def build(season,history,nl_history,stats,shots,now=None):
         issue('history_incomplete',len(HIST_YEARS)-history_report['complete_seasons'],'high','Historical season lacks complete verified coverage')
         issue('missing_reference_inventory',missing_reference or 0,'medium','Below format reference; some future fixtures may be unpublished')
         issue('shots_no_verified_sample',int(stats_report['sample_checked']==0),'medium','No independent match-stat sample checked')
-        if reference is not None and observed==reference and not duplicate_pairs:
-            inventory='reference_count_reached_not_verified_complete'
+        if reference is not None and observed>reference:
+            inventory='reference_exceeded_requires_review'
+        elif reference is not None and observed==reference:
+            inventory=('reference_count_reached_with_conflicts' if duplicate_pairs or duplicates
+                       else 'reference_count_reached_not_verified_complete')
         elif reference is None:
             inventory='format_variable_count_not_certified'
         else:
