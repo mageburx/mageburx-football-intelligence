@@ -20,7 +20,7 @@ BRANCH = 'football-data'
 TRACKED = ('history.json', 'ledger.json', 'season.json', 'model.json',
            'reliability.json', 'quality.json', 'validation.json', 'scrape_report.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json',
            'cross_competitions.json', 'schedule_context.json', 'prematch_lineups.json',
-           'multi_competition_impact.json', 'ledger_health.json', 'european_coverage.json', 'advanced_signals.json', 'shots_research.json', 'xg_experiment.json', 'xg_shadow_ledger.json', 'nl_history.json', 'expansion_reliability.json', 'expansion_1x2_ledger.json', 'expansion_1x2_audit.json','league_comparison.json','validation_center.json')
+           'multi_competition_impact.json', 'ledger_health.json', 'european_coverage.json', 'advanced_signals.json', 'shots_research.json', 'xg_experiment.json', 'xg_shadow_ledger.json', 'nl_history.json', 'expansion_reliability.json', 'expansion_1x2_ledger.json', 'expansion_1x2_audit.json','league_comparison.json','validation_center.json','data_coverage.json')
 
 def git(*args, cwd=ROOT, check=True):
     return subprocess.run(['git', *args], cwd=cwd, check=check,
@@ -86,7 +86,7 @@ def save(root=ROOT):
         raise RuntimeError('Persistent branch not reachable: ' + fetch.stderr[-500:])
     for filename in ('history.json', 'ledger.json', 'reliability.json', 'quality.json', 'stats_coverage.json', 'value_engine.json', 'feature_impact.json',
                      'cross_competitions.json', 'schedule_context.json', 'prematch_lineups.json',
-                     'multi_competition_impact.json', 'ledger_health.json', 'european_coverage.json', 'advanced_signals.json', 'shots_research.json', 'xg_experiment.json', 'xg_shadow_ledger.json', 'nl_history.json', 'expansion_reliability.json', 'expansion_1x2_ledger.json', 'expansion_1x2_audit.json','league_comparison.json','validation_center.json'):
+                     'multi_competition_impact.json', 'ledger_health.json', 'european_coverage.json', 'advanced_signals.json', 'shots_research.json', 'xg_experiment.json', 'xg_shadow_ledger.json', 'nl_history.json', 'expansion_reliability.json', 'expansion_1x2_ledger.json', 'expansion_1x2_audit.json','league_comparison.json','validation_center.json','data_coverage.json'):
         filepath=root/'data'/filename
         if not filepath.is_file():
             raise RuntimeError('Missing required persistent data file: '+str(filepath))
