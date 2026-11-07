@@ -49,7 +49,8 @@ class CoverageTests(unittest.TestCase):
     def test_reference_count_is_not_automatic_full_coverage(self):
         args=list(inputs())
         args[0]['leagues']['nl']['events']=[
-           fixture(str(i),'2026-12-01') for i in range(306)]
+           {**fixture(str(i),'2026-12-01'),'home':f'Home {i}','away':f'Away {i}'}
+           for i in range(306)]
         result=build(*args,now=NOW)
         nl=result['leagues']['nl']
         self.assertEqual(nl['inventory']['expected_reference'],306)
