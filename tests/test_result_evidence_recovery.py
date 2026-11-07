@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from scripts.recover_verified_results import recover,verify_one
+from scripts.collect_expanded_leagues import save_match
 from scripts.collect_openfootball_nl import parsed,merge_current
 from scripts.collect_danish_first_official import collect as collect_dbu
 from scripts.match_status import verified_event
@@ -118,6 +119,19 @@ class TwoSourceDanishTests(unittest.TestCase):
         self.assertTrue(e['score_conflict'])
         self.assertFalse(verified_event(e))
         self.assertEqual((e['home_score'],e['away_score']),(2,0))
+
+    def test_round_snapshot_does_not_erase_conflicted_original(self):
+        original=event('2488421','2026-11-06','AB Gladsaxe','Vendsyssel',(2,0),True)
+        known={'2488421':original}
+        new={**original,'home_score':3,'away_score':0,
+             'result_verified':True,'match_status':'FT'}
+        save_match(known,new)
+        self.assertEqual((known['2488421']['home_score'],known['2488421']['away_score']),(2,0))
+        self.assertTrue(known['2488421']['score_conflict'])
+        self.assertFalse(known['2488421']['result_verified'])
+        again=known['2488421']['result_dispute'].copy()
+        save_match(known,new)
+        self.assertEqual(known['2488421']['result_dispute'],again)
 
     def test_recovery_prioritizes_dispute_without_cross_id_substitution(self):
         e=self.disagreement()
