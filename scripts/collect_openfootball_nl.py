@@ -228,27 +228,28 @@ def collect(season_path=SEASON_FILE,archive_path=ARCHIVE_FILE,fetcher=get_json,n
     prior_attempt=evidence.get('result_evidence_attempted_at')
     if prev:
         try:
-            if (now-dt.datetime.fromisoformat(prev)).total_seconds()<min_hours*3600:
-                # One bounded source refresh on upgrade only, after 22h on errors.
-                upgrade=(evidence.get('result_evidence_v1') is not True and
-                         (not prior_attempt or
-                          (now-dt.datetime.fromisoformat(prior_attempt)).total_seconds()>=min_hours*3600))
+            age=(now-dt.datetime.fromisoformat(prev)).total_seconds()
+            if age<min_hours*3600:
+                try:
+                    recent_upgrade=(prior_attempt and
+                        (now-dt.datetime.fromisoformat(prior_attempt)).total_seconds()<min_hours*3600)
+                except (ValueError,TypeError):
+                    recent_upgrade=False
+                upgrade=(evidence.get('result_evidence_v1') is not True and not recent_upgrade)
                 if upgrade:
                     recheck_only=True
                 else:
-                    # Even without a new HTTP fetch, reconcile newly restored
-                # or primary-source duplicated future fixtures every run.
-                current=doc['leagues']['nl']
-                current['events'],superseded=reconcile_rescheduled_fixtures(
-                    current.get('events',[]))
-                if superseded:
-                    details=current.setdefault('openfootball',{})
-                    by_id={x['id']:x for x in details.get('superseded',[])+superseded}
-                    details['superseded']=list(by_id.values())
-                    details['newly_reconciled']=len(superseded)
-                    season_path.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf8')
+                    # Continue reconciling prior signed IDs even during cooldown.
+                    current['events'],superseded=reconcile_rescheduled_fixtures(current.get('events',[]))
+                    if superseded:
+                        details=current.setdefault('openfootball',{})
+                        by_id={x['id']:x for x in details.get('superseded',[])+superseded}
+                        details['superseded']=list(by_id.values())
+                        details['newly_reconciled']=len(superseded)
+                        season_path.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf8')
                     return doc,archive
-        except (ValueError,TypeError):pass
+        except (ValueError,TypeError):
+            pass
     archive['last_attempt_at']=now.replace(microsecond=0).isoformat()
     if recheck_only:
         current.setdefault('openfootball',{})['result_evidence_attempted_at']=now.replace(microsecond=0).isoformat()
