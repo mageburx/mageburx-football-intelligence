@@ -126,18 +126,20 @@ def save_match(known,item):
     if existing is None:
         known[item['id']]=item
         return
+    if existing.get('score_conflict'):return
     if existing.get('finished') and item.get('finished') and (
         existing.get('home_score'),existing.get('away_score'))!=(
         item.get('home_score'),item.get('away_score')):
-        # Quarantine inconsistent provider scores instead of treating either as final.
-        known[item['id']]={**existing,**item,'finished':False,'result_verified':False,
-                           'home_score':None,'away_score':None,
+        # Preserve the original observed result while blocking settlement.
+        # Independent DBU + exact-ID FT can later resolve the disagreement.
+        known[item['id']]={**existing,'result_verified':False,
                            'score_conflict':True,
                            'result_dispute':{
-                               'original_score':[existing.get('home_score'),existing.get('away_score')],
-                               'provider_score':[item.get('home_score'),item.get('away_score')]}}
+                               'status':'pending_source_comparison',
+                               'stored_score':[existing.get('home_score'),existing.get('away_score')],
+                               'provider_score':[item.get('home_score'),item.get('away_score')],
+                               'source':'TheSportsDB'}}
         return
-    if existing.get('score_conflict'):return
     if existing.get('finished') and not item.get('finished'):
         # Never discard a previously observed score just because an API
         # round snapshot omits FT status. It remains *unverified* unless
