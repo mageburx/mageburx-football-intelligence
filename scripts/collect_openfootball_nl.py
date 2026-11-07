@@ -91,12 +91,20 @@ def parsed(raw,season,now):
         except (TypeError,ValueError):rn=0
         h,a=score_pair(e)
         finished=h is not None and dateobj<now.date()
+        # Only explicit source FT, not a numeric score or half-time score,
+        # is eligible as independent final-result evidence.
+        explicit_ft=(finished and isinstance(e.get('score'),dict)
+                     and isinstance(e['score'].get('ft'),list)
+                     and len(e['score']['ft'])==2)
         item={'id':f'ofnl:{season}:{date}:{canonical(home)}:{canonical(away)}',
               'date':date,'utc':'','round':rn,
               'home':home,'away':away,
               'home_score':h if finished else None,
               'away_score':a if finished else None,
-              'finished':finished}
+              'finished':finished,
+              'result_verified':bool(explicit_ft),
+              'match_status':'FT' if explicit_ft else '',
+              'result_source':'OpenFootball CC0 explicit FT' if explicit_ft else None}
         results.append(item)
     unique={}
     for e in results:
@@ -127,12 +135,24 @@ def merge_current(saved,additional):
             if prior.get('finished') and event.get('finished'):
                 if (prior['home_score'],prior['away_score'])!=(
                     event['home_score'],event['away_score']):
+                    # Never silently certify two disagreeing score sources.
+                    prior['score_conflict']=True
+                    prior['result_verified']=False
                     conflicts+=1
                     continue
+                if event.get('result_verified') is True and not prior.get('score_conflict'):
+                    prior.update({'result_verified':True,'match_status':'FT',
+                                  'result_source':'OpenFootball CC0 matching existing score'})
             if event.get('finished') and not prior.get('finished'):
-                prior.update({'home_score':event['home_score'],
-                              'away_score':event['away_score'],'finished':True})
-                updated+=1
+                # No borrowing a score from a different ID merely because
+                # date and oriented teams match; require identical source ID.
+                if prior.get('id')==event.get('id'):
+                    prior.update({'home_score':event['home_score'],
+                                  'away_score':event['away_score'],'finished':True,
+                                  'result_verified':event.get('result_verified') is True,
+                                  'match_status':event.get('match_status',''),
+                                  'result_source':event.get('result_source')})
+                    updated+=1
             continue
         saved.append(event)
         existing[k]=event
@@ -202,10 +222,21 @@ def collect(season_path=SEASON_FILE,archive_path=ARCHIVE_FILE,fetcher=get_json,n
             'license':'CC0-1.0'},'seasons':{},'last_attempt_at':None,
         'status':'not_started','errors':[]}
     prev=archive.get('last_attempt_at')
+    recheck_only=False
+    current=doc['leagues']['nl']
+    evidence=current.get('openfootball',{})
+    prior_attempt=evidence.get('result_evidence_attempted_at')
     if prev:
         try:
             if (now-dt.datetime.fromisoformat(prev)).total_seconds()<min_hours*3600:
-                # Even without a new HTTP fetch, reconcile newly restored
+                # One bounded source refresh on upgrade only, after 22h on errors.
+                upgrade=(evidence.get('result_evidence_v1') is not True and
+                         (not prior_attempt or
+                          (now-dt.datetime.fromisoformat(prior_attempt)).total_seconds()>=min_hours*3600))
+                if upgrade:
+                    recheck_only=True
+                else:
+                    # Even without a new HTTP fetch, reconcile newly restored
                 # or primary-source duplicated future fixtures every run.
                 current=doc['leagues']['nl']
                 current['events'],superseded=reconcile_rescheduled_fixtures(
@@ -216,11 +247,13 @@ def collect(season_path=SEASON_FILE,archive_path=ARCHIVE_FILE,fetcher=get_json,n
                     details['superseded']=list(by_id.values())
                     details['newly_reconciled']=len(superseded)
                     season_path.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf8')
-                return doc,archive
+                    return doc,archive
         except (ValueError,TypeError):pass
     archive['last_attempt_at']=now.replace(microsecond=0).isoformat()
+    if recheck_only:
+        current.setdefault('openfootball',{})['result_evidence_attempted_at']=now.replace(microsecond=0).isoformat()
     errors=[]
-    for year in (*SEASONS,CURRENT):
+    for year in ((CURRENT,) if recheck_only else (*SEASONS,CURRENT)):
         try:
             value=fetcher(f'{year}/nl.1.json')
             records=parsed(value,year,now)
@@ -235,6 +268,8 @@ def collect(season_path=SEASON_FILE,archive_path=ARCHIVE_FILE,fetcher=get_json,n
                                   if x.get('id')}
                 current['openfootball']={
                     'source':'OpenFootball football.json CC0-1.0',
+                    'result_evidence_v1':True,
+                    'result_evidence_attempted_at':now.replace(microsecond=0).isoformat(),
                     'updated_at':now.replace(microsecond=0).isoformat(),
                     'added':n,'results_confirmed':u,'conflicts':c,
                     'source_fixture_count':len(records),
