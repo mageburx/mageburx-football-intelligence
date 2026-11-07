@@ -61,7 +61,7 @@ class DutchDuplicateTests(unittest.TestCase):
             original={'schema':1,'season':'2026-2027','leagues':{
                 'nl':{'events':[event('tsdb-1','2026-12-13'),
                                 event('ofnl:other','2027-02-06')],
-                      'openfootball':{}}}}
+                      'openfootball':{'result_evidence_v1':True}}}}
             archive={'schema':1,'seasons':{},
                      'last_attempt_at':'2026-11-06T20:00:00+00:00'}
             s.write_text(json.dumps(original),encoding='utf8')
