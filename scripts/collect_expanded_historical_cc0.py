@@ -66,6 +66,7 @@ def parse_archive(raw,lid,season,fetched_at):
     if lid not in SOURCES or season not in SOURCES[lid]:
         raise ValueError('Unapproved league/season combination')
     path,reference,teams_expected,each_expected=SOURCES[lid][season]
+    year=int(season[:4])
     title=raw.lstrip('\ufeff').splitlines()[0].strip() if raw.strip() else ''
     if lid=='no':
         if title!=f'= Norway Eliteserien {season}':
@@ -75,7 +76,6 @@ def parse_archive(raw,lid,season,fetched_at):
     header=HEADER_RE.search(raw)
     if not header or int(header.group(1))!=reference:
         raise ValueError('Unexpected match count in upstream season header')
-    year=int(season[:4])
     current_date=None
     round_number=None
     stage='regular'
