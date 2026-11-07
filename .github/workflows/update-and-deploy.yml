@@ -72,6 +72,8 @@ jobs:
         run: python scripts/collect_danish_first_official.py
       - name: Completar Eredivisie com arquivo CC0 e reconciliar jogos
         run: python scripts/collect_openfootball_nl.py
+      - name: Recuperar resultados finais confirmados pelo ID original com quota gratuita
+        run: python scripts/recover_verified_results.py --max-requests 6
       - name: Recolher notícias e ausências documentadas
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
