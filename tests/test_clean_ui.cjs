@@ -36,6 +36,7 @@ test('primary navigation is focused and advanced features remain accessible',()=
     assert.ok(main[1].includes('data-view="'+name+'"'));
   assert.ok(html.includes('id="advanced-menu"'));
   assert.ok(html.includes('data-view="value"'));
+  assert.ok(html.includes('data-view="coverage"'));
   assert.ok(html.includes('src="validation.js"'));
 });
 

@@ -20,7 +20,7 @@
   };
   const saved = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const store = (key, val) => { try { localStorage.setItem(key, val); } catch {} };
-  const state = {validationCenter:null, data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, expansionReliability: null, expansionAudit: null, leagueComparison: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
+  const state = {dataCoverage:null, validationCenter:null, data: null, intelligence: null, model: null, reliability: null, ledger: null, quality: null, validation: null, storageStatus: null, scrapeReport: null, statsCoverage: null, shotsResearch: null, xgExperiment: null, expansionReliability: null, expansionAudit: null, leagueComparison: null, valueEngine: null, featureImpact: null, scheduleContext: null, prematchLineups: null, multiImpact: null, ledgerHealth: null, europeanCoverage: null, valueMarket:'over_2_5', valueOdds:'', reliabilityMarket:'over_2_5', league: saved('footballlab-league','all'), view:'overview', search:'', newsFilter:'all', matchFilter:'upcoming', modelMatch:'', matchLimit:30};
   const leagueNames = {pt:'Liga Portugal',dk:'Superliga',dk2:'1. Division',nl:'Eredivisie',no:'Eliteserien'};
   const leagueFlags = {pt:'🇵🇹',dk:'🇩🇰',dk2:'🇩🇰',nl:'🇳🇱',no:'🇳🇴'};
   const leagueSeasons = {pt:'2026/27',dk:'2026/27',dk2:'2026/27',nl:'2026/27',no:'2026'};
@@ -35,7 +35,8 @@
     model:['Modelo estatístico','Probabilidades, <em>não certezas.</em>','Poisson, Dixon–Coles, Elo e testes cronológicos de qualidade das previsões.'],
     value:['Value & Confidence','O preço importa. <em>A evidência ainda mais.</em>','Simulador de odds reais introduzidas manualmente e probabilidades calibradas experimentalmente.'],
     reliability:['Fiabilidade','Até que ponto <em>podemos confiar?</em>','Resultados reais e histórico, sem confundir simulações com previsões antecipadas.'],
-    validation:['Centro de Validação','Cada previsão, <em>rastreável.</em>','Previsões 1X2 assinadas: da publicação ao resultado final.']
+    validation:['Centro de Validação','Cada previsão, <em>rastreável.</em>','Previsões 1X2 assinadas: da publicação ao resultado final.'],
+    coverage:['Cobertura dos dados','Fontes sob <em>verificação.</em>','Auditoria de resultados, calendário, histórico e disponibilidade de estatísticas.']
   };
   const isFinished = e => e.finished === true && Number.isInteger(e.home_score) && Number.isInteger(e.away_score);
   const rows = league => (state.data?.leagues?.[league]?.events || []).filter(e => e && e.home && e.away && e.date);
@@ -1001,6 +1002,7 @@
   if(typeof setInterval==='function')setInterval(()=>{if(state.view==='live' && document.visibilityState!=='hidden')refreshLive();},120000);
 
   const validationView=()=>window.MageburxValidation?.render(state.validationCenter,state.league)||'<div class="empty">Centro de Validação indisponível</div>';
+  const coverageView=()=>window.MageburxCoverage?.render(state.dataCoverage,state.league)||'<div class="empty">Auditoria de cobertura indisponível</div>';
   function render(){const page=views[state.view]||views.overview;$('#view-breadcrumb').textContent=page[0];$('#page-title').innerHTML=page[1];$('#page-subtitle').textContent=page[2];
     $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
     $$('.league-pill').forEach(b=>b.classList.toggle('active',b.dataset.league===state.league));
@@ -1008,7 +1010,7 @@
     if(!state.data?.updated_at){warning.textContent='Ainda não existe uma recolha completa. A primeira execução do GitHub Actions irá importar os resultados das duas ligas. O painel pode mostrar uma amostra de arranque incompleta.';warning.classList.remove('hidden');}
     else if(incomplete.length && state.league!=='all'){warning.textContent=`Cobertura parcial: ${leagueNames[state.league]}. Podem faltar jogos ou jornadas; as probabilidades são exploratórias.`;warning.classList.remove('hidden');}
     else{warning.classList.add('hidden');}
-    $('#view').innerHTML=({overview,matches:matchView,live:liveView,validation:validationView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,value:valueView,reliability:conciseReliabilityView})[state.view]();
+    $('#view').innerHTML=({overview,matches:matchView,live:liveView,validation:validationView,coverage:coverageView,table:tableView,briefings:briefingsView,news:newsView,absences:absencesView,model:modelView,value:valueView,reliability:conciseReliabilityView})[state.view]();
     const advanced=$('#advanced-menu');
     if(advanced&&['table','model','news','absences','value'].includes(state.view))advanced.open=true;
     $('#updated-at').textContent=state.data?.updated_at?fullDate(state.data.updated_at):'Sem atualização completa';
@@ -1047,7 +1049,7 @@
       try{const r=await fetch(`data/intelligence.json?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state.intelligence=await r.json();}catch{state.intelligence=null;}
       try{const r=await fetch(`data/model.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.model=await r.json();}catch{state.model=null;}
       try{const r=await fetch(`data/reliability.json?v=${Date.now()}`,{cache:"no-store"});if(r.ok)state.reliability=await r.json();}catch{state.reliability=null;}
-      for(const [key,file] of [['validationCenter','validation_center.json'],['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['xgExperiment','xg_experiment.json'],['expansionReliability','expansion_reliability.json'],['expansionAudit','expansion_1x2_audit.json'],['leagueComparison','league_comparison.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
+      for(const [key,file] of [['validationCenter','validation_center.json'],['dataCoverage','data_coverage.json'],['quality','quality.json'],['validation','validation.json'],['storageStatus','storage_status.json'],['scrapeReport','scrape_report.json'],['statsCoverage','stats_coverage.json'],['shotsResearch','shots_research.json'],['xgExperiment','xg_experiment.json'],['expansionReliability','expansion_reliability.json'],['expansionAudit','expansion_1x2_audit.json'],['leagueComparison','league_comparison.json'],['valueEngine','value_engine.json'],['featureImpact','feature_impact.json'],['scheduleContext','schedule_context.json'],['prematchLineups','prematch_lineups.json'],['multiImpact','multi_competition_impact.json'],['ledgerHealth','ledger_health.json'],['europeanCoverage','european_coverage.json']]){
         try{const r=await fetch(`data/${file}?v=${Date.now()}`,{cache:'no-store'});if(r.ok)state[key]=await r.json();}catch{state[key]=null;}
       }
     }catch(e){state.data={updated_at:null,leagues:{pt:{events:[],partial:true},dk:{events:[],partial:true}}};$('#warning').title=String(e);}
@@ -1056,6 +1058,6 @@
   // Funções matemáticas expostas exclusivamente para testes locais.
   window.FootballLabTest = {standings,poisson,predict,teamForm,parseData:d=>{state.data=d},parseIntelligence:d=>{state.intelligence=d},
     setModelData:d=>{state.model=d},setXGData:d=>{state.xgExperiment=d},
-    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,renderLive:liveView,renderValidation:validationView,setValidationCenter:d=>{state.validationCenter=d},getLiveCandidates:liveCandidates,getLiveLookupCandidates:liveLookupCandidates,setExpansionReliability:d=>{state.expansionReliability=d},setExpansionAudit:d=>{state.expansionAudit=d},setLeagueComparison:d=>{state.leagueComparison=d},getStats};
+    renderOverview:overview,renderBriefing:briefingsView,renderReliability:conciseReliabilityView,renderLive:liveView,renderValidation:validationView,renderCoverage:coverageView,setDataCoverage:d=>{state.dataCoverage=d},setValidationCenter:d=>{state.validationCenter=d},getLiveCandidates:liveCandidates,getLiveLookupCandidates:liveLookupCandidates,setExpansionReliability:d=>{state.expansionReliability=d},setExpansionAudit:d=>{state.expansionAudit=d},setLeagueComparison:d=>{state.leagueComparison=d},getStats};
   initialize();
 })();
