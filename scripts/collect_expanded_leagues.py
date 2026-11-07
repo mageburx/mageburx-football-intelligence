@@ -118,7 +118,11 @@ def save_match(known,item):
                 existing=previous
                 break
     if existing is not None and existing.get('id')!=item['id']:
-        item={**item,'id':existing['id']}
+        # Same displayed date/team names do NOT certify equal source IDs.
+        # Preserve the original fixture and do not transfer score or FT.
+        alternatives=existing.setdefault('other_source_ids',[])
+        if item['id'] not in alternatives:alternatives.append(item['id'])
+        return
     if existing is None:
         known[item['id']]=item
         return
@@ -126,9 +130,12 @@ def save_match(known,item):
         existing.get('home_score'),existing.get('away_score'))!=(
         item.get('home_score'),item.get('away_score')):
         # Quarantine inconsistent provider scores instead of treating either as final.
-        known[item['id']]={**item,'finished':False,'result_verified':False,
+        known[item['id']]={**existing,**item,'finished':False,'result_verified':False,
                            'home_score':None,'away_score':None,
-                           'score_conflict':True}
+                           'score_conflict':True,
+                           'result_dispute':{
+                               'original_score':[existing.get('home_score'),existing.get('away_score')],
+                               'provider_score':[item.get('home_score'),item.get('away_score')]}}
         return
     if existing.get('score_conflict'):return
     if existing.get('finished') and not item.get('finished'):
