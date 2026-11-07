@@ -70,7 +70,7 @@ def parse_archive(raw,lid,season,fetched_at):
     if lid=='no':
         if title!=f'= Norway Eliteserien {season}':
             raise ValueError('Wrong Norwegian league or season title')
-    elif title!=f'= Denmark 1. Division {season.replace("-", "/")}':
+    elif title!=f'= Denmark 1. Division {year}/{str(year+1)[-2:]}':
         raise ValueError('Wrong Danish competition or season title')
     header=HEADER_RE.search(raw)
     if not header or int(header.group(1))!=reference:
