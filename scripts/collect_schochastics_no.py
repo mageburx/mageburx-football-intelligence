@@ -98,20 +98,34 @@ def build(rows,now=None):
             'events':events}
     return out
 
-def refresh(existing=None,fetcher=read_parquet_bytes,now=None):
+def needs_refresh(existing=None,now=None):
+    """Single source of truth for the read and dependency-install decision."""
     now=now or dt.datetime.now(dt.timezone.utc)
-    existing=existing or {}
+    existing=existing if isinstance(existing,dict) else {}
     if existing.get('schema')==1 and all(
         existing.get('seasons',{}).get(str(y),{}).get('complete') is True for y in YEARS):
-        return existing,{'status':'cached_complete','requests':0}
+        return False
+    previous_error=str(existing.get('last_error') or '').lower()
+    # Parser errors are retryable immediately after the code is fixed.
+    if 'columns' in previous_error or 'pyarrow unavailable' in previous_error:
+        return True
     last=existing.get('last_attempt_at')
     if last:
         try:
-            when=dt.datetime.fromisoformat(last.replace('Z','+00:00'))
-            if (when.tzinfo and (now-when).total_seconds()<7*24*3600 and
-                "'columns'" not in str(existing.get('last_error',''))):
-                return existing,{'status':'cached_attempt','requests':0}
-        except (ValueError,TypeError):pass
+            stamp=dt.datetime.fromisoformat(last.replace('Z','+00:00'))
+            if stamp.tzinfo and 0<=(now-stamp).total_seconds()<7*24*3600:
+                return False
+        except (ValueError,TypeError):
+            pass
+    return True
+
+def refresh(existing=None,fetcher=read_parquet_bytes,now=None):
+    now=now or dt.datetime.now(dt.timezone.utc)
+    existing=existing or {}
+    if not needs_refresh(existing,now):
+        complete=all(existing.get('seasons',{}).get(str(y),{}).get('complete') is True
+                     for y in YEARS)
+        return existing,{'status':'cached_complete' if complete else 'cached_attempt','requests':0}
     try:
         payload=fetcher()
         report=build(prepare_rows(payload),now)
@@ -130,8 +144,12 @@ def refresh(existing=None,fetcher=read_parquet_bytes,now=None):
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--output',type=Path,default=FILE)
+    p.add_argument('--needs-dependency',action='store_true',
+                   help='Exit 0 only when the archive download/parquet reader is needed')
     args=p.parse_args()
     previous=json.loads(args.output.read_text(encoding='utf8')) if args.output.exists() else None
+    if args.needs_dependency:
+        raise SystemExit(0 if needs_refresh(previous) else 1)
     report,status=refresh(previous)
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(report,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf8')
