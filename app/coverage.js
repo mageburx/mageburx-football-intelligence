@@ -67,6 +67,16 @@
         number(l.sources?.unresolved_conflicts??l.sources?.conflicts??0)+
         ' conflitos por resolver · '+
         number(l.sources?.resolved_disputes||0)+' resolvidos com dupla confirmação</div>'+
+        ((lid==='pt'||lid==='nl')?
+          '<div class="dc-detail"><b>football-data.org · fonte secundária</b><span>'+
+          (l.secondary_source_audit?.status==='audited'?
+             number(l.secondary_source_audit.agreed_scores||0)+' marcadores concordantes · '+
+             number(l.secondary_source_audit.disagreements||0)+' divergências · '+
+             number(l.secondary_source_audit.local_score_missing||0)+' resultados locais por confirmar':
+           l.secondary_source_audit?.status==='not_configured'?
+             'Não configurada · exige chave gratuita de API':
+             safe(l.secondary_source_audit?.status||'Sem dados'))+
+          '</span></div>':'')+
         '<div class="dc-detail"><b>Origem das confirmações finais</b><span>'+
         (Object.keys(l.result_evidence?.confirmed_by_source||{}).length?
           Object.entries(l.result_evidence.confirmed_by_source)
@@ -89,7 +99,8 @@
         ' resultados documentados; épocas incompletas não contam como completas</span></div>'+
         '<div class="dc-detail"><b>Histórico por época</b><span>'+
         (hist.seasons||[]).map(x=>'<span class="dc-season">'+
-          safe(x.season)+' · '+(x.status==='source_complete'?'Completa':
+          safe(x.season)+' · '+(x.status==='source_complete'?'Completa na fonte'+
+            (x.license==='ODC-BY-1.0'?' (ODC-BY)':''):
             x.status==='incomplete'?number(x.completed_matches)+' / '+number(x.expected):'Sem dados')+
           '</span>').join('')+'</span></div>'+
         '<div class="dc-issues">'+(l.issues||[]).slice(0,6).map(x=>
