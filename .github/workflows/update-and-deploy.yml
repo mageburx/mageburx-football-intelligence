@@ -77,7 +77,7 @@ jobs:
       - name: Auditar histórico ODC-BY da Eliteserien 2021 e 2022
         run: |
           # Install parquet reader only if this archive genuinely needs a refresh.
-          if python -c "import json,pathlib,datetime as d,sys; p=pathlib.Path('data/schochastics_history.json'); v=json.loads(p.read_text()) if p.exists() else {}; done=all(v.get('seasons',{}).get(str(y),{}).get('complete') is True for y in (2021,2022)); t=v.get('last_attempt_at'); recent=bool(t and (d.datetime.now(d.timezone.utc)-d.datetime.fromisoformat(t.replace('Z','+00:00'))).total_seconds()<604800); sys.exit(0 if not done and not recent else 1)"; then
+          if python -c "import json,pathlib,datetime as d,sys; p=pathlib.Path('data/schochastics_history.json'); v=json.loads(p.read_text()) if p.exists() else {}; done=all(v.get('seasons',{}).get(str(y),{}).get('complete') is True for y in (2021,2022)); t=v.get('last_attempt_at'); recent=bool(t and (d.datetime.now(d.timezone.utc)-d.datetime.fromisoformat(t.replace('Z','+00:00'))).total_seconds()<604800 and "'columns'" not in str(v.get('last_error',''))); sys.exit(0 if not done and not recent else 1)"; then
             python -m pip install --quiet 'pyarrow>=18,<25'
           fi
           python scripts/collect_schochastics_no.py
