@@ -67,6 +67,33 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(dk['seasons'][3]['status'],'incomplete')
         self.assertFalse(result['production_model_changed'])
 
+    def test_odc_by_2021_2022_seasons_merge_without_overwriting_cc0(self):
+        args=inputs()
+        old={'schema':1,'leagues':{'no':{'seasons':{
+            '2023':{'events':[fixture('cc0','2023-05-03',True,True,(2,1))],
+                    'complete':True,'expected_games':1,'license':'CC0-1.0'}}}}}
+        new={'schema':1,'seasons':{
+            '2021':{'events':[fixture('odc21','2021-05-01',True,True,(2,1))],
+                    'complete':True,'expected_games':1,'license':'ODC-BY-1.0',
+                    'source_url':'https://raw.githubusercontent.com/schochastics/football-data/master/data/results/games.parquet'},
+            '2022':{'events':[fixture('odc22','2022-05-01',True,True,(1,0))],
+                    'complete':True,'expected_games':1,'license':'ODC-BY-1.0'}}}
+        result=build(*args,now=NOW,expanded_history=old,schochastics_history=new)
+        history=result['leagues']['no']['history']
+        self.assertEqual(history['complete_seasons'],3)
+        self.assertEqual(history['archived_matches'],3)
+        self.assertEqual(history['single_source_seasons'],['2021','2022'])
+        self.assertEqual(history['seasons'][2]['license'],'CC0-1.0')
+        self.assertFalse(result['production_model_changed'])
+    def test_optional_secondary_source_never_edits_original(self):
+        args=inputs()
+        second={'leagues':{'pt':{'status':'audited','agreed_scores':12,
+                                'disagreements':1,'local_score_missing':2}}}
+        report=build(*args,now=NOW,secondary_data=second)
+        self.assertEqual(report['leagues']['pt']['secondary_source_audit']['disagreements'],1)
+        self.assertEqual(report['leagues']['nl']['secondary_source_audit']['status'],'not_configured')
+        self.assertFalse(report['production_model_changed'])
+
     def test_reference_count_is_not_automatic_full_coverage(self):
         args=list(inputs())
         args[0]['leagues']['nl']['events']=[
