@@ -1,7 +1,7 @@
 {
   "schema": 4,
   "method": "Poisson independente; Dixon-Coles (rho fixo); Elo; mistura 80/20",
-  "generated_at": "2026-11-08T15:43:09+00:00",
+  "generated_at": "2026-11-08T16:45:21+00:00",
   "note": "Avaliação walk-forward na época atual; seleção exploratória, não teste independente. Sem xG, lesões ou notícias quantificados.",
   "leagues": {
     "nl": {
@@ -11445,6 +11445,40 @@
       },
       "selected": "poisson",
       "predictions": {
+        "2514025": {
+          "p1": 0.22018,
+          "px": 0.22641,
+          "p2": 0.55341,
+          "over": 0.56363,
+          "btts": 0.56535,
+          "markets": {
+            "over_0_5": 0.94084,
+            "under_0_5": 0.05916,
+            "over_1_5": 0.79836,
+            "under_1_5": 0.20164,
+            "over_2_5": 0.56363,
+            "under_2_5": 0.43637,
+            "over_3_5": 0.33972,
+            "under_3_5": 0.66028,
+            "home_over_0_5": 0.66261,
+            "home_over_1_5": 0.29604,
+            "home_over_2_5": 0.09689,
+            "away_over_0_5": 0.84358,
+            "away_over_1_5": 0.55339,
+            "away_over_2_5": 0.2842,
+            "btts_yes": 0.56535,
+            "btts_no": 0.43465,
+            "double_1x": 0.44659,
+            "double_x2": 0.77982,
+            "double_12": 0.77359
+          },
+          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
+          "lambdaH": 1.087,
+          "lambdaA": 1.855,
+          "leagueMatches": 93,
+          "model": "poisson",
+          "note": "Modelo experimental: sem validação independente fora da amostra."
+        },
         "2514027": {
           "p1": 0.41863,
           "px": 0.28159,
