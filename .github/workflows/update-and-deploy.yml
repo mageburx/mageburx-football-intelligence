@@ -74,8 +74,19 @@ jobs:
         run: python scripts/collect_openfootball_nl.py
       - name: Importar arquivo histórico CC0 da 1. Division e Eliteserien (sem mudar o modelo)
         run: python scripts/collect_expanded_historical_cc0.py
+      - name: Auditar histórico ODC-BY da Eliteserien 2021 e 2022
+        run: |
+          # Install parquet reader only if this archive genuinely needs a refresh.
+          if python -c "import json,pathlib,datetime as d,sys; p=pathlib.Path('data/schochastics_history.json'); v=json.loads(p.read_text()) if p.exists() else {}; done=all(v.get('seasons',{}).get(str(y),{}).get('complete') is True for y in (2021,2022)); t=v.get('last_attempt_at'); recent=bool(t and (d.datetime.now(d.timezone.utc)-d.datetime.fromisoformat(t.replace('Z','+00:00'))).total_seconds()<604800); sys.exit(0 if not done and not recent else 1)"; then
+            python -m pip install --quiet 'pyarrow>=18,<25'
+          fi
+          python scripts/collect_schochastics_no.py
       - name: Recuperar resultados finais confirmados pelo ID original com quota gratuita
         run: python scripts/recover_verified_results.py --max-requests 6
+      - name: Auditar fonte secundária PT e Eredivisie (API opcional)
+        env:
+          FOOTBALL_DATA_API_TOKEN: ${{ secrets.FOOTBALL_DATA_API_TOKEN }}
+        run: python scripts/collect_secondary_football_data.py
       - name: Recolher notícias e ausências documentadas
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
@@ -152,6 +163,8 @@ jobs:
           test -s data/validation_center.json
           test -s data/data_coverage.json
           test -s data/expanded_history.json
+          test -s data/schochastics_history.json
+          test -s data/secondary_football_data.json
           test -s data/xg_shadow_ledger.json
           test -s data/value_engine.json
           test -s data/feature_impact.json
@@ -185,6 +198,8 @@ jobs:
             data/validation_center.json
             data/data_coverage.json
             data/expanded_history.json
+            data/schochastics_history.json
+            data/secondary_football_data.json
             data/xg_shadow_ledger.json
             data/value_engine.json
             data/feature_impact.json
@@ -205,7 +220,7 @@ jobs:
         run: |
           mkdir -p public/data
           cp app/index.html app/style.css app/app.js app/validation.js app/coverage.js public/
-          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/advanced_signals.json data/shots_research.json data/xg_experiment.json data/nl_history.json data/expansion_reliability.json data/expansion_1x2_audit.json data/league_comparison.json data/validation_center.json data/data_coverage.json data/expanded_history.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json data/ledger_health.json data/european_coverage.json public/data/
+          cp data/season.json data/intelligence.json data/model.json data/reliability.json data/ledger.json data/history.json data/quality.json data/validation.json data/storage_status.json data/scrape_report.json data/stats_coverage.json data/advanced_signals.json data/shots_research.json data/xg_experiment.json data/nl_history.json data/expansion_reliability.json data/expansion_1x2_audit.json data/league_comparison.json data/validation_center.json data/data_coverage.json data/expanded_history.json data/schochastics_history.json data/secondary_football_data.json data/value_engine.json data/feature_impact.json data/cross_competitions.json data/schedule_context.json data/prematch_lineups.json data/multi_competition_impact.json data/ledger_health.json data/european_coverage.json public/data/
           touch public/.nojekyll
       - uses: actions/configure-pages@v5
         with:

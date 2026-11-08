@@ -37,7 +37,7 @@ def confirmed(e):
             and type(e.get('home_score')) is int and type(e.get('away_score')) is int
             and 0<=e['home_score']<100 and 0<=e['away_score']<100)
 
-def historical(lid,history,nl_history,expanded_history=None):
+def historical(lid,history,nl_history,expanded_history=None,schochastics_history=None):
     # Norwegian football uses calendar years, unlike the other four leagues.
     years=NORWEGIAN_HIST_YEARS if lid=='no' else HIST_YEARS
     if lid=='nl':
@@ -45,8 +45,17 @@ def historical(lid,history,nl_history,expanded_history=None):
         source='OpenFootball CC0'
     elif lid in ('dk2','no'):
         expanded=expanded_history if isinstance(expanded_history,dict) else {}
-        seasons=expanded.get('leagues',{}).get(lid,{}).get('seasons',{})
-        source='OpenFootball Europe football.txt CC0-1.0 (histórico isolado)'
+        seasons=dict(expanded.get('leagues',{}).get(lid,{}).get('seasons',{}))
+        source='OpenFootball Europe CC0 + Schochastics ODC-BY (arquivos isolados)' if lid=='no' else 'OpenFootball Europe football.txt CC0-1.0 (histórico isolado)'
+        if lid=='no':
+            odc=schochastics_history if isinstance(schochastics_history,dict) else {}
+            for year in ('2021','2022'):
+                candidate=odc.get('seasons',{}).get(year)
+                # Never replace a prior CC0 season or accept an unconfirmed
+                # source row with a non-attributable provenance.
+                if (year not in seasons and isinstance(candidate,dict) and
+                    candidate.get('license')=='ODC-BY-1.0'):
+                    seasons[year]=candidate
     else:
         seasons=history.get('leagues',{}).get(lid,{}).get('seasons',{})
         source='Histórico verificado no projeto'
@@ -62,7 +71,7 @@ def historical(lid,history,nl_history,expanded_history=None):
         expected=record.get('expected_games')
         good=(type(expected) is int and expected>0 and n==expected and
               record.get('complete') is True and
-              (lid not in ('dk2','no') or record.get('license')=='CC0-1.0'))
+              (lid not in ('dk2','no') or record.get('license') in ('CC0-1.0','ODC-BY-1.0')))
         status=('source_complete' if good else
                 'unavailable' if record.get('status')=='unavailable' else 'incomplete')
         rows.append({'season':year,'status':status,'completed_matches':n,
@@ -71,6 +80,9 @@ def historical(lid,history,nl_history,expanded_history=None):
                      'fetched_at':record.get('fetched_at')})
     return {'source':source,'complete_seasons':sum(x['status']=='source_complete' for x in rows),
             'required_seasons':len(years),'season_format':'calendar' if lid=='no' else 'split',
+            'single_source_seasons':[x['season'] for x in rows
+                                      if x['status']=='source_complete' and
+                                      x.get('license')=='ODC-BY-1.0'],
             'archived_matches':sum(x['completed_matches'] or 0 for x in rows),
             'seasons':rows}
 
@@ -89,7 +101,7 @@ def sample_stats(lid,meta,shots):
             'not_certified':'Samples do not establish full-season coverage or legal reuse rights.'}
     return result
 
-def build(season,history,nl_history,stats,shots,now=None,expanded_history=None):
+def build(season,history,nl_history,stats,shots,now=None,expanded_history=None,schochastics_history=None,secondary_data=None):
     now=now or dt.datetime.now(dt.timezone.utc)
     if now.tzinfo is None:raise ValueError('UTC-aware timestamp required')
     if season.get('schema')!=1 or 'leagues' not in season:raise ValueError('Invalid season snapshot')
@@ -136,7 +148,7 @@ def build(season,history,nl_history,stats,shots,now=None,expanded_history=None):
             round_mode='source_checked_subset'
             verified_rounds=len(checked)
             unverified_rounds=[r for r in range(1,rounds+1) if r not in checked]
-        history_report=historical(lid,history,nl_history,expanded_history)
+        history_report=historical(lid,history,nl_history,expanded_history,schochastics_history)
         observed=len(known)
         source_flags={}
         if lid=='nl':
@@ -212,6 +224,8 @@ def build(season,history,nl_history,stats,shots,now=None,expanded_history=None):
                       'verified':verified_rounds,'unverified':unverified_rounds,
                       'unverified_count':len(unverified_rounds) if unverified_rounds is not None else None},
             'history':history_report,'stats':stats_report,
+            'secondary_source_audit':(secondary_data or {}).get('leagues',{}).get(lid,{'status':'not_configured'})
+                if lid in ('pt','nl') else {'status':'not_available_for_league'},
             'result_evidence':{
                 'confirmed_total':confirmed_count,
                 'confirmed_by_source':dict(source_counts),
@@ -245,13 +259,17 @@ def main():
     p.add_argument('--history',type=Path,default=ROOT/'data'/'history.json')
     p.add_argument('--nl-history',type=Path,default=ROOT/'data'/'nl_history.json')
     p.add_argument('--expanded-history',type=Path,default=ROOT/'data'/'expanded_history.json')
+    p.add_argument('--schochastics-history',type=Path,default=ROOT/'data'/'schochastics_history.json')
+    p.add_argument('--secondary-data',type=Path,default=ROOT/'data'/'secondary_football_data.json')
     p.add_argument('--stats',type=Path,default=ROOT/'data'/'stats_coverage.json')
     p.add_argument('--shots',type=Path,default=ROOT/'data'/'shots_research.json')
     p.add_argument('--output',type=Path,default=ROOT/'data'/'data_coverage.json')
     args=p.parse_args()
     read=lambda x:json.loads(x.read_text(encoding='utf-8')) if x.is_file() else {}
     result=build(read(args.season),read(args.history),read(args.nl_history),
-                 read(args.stats),read(args.shots),expanded_history=read(args.expanded_history))
+                 read(args.stats),read(args.shots),expanded_history=read(args.expanded_history),
+                 schochastics_history=read(args.schochastics_history),
+                 secondary_data=read(args.secondary_data))
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8')
     print('Data Coverage Engine',json.dumps({
