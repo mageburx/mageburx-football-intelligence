@@ -4,7 +4,7 @@ import unittest
 import sys
 import types
 from unittest.mock import patch
-from scripts.collect_schochastics_no import build as norway_build,refresh as norway_refresh,prepare_rows
+from scripts.collect_schochastics_no import build as norway_build,refresh as norway_refresh,prepare_rows,needs_refresh
 from scripts.collect_secondary_football_data import compare,collect,normalized
 
 NOW=dt.datetime(2026,11,8,8,0,tzinfo=dt.timezone.utc)
@@ -65,6 +65,20 @@ class SchochasticsTests(unittest.TestCase):
         out=norway_build(rows,NOW)
         self.assertFalse(out['seasons']['2021']['complete'])
         self.assertEqual(out['seasons']['2021']['duplicate_pairs'],1)
+    def test_dependency_preflight_retries_only_known_parser_errors(self):
+        recent={'schema':1,'last_attempt_at':NOW.isoformat(),
+                'last_error':'RuntimeError: pyarrow unavailable: cannot parse parquet',
+                'seasons':{}}
+        self.assertTrue(needs_refresh(recent,NOW))
+        recent['last_error']="ValueError: Expected a list for 'columns'"
+        self.assertTrue(needs_refresh(recent,NOW))
+        recent['last_error']='OSError: network timeout'
+        self.assertFalse(needs_refresh(recent,NOW))
+        self.assertTrue(needs_refresh(recent,NOW+dt.timedelta(days=8)))
+        complete={'schema':1,'seasons':{'2021':{'complete':True},'2022':{'complete':True}},
+                  'last_error':'pyarrow unavailable'}
+        self.assertFalse(needs_refresh(complete,NOW))
+
     def test_cached_archive_performs_no_more_downloads(self):
         cache={'schema':1,'seasons':{str(y):{'complete':True} for y in (2021,2022)}}
         def fail():raise AssertionError('Must not fetch')
