@@ -1,7 +1,7 @@
 {
   "schema": 4,
   "method": "Poisson independente; Dixon-Coles (rho fixo); Elo; mistura 80/20",
-  "generated_at": "2026-11-08T19:50:19+00:00",
+  "generated_at": "2026-11-08T20:43:58+00:00",
   "note": "Avaliação walk-forward na época atual; seleção exploratória, não teste independente. Sem xG, lesões ou notícias quantificados.",
   "leagues": {
     "nl": {
@@ -11462,19 +11462,19 @@
       "played": 93,
       "evaluations": {
         "poisson": {
-          "n": 63,
-          "brier": 0.5974,
-          "log_loss": 0.9957
+          "n": 64,
+          "brier": 0.5961,
+          "log_loss": 0.9939
         },
         "dc": {
-          "n": 63,
-          "brier": 0.6003,
-          "log_loss": 1.0016
+          "n": 64,
+          "brier": 0.5992,
+          "log_loss": 1.0
         },
         "blend": {
-          "n": 63,
-          "brier": 0.5964,
-          "log_loss": 0.9955
+          "n": 64,
+          "brier": 0.595,
+          "log_loss": 0.9935
         }
       },
       "selected": "poisson",
@@ -11509,40 +11509,6 @@
           "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
           "lambdaH": 1.421,
           "lambdaA": 1.292,
-          "leagueMatches": 93,
-          "model": "poisson",
-          "note": "Modelo experimental: sem validação independente fora da amostra."
-        },
-        "2514024": {
-          "p1": 0.2979,
-          "px": 0.28724,
-          "p2": 0.41487,
-          "over": 0.38233,
-          "btts": 0.45266,
-          "markets": {
-            "over_0_5": 0.88332,
-            "under_0_5": 0.11668,
-            "over_1_5": 0.65793,
-            "under_1_5": 0.34207,
-            "over_2_5": 0.38233,
-            "under_2_5": 0.61767,
-            "over_3_5": 0.18436,
-            "under_3_5": 0.81564,
-            "home_over_0_5": 0.62936,
-            "home_over_1_5": 0.26149,
-            "home_over_2_5": 0.07893,
-            "away_over_0_5": 0.70662,
-            "away_over_1_5": 0.34686,
-            "away_over_2_5": 0.12627,
-            "btts_yes": 0.45266,
-            "btts_no": 0.54734,
-            "double_1x": 0.58513,
-            "double_x2": 0.7021,
-            "double_12": 0.71276
-          },
-          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
-          "lambdaH": 0.993,
-          "lambdaA": 1.226,
           "leagueMatches": 93,
           "model": "poisson",
           "note": "Modelo experimental: sem validação independente fora da amostra."
