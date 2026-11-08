@@ -1,8 +1,10 @@
 """Regression: licensed archive audit and read-only authenticated source checks."""
 import datetime as dt
 import unittest
+import sys
+import types
 from unittest.mock import patch
-from scripts.collect_schochastics_no import build as norway_build,refresh as norway_refresh
+from scripts.collect_schochastics_no import build as norway_build,refresh as norway_refresh,prepare_rows
 from scripts.collect_secondary_football_data import compare,collect,normalized
 
 NOW=dt.datetime(2026,11,8,8,0,tzinfo=dt.timezone.utc)
@@ -13,6 +15,26 @@ def norway_row(year,home,away,goals=(1,0),ft='F',competition='Norway'):
             'full_time':ft,'competition':competition,'level':'national'}
 
 class SchochasticsTests(unittest.TestCase):
+    def test_parquet_projection_uses_supported_list_not_tuple(self):
+        parent=types.ModuleType('pyarrow')
+        parent.__path__=[]
+        reader=types.ModuleType('pyarrow.parquet')
+        class Table:
+            num_rows=100001
+            def select(self,cols):
+                self._cols=cols
+                return self
+            def to_pylist(self):
+                return [{'columns_valid':isinstance(self._cols,list)}]
+        def read_table(data,columns):
+            self.assertIsInstance(columns,list)
+            return Table()
+        reader.read_table=read_table
+        parent.parquet=reader
+        with patch.dict(sys.modules,{'pyarrow':parent,'pyarrow.parquet':reader}):
+            rows=prepare_rows(b'synthetic-parquet')
+        self.assertTrue(rows[0]['columns_valid'])
+
     def test_no_wrong_competition_and_non_ninety_minute_scores(self):
         data=[norway_row(2021,'Molde','Brann'),
               norway_row(2021,'Odd','Viking',ft='P'),

@@ -37,7 +37,7 @@ def prepare_rows(raw):
         import pyarrow.parquet as pq
     except ImportError as exc:
         raise RuntimeError('pyarrow unavailable: cannot parse parquet; do not invent results') from exc
-    cols=('home','away','date','gh','ga','full_time','competition','level')
+    cols=['home','away','date','gh','ga','full_time','competition','level']
     table=pq.read_table(io.BytesIO(raw),columns=cols)
     if table.num_rows<100_000:raise ValueError('Unexpectedly small football dataset')
     # Only project the needed columns, never persist or republish the full dataset.
@@ -108,7 +108,8 @@ def refresh(existing=None,fetcher=read_parquet_bytes,now=None):
     if last:
         try:
             when=dt.datetime.fromisoformat(last.replace('Z','+00:00'))
-            if when.tzinfo and (now-when).total_seconds()<7*24*3600:
+            if (when.tzinfo and (now-when).total_seconds()<7*24*3600 and
+                "'columns'" not in str(existing.get('last_error',''))):
                 return existing,{'status':'cached_attempt','requests':0}
         except (ValueError,TypeError):pass
     try:
