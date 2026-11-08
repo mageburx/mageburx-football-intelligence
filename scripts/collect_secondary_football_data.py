@@ -30,7 +30,7 @@ def normalized(name):
     value=''.join(x for x in value if not unicodedata.combining(x))
     value=re.sub(r'[^a-z0-9]+',' ',value.casefold()).strip()
     parts=[x for x in value.split() if x not in
-           ('fc','sc','cf','afc','sl','sv','futebol','clube','club','de','da','do')]
+           ('fc','sc','cf','afc','sl','sv','f','c','futebol','clube','club','de','da','do')]
     return ' '.join(parts)
 
 def download(code,token,season=SEASON):
