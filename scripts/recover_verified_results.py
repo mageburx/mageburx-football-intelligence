@@ -25,7 +25,7 @@ ROOT=Path(__file__).resolve().parents[1]
 FILE=ROOT/'data'/'season.json'
 API='https://www.thesportsdb.com/api/v1/json/123/lookupevent.php'
 AGENT='MageburxFootballResearch/7.0 (small bounded result verification)'
-QUOTAS={'no':3,'nl':2,'dk2':1}
+QUOTAS={'pt':1,'dk':1,'no':2,'nl':1,'dk2':1}
 COOLDOWN_HOURS=22
 
 def fetch_event(event_id):
@@ -48,6 +48,9 @@ def eligible(e,now):
     eid=str(e.get('id') or '')
     if not (eid.isdigit() and 5<=len(eid)<=10):return False
     if not e.get('date') or e['date']>=now.date().isoformat():return False
+    if str(e.get('match_status') or '').upper() in (
+        'PST','POSTPONED','CANC','CANCELLED','ABD','ABANDONED'):
+        return False
     dispute=e.get('result_dispute') or {}
     eligible_dispute=(e.get('score_conflict') is True and
         dispute.get('status')=='pending_independent_confirmation' and
@@ -116,7 +119,7 @@ def verify_one(event,lid,raw,now):
                   'result_verified_at':now.replace(microsecond=0).isoformat()})
     return 'verified'
 
-def recover(season,fetcher=fetch_event,now=None,quotas=QUOTAS):
+def recover(season,fetcher=fetch_event,now=None,quotas=QUOTAS,priority_keys=None):
     now=now or dt.datetime.now(dt.timezone.utc)
     if now.tzinfo is None:raise ValueError('Timezone-aware timestamp required')
     now=now.astimezone(dt.timezone.utc)
@@ -127,11 +130,22 @@ def recover(season,fetcher=fetch_event,now=None,quotas=QUOTAS):
             'max_requests':sum(quotas.values()),'requests':0,'verified':0,
             'resolved_disputes':0,'conflicts':0,'rate_limited':False,'leagues':{}}
     stop=False
+    priority_keys=set(priority_keys or ())
+    def rank(e,lid):
+        key=f'{lid}:{season.get("season","unknown")}:{e["id"]}'
+        # Official disputes first, then signed unsettled forecasts.
+        # Remaining original IDs are rotated: previously unchecked first.
+        return (not bool(e.get('score_conflict')),
+                key not in priority_keys,
+                bool(e.get('verification_checked_at')),
+                not bool(e.get('finished')),
+                -int(str(e.get('date') or '0000-00-00').replace('-','') or 0),
+                str(e.get('id')))
     for lid,quota in quotas.items():
         league=season['leagues'][lid]
         candidates=sorted((e for e in league.get('events',[])
             if isinstance(e,dict) and eligible(e,now)),
-            key=lambda x:(not bool(x.get('score_conflict')),x.get('date',''),str(x.get('id'))))
+            key=lambda x:rank(x,lid))
         result={'candidates':len(candidates),'checked':0,'verified':0,
                 'resolved_disputes':0,'no_final':0,'conflicts':0,'source_errors':0,
                 'not_found':0,'identity_errors':0,'unverified_research_results':0}
@@ -180,6 +194,8 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument('--season',type=Path,default=FILE)
     p.add_argument('--max-requests',type=int,default=6)
+    p.add_argument('--signed-ledger',type=Path,
+                   default=ROOT/'data'/'expansion_1x2_ledger.json')
     args=p.parse_args()
     doc=json.loads(args.season.read_text(encoding='utf8'))
     quotas={lid:val for lid,val in QUOTAS.items()}
@@ -187,7 +203,13 @@ def main():
         remaining=max(0,args.max_requests)
         quotas={lid:min(limit,max(0,remaining-sum(quotas[x] for x in list(quotas)[:i])))
                 for i,(lid,limit) in enumerate(QUOTAS.items())}
-    result=recover(doc,quotas=quotas)
+    keys=set()
+    if args.signed_ledger.exists():
+        signed=json.loads(args.signed_ledger.read_text(encoding='utf8'))
+        settled={x.get('key') for x in signed.get('settlements',[])}
+        keys={str(x['key']) for x in signed.get('predictions',[])
+              if x.get('key') and x['key'] not in settled}
+    result=recover(doc,quotas=quotas,priority_keys=keys)
     args.season.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf8')
     print('Result verification',json.dumps(result,ensure_ascii=False),flush=True)
 
