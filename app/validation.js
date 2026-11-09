@@ -23,6 +23,47 @@
   const day=v=>{let n=new Date(String(v||'')+'T12:00:00Z');return Number.isFinite(n.valueOf())?
     n.toLocaleDateString('pt-PT',{day:'2-digit',month:'short'}):'—';};
   const score=v=>Number.isFinite(v)?v.toLocaleString('pt-PT',{maximumFractionDigits:4}):'—';
+  const weekendStates={validated:'Validado',confirmed_pending:'Final confirmado · por liquidar',
+    unverified:'Sem resultado confirmado',postponed:'Adiado/cancelado',
+    rescheduled:'Data alterada · excluído',superseded:'ID substituído',review:'Rever dados'};
+  function weekendMarkup(weekend,ids){
+    if(!weekend?.records||weekend.schema!==1)return '';
+    const rows=weekend.records.filter(x=>ids.includes(x.league));
+    const settled=rows.filter(x=>x.state==='validated');
+    const accuracy=settled.length?settled.filter(x=>x.correct===true).length+' / '+settled.length:'—';
+    const avg=settled.length?settled.reduce((v,x)=>v+Number(x.brier),0)/settled.length:null;
+    const count=key=>rows.filter(x=>x.state===key).length;
+    const top=[
+      ['Previsões do fim de semana',rows.length,'7 e 8 de novembro, conforme arquivo'],
+      ['Acertos 1X2 verificados',accuracy,'Não inclui jogos sem final confirmado'],
+      ['Brier validado',avg==null?'—':score(avg),'Comparação: uniformemente 0,6667'],
+      ['Dados pendentes',count('unverified')+count('confirmed_pending')+
+        count('rescheduled')+count('postponed')+count('review'),
+        'Não usados para calcular precisão']
+    ];
+    const table=rows.map(x=>'<tr><td><strong>'+safe(x.home+' – '+x.away)+
+      '</strong><small>'+safe(leagues[x.league]?.[0]+' '+leagues[x.league]?.[1])+'</small></td>'+
+      '<td>'+safe(day(x.date))+'</td><td><span class="vc-chip vc-'+
+      safe(x.state)+'">'+safe(weekendStates[x.state]||x.state)+'</span></td>'+
+      '<td>'+safe(x.tip||'—')+'</td><td>'+(x.score?
+      safe(x.score[0]+'–'+x.score[1]):'—')+'</td><td>'+
+      (x.correct===true?'✓':x.correct===false?'✕':'—')+'</td></tr>').join('');
+    return '<section class="panel vc-weekend"><div class="panel-header"><div>'+
+      '<h2>Auditoria do último fim de semana</h2><p>'+
+      safe(day(weekend.start_date)+' – '+day(weekend.end_date))+
+      ' · previsões registadas antes dos jogos, sem reconstrução retroativa</p></div></div>'+
+      '<div class="vc-weekend-stats">'+top.map(([k,v,note])=>
+        '<div><small>'+safe(k)+'</small><strong>'+safe(v)+
+        '</strong><span>'+safe(note)+'</span></div>').join('')+'</div>'+
+      '<p class="vc-note">Amostra reduzida: nenhum ranking ou vantagem estatística comprovada. '+
+      'Apenas previsões assinadas e resultados finais validados entram nas métricas. '+
+      'Brier mais baixo é melhor; referência uniforme (1/X/2 = 33,3%): 0,6667.</p>'+
+      '<div class="table-scroll"><table class="vc-table"><thead><tr><th>Jogo</th>'+
+      '<th>Data</th><th>Verificação</th><th>Tip</th><th>Final</th><th>Acerto</th>'+
+      '</tr></thead><tbody>'+
+      (table||'<tr><td colspan="6">Sem previsões assinadas nesta seleção.</td></tr>')+
+      '</tbody></table></div></section>';
+  }
   function render(data,selected='all'){
     if(data?.schema!==1||!Array.isArray(data.records))
       return '<section class="panel"><div class="empty"><b>Relatório ainda não disponível</b>Aguardamos a publicação de validation_center.json. Não mostramos números fictícios.</div></section>';
@@ -65,6 +106,7 @@
       '<span class="muted">Atualizado: '+safe(dt(data.generated_at))+'</span></div>'+
       '<div class="vc-counters">'+cards.map(([k,v,label])=>'<div class="vc-counter"><span>'+
         safe(k)+'</span><strong>'+v+'</strong><small>'+safe(label)+'</small></div>').join('')+'</div>'+
+      weekendMarkup(data.weekend_audit,ids)+
       '<div class="vc-grid"><section class="panel"><div class="panel-header"><div><h2>Ciclo de validação</h2>'+
       '<p>Estados mutuamente exclusivos</p></div></div><div class="vc-status-list">'+statusMarkup+
       '</div></section><section class="panel"><div class="panel-header"><div><h2>Precisão real</h2>'+
