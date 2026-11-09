@@ -147,6 +147,13 @@ def build(ledger,season,audit,health=None,now=None):
     general={'active_settlements':int(h.get('states',{}).get('settled',0)),
              'integrity_alerts':int(h.get('issue_count',0)),
              'quarantined':0}  # general ledger read separately in main()
+    # Lazy import keeps the weekend scorecard read-only and reuses the
+    # authoritative original-signature validator defined above.
+    try:
+        from scripts.audit_weekend_1x2 import build as build_weekend
+    except ModuleNotFoundError:
+        from audit_weekend_1x2 import build as build_weekend
+    weekend=build_weekend(ledger,season,now=now)
     return {'schema':1,'generated_at':now.replace(microsecond=0).isoformat(),
             'source_generated_at':season.get('updated_at'),
             'method':'Only original signed prospective 1X2 predictions and the same provider fixture ID',
@@ -154,6 +161,7 @@ def build(ledger,season,audit,health=None,now=None):
             'total':len(records),'active_ids':len(records)-counts['superseded'],
             'counts':{k:counts[k] for k in STATES},
             'leagues':per_league,'general_ledger':general,
+            'weekend_audit':weekend,
             'brier':{lid:{'n':int(audit.get('leagues',{}).get(lid,{}).get('settled_valid',0)),
                 'brier':audit.get('leagues',{}).get(lid,{}).get('brier'),
                 'log_loss':audit.get('leagues',{}).get(lid,{}).get('log_loss')}

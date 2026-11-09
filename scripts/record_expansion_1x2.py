@@ -39,6 +39,37 @@ def forecast(p):
     return [round(x/z,7) for x in values]
 
 
+def safe_to_settle(p,event,now):
+    """Only settle the unmodified, truly prematch signed fixture, even on FT day."""
+    if not isinstance(p,dict) or not verified_event(event):
+        return False
+    if event.get('score_conflict') is True:
+        return False
+    if (str(p.get('match_id'))!=str(event.get('id')) or
+        p.get('date')!=event.get('date') or
+        p.get('home')!=event.get('home') or p.get('away')!=event.get('away')):
+        return False
+    issued=parse_datetime(p.get('issued_at'))
+    generated=parse_datetime(p.get('model_generated_at'))
+    if not issued or not generated or generated>issued or issued>now or generated>now:
+        return False
+    try:
+        match_date=dt.date.fromisoformat(str(p.get('date')))
+    except (ValueError,TypeError):
+        return False
+    if issued.date()>=match_date or now.date()<match_date:
+        return False
+    values=p.get('probabilities_1x2')
+    if (not isinstance(values,list) or len(values)!=3 or
+        any(type(v) not in (int,float) or not math.isfinite(v) or v<0 or v>1
+            for v in values) or abs(sum(values)-1)>0.0001):
+        return False
+    signature=hashlib.sha256(json.dumps(
+        {k:v for k,v in p.items() if k!='sha256'},
+        sort_keys=True,ensure_ascii=False).encode('utf8')).hexdigest()
+    return p.get('sha256')==signature
+
+
 def expected_key(lid,season,e):
     return f'{lid}:{season}:{e["id"]}'
 
@@ -52,7 +83,8 @@ def run(season,model,existing=None,now=None):
         'schema':1,'method':'Frozen 1X2 pre-match forecasts','predictions':[],
         'settlements':[]}
     if db.get('schema')!=1:raise ValueError('Unknown ledger schema')
-    saved={x['key'] for x in db['predictions']}
+    original_by_key={x['key']:x for x in db['predictions']}
+    saved=set(original_by_key)
     season_id=season.get('season','unknown')
     # In the Dutch 18-club home/away schedule each oriented pairing is one
     # fixture. A provisional-date CC0 ID must never generate a second signed
@@ -73,7 +105,8 @@ def run(season,model,existing=None,now=None):
             key=expected_key(lid,season.get('season','unknown'),event)
             finished=verified_event(event)
             if key in saved:
-                if (key not in settled and finished and event['date']<today):
+                if (key not in settled and finished and
+                    safe_to_settle(original_by_key[key],event,now)):
                     db['settlements'].append({
                         'key':key,'date':event['date'],
                         'home_score':event['home_score'],'away_score':event['away_score'],

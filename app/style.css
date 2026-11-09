@@ -457,3 +457,17 @@
 @media(max-width:1150px){.dc-leagues{grid-template-columns:1fr}}
 @media(max-width:750px){.dc-counters{grid-template-columns:repeat(2,minmax(0,1fr))}.dc-league-card{padding:15px}.dc-metrics b{font-size:16px}}
 @media(max-width:390px){.dc-metrics{grid-template-columns:1fr}.dc-counter{padding:12px}.dc-counter strong{font-size:24px}}
+
+
+/* Transparent signed-forecast weekend review; no simulated results. */
+.vc-weekend{margin-bottom:16px}
+.vc-weekend-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:0 20px 16px}
+.vc-weekend-stats>div{display:flex;flex-direction:column;gap:7px;padding:13px;background:#173144;border:1px solid #2a4455;border-radius:10px}
+.vc-weekend-stats small{color:#a0bfcb;font-size:10px}
+.vc-weekend-stats strong{font-size:22px;line-height:1.15;color:#d6f5e7;font-variant-numeric:tabular-nums}
+.vc-weekend-stats span{font-size:9px;line-height:1.5;color:#839eaf}
+.vc-confirmed_pending{color:#cee5a4;background:#304533}
+.vc-unverified{color:#efdaa3;background:#4c3c2c}
+.vc-postponed,.vc-rescheduled,.vc-review{color:#ffc9b0;background:#553a35}
+@media(max-width:850px){.vc-weekend-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:450px){.vc-weekend-stats{padding:0 12px 12px}.vc-weekend-stats strong{font-size:19px}}
