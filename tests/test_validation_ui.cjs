@@ -43,3 +43,21 @@ test('all-league audit includes superseded IDs without counting as scored',()=>{
 test('report failure does not fabricate data',()=>{
  assert.ok(panel.render(null,'all').includes('Relatório ainda não disponível'));
 });
+
+test('weekend audit displays verified scorecards without inventing missing outcomes',()=>{
+ const report={...data,weekend_audit:{schema:1,start_date:'2026-11-07',
+ end_date:'2026-11-08',records:[
+   {league:'pt',date:'2026-11-08',home:'Home',away:'Away',state:'validated',
+    tip:'1',score:[2,0],correct:true,brier:.245},
+   {league:'nl',date:'2026-11-08',home:'Ajax',away:'PSV',state:'unverified',
+    tip:'2',score:null,correct:null,brier:null}]}};
+ const html=panel.render(report,'all');
+ assert.ok(html.includes('Auditoria do último fim de semana'));
+ assert.ok(html.includes('0,245'));
+ assert.ok(html.includes('0,6667'));
+ assert.ok(html.includes('Sem resultado confirmado'));
+ assert.ok(html.includes('Acertos 1X2 verificados'));
+ const ptHtml=panel.render(report,'pt');
+ assert.ok(ptHtml.includes('Home – Away'));
+ assert.ok(!ptHtml.includes('Ajax – PSV'));
+});
