@@ -148,6 +148,27 @@ class TwoSourceDanishTests(unittest.TestCase):
         self.assertEqual(report['verified'],1)
         self.assertFalse(old['result_verified'])
 
+class PrioritizedWeekendChecksTests(unittest.TestCase):
+    def test_signed_original_id_checked_first_without_cross_id_transfer(self):
+        old=event('2513940','2026-08-07','Estoril','Famalicao',(2,1),True)
+        recent=event('2514026','2026-11-08','Rio Ave','Braga',None,False)
+        later=event('2514029','2026-11-08','Estoril','Maritimo',None,False)
+        later['match_status']='PST'
+        doc={'schema':1,'season':'2026-2027','leagues':{
+            'pt':{'events':[old,recent,later]}}}
+        called=[]
+        def fetcher(id):
+            called.append(id)
+            return []
+        out=recover(doc,fetcher,
+                    dt.datetime(2026,11,9,1,tzinfo=dt.timezone.utc),
+                    {'pt':1},priority_keys={'pt:2026-2027:2514026'})
+        self.assertEqual(called,['2514026'])
+        self.assertEqual(out['requests'],1)
+        self.assertFalse(recent['result_verified'])
+        self.assertFalse(later.get('result_verified'))
+        self.assertEqual(out['leagues']['pt']['not_found'],1)
+
 class CC0EvidenceTests(unittest.TestCase):
     def test_only_explicit_ft_is_valid_evidence(self):
         raw={'name':'Netherlands Eredivisie 2026/27',
