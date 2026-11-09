@@ -34,7 +34,7 @@
     const avg=settled.length?settled.reduce((v,x)=>v+Number(x.brier),0)/settled.length:null;
     const count=key=>rows.filter(x=>x.state===key).length;
     const top=[
-      ['Previsões do fim de semana',rows.length,'7 e 8 de novembro, conforme arquivo'],
+      ['Previsões do fim de semana',rows.length,'Previsões assinadas no período'],
       ['Acertos 1X2 verificados',accuracy,'Não inclui jogos sem final confirmado'],
       ['Brier validado',avg==null?'—':score(avg),'Comparação: uniformemente 0,6667'],
       ['Dados pendentes',count('unverified')+count('confirmed_pending')+
