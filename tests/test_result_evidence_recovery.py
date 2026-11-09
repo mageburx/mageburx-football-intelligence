@@ -151,8 +151,8 @@ class TwoSourceDanishTests(unittest.TestCase):
 class PrioritizedWeekendChecksTests(unittest.TestCase):
     def test_signed_original_id_checked_first_without_cross_id_transfer(self):
         old=event('2513940','2026-08-07','Estoril','Famalicao',(2,1),True)
-        recent=event('2514026','2026-11-08','Rio Ave','Braga',None,False)
-        later=event('2514029','2026-11-08','Estoril','Maritimo',None,False)
+        recent=event('2514026','2026-11-08','Rio Ave','Braga',(None,None),False)
+        later=event('2514029','2026-11-08','Estoril','Maritimo',(None,None),False)
         later['match_status']='PST'
         doc={'schema':1,'season':'2026-2027','leagues':{
             'pt':{'events':[old,recent,later]}}}
