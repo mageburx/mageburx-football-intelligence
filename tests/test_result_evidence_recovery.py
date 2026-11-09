@@ -169,6 +169,40 @@ class PrioritizedWeekendChecksTests(unittest.TestCase):
         self.assertFalse(later.get('result_verified'))
         self.assertEqual(out['leagues']['pt']['not_found'],1)
 
+class PrimaryLeagueEvidenceTests(unittest.TestCase):
+    def test_portugal_exact_id_source_ft(self):
+        match=event('2514026','2026-11-08','Rio Ave','Braga',(0,1),True)
+        raw=api('2514026',4344,'2026-2027','2026-11-08',
+                'Rio Ave','Braga',(0,1),'FT')
+        result=verify_one(match,'pt',raw,
+              dt.datetime(2026,11,9,0,35,tzinfo=dt.timezone.utc))
+        self.assertEqual(result,'verified')
+        self.assertTrue(verified_event(match))
+        self.assertEqual(match['id'],'2514026')
+    def test_danish_superliga_exact_id_source_ft(self):
+        match=event('2481871','2026-11-08','FC Copenhagen','Brøndby',(1,0),True)
+        raw=api('2481871',4340,'2026-2027','2026-11-08',
+                'FC Copenhagen','Brøndby',(1,0),'FT')
+        result=verify_one(match,'dk',raw,
+              dt.datetime(2026,11,9,0,35,tzinfo=dt.timezone.utc))
+        self.assertEqual(result,'verified')
+        self.assertTrue(verified_event(match))
+        self.assertEqual(match['id'],'2481871')
+    def test_wrong_league_or_pre_final_status_never_verified(self):
+        match=event('2514026','2026-11-08','Rio Ave','Braga',(0,1),True)
+        wrong=api('2514026',9999,'2026-2027','2026-11-08',
+                  'Rio Ave','Braga',(0,1),'FT')
+        self.assertEqual(verify_one(match,'pt',wrong,
+              dt.datetime(2026,11,9,0,35,tzinfo=dt.timezone.utc)),
+                         'invalid_source_fixture')
+        self.assertFalse(match['result_verified'])
+        half=api('2514026',4344,'2026-2027','2026-11-08',
+                  'Rio Ave','Braga',(0,1),'HT')
+        self.assertEqual(verify_one(match,'pt',half,
+              dt.datetime(2026,11,9,0,35,tzinfo=dt.timezone.utc)),
+                         'no_explicit_full_time')
+
+
 class CC0EvidenceTests(unittest.TestCase):
     def test_only_explicit_ft_is_valid_evidence(self):
         raw={'name':'Netherlands Eredivisie 2026/27',

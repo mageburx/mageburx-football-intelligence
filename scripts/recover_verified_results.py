@@ -15,10 +15,12 @@ import urllib.request
 from pathlib import Path
 
 try:
-    from scripts.collect_expanded_leagues import LEAGUES,parse_event,RateLimit
+    from scripts.collect_expanded_leagues import parse_event as parse_expanded_event,RateLimit
+    from scripts.update_data import parse_event as parse_primary_event
     from scripts.build_data_coverage import normalize
 except ModuleNotFoundError:
-    from collect_expanded_leagues import LEAGUES,parse_event,RateLimit
+    from collect_expanded_leagues import parse_event as parse_expanded_event,RateLimit
+    from update_data import parse_event as parse_primary_event
     from build_data_coverage import normalize
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -69,7 +71,10 @@ def verify_one(event,lid,raw,now):
     """Returns a reason and mutates only this same original-ID event."""
     if not isinstance(raw,dict) or str(raw.get('idEvent'))!=str(event.get('id')):
         return 'missing_exact_id'
-    parsed=parse_event(raw,lid,now.date())
+    # Portugal and Superliga use the primary collector's league-ID parser.
+    # The expanded parser only supports NL, DK2 and NO.
+    parsed=(parse_primary_event(raw,lid) if lid in ('pt','dk') else
+            parse_expanded_event(raw,lid,now.date()))
     if parsed is None:return 'invalid_source_fixture'
     if (parsed.get('id')!=str(event['id']) or
         parsed.get('date')!=event.get('date') or
