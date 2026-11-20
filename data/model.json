@@ -1,7 +1,7 @@
 {
   "schema": 4,
   "method": "Poisson independente; Dixon-Coles (rho fixo); Elo; mistura 80/20",
-  "generated_at": "2026-11-20T11:29:34+00:00",
+  "generated_at": "2026-11-20T20:08:58+00:00",
   "note": "Avaliação walk-forward na época atual; seleção exploratória, não teste independente. Sem xG, lesões ou notícias quantificados.",
   "leagues": {
     "nl": {
@@ -16464,57 +16464,23 @@
       "played": 84,
       "evaluations": {
         "poisson": {
-          "n": 51,
-          "brier": 0.6596,
-          "log_loss": 1.0883
+          "n": 52,
+          "brier": 0.652,
+          "log_loss": 1.0778
         },
         "dc": {
-          "n": 51,
-          "brier": 0.6584,
-          "log_loss": 1.0866
+          "n": 52,
+          "brier": 0.6509,
+          "log_loss": 1.0764
         },
         "blend": {
-          "n": 51,
-          "brier": 0.6523,
-          "log_loss": 1.0769
+          "n": 52,
+          "brier": 0.6454,
+          "log_loss": 1.0675
         }
       },
       "selected": "blend",
       "predictions": {
-        "2481879": {
-          "p1": 0.55561,
-          "px": 0.22575,
-          "p2": 0.21864,
-          "over": 0.62772,
-          "btts": 0.60756,
-          "markets": {
-            "over_0_5": 0.95502,
-            "under_0_5": 0.04498,
-            "over_1_5": 0.83923,
-            "under_1_5": 0.16077,
-            "over_2_5": 0.62772,
-            "under_2_5": 0.37228,
-            "over_3_5": 0.40566,
-            "under_3_5": 0.59434,
-            "home_over_0_5": 0.87373,
-            "home_over_1_5": 0.61244,
-            "home_over_2_5": 0.34208,
-            "away_over_0_5": 0.68885,
-            "away_over_1_5": 0.32558,
-            "away_over_2_5": 0.11354,
-            "btts_yes": 0.60756,
-            "btts_no": 0.39244,
-            "double_1x": 0.78136,
-            "double_x2": 0.44439,
-            "double_12": 0.77425
-          },
-          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
-          "lambdaH": 2.069,
-          "lambdaA": 1.167,
-          "leagueMatches": 84,
-          "model": "blend",
-          "note": "Modelo experimental: sem validação independente fora da amostra."
-        },
         "2481878": {
           "p1": 0.51978,
           "px": 0.22854,
