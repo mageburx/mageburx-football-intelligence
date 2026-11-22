@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-22T11:14:14+00:00",
+  "generated_at": "2026-11-22T18:30:05+00:00",
   "source": {
     "name": "Cornerflick",
     "url": "https://cornerflick.com",
@@ -30,8 +30,8 @@
     },
     "dk": {
       "status": "sample_available",
-      "match_count": 73,
-      "coverage_dates": "2026-08-07/2026-11-20",
+      "match_count": 76,
+      "coverage_dates": "2026-08-07/2026-11-22",
       "sample_checked": 2,
       "valid_match_samples": 1,
       "stats_fields_validated": {
