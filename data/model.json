@@ -1,7 +1,7 @@
 {
   "schema": 4,
   "method": "Poisson independente; Dixon-Coles (rho fixo); Elo; mistura 80/20",
-  "generated_at": "2026-11-27T15:00:32+00:00",
+  "generated_at": "2026-11-27T23:26:31+00:00",
   "note": "Avaliação walk-forward na época atual; seleção exploratória, não teste independente. Sem xG, lesões ou notícias quantificados.",
   "leagues": {
     "nl": {
@@ -10228,57 +10228,23 @@
       "played": 98,
       "evaluations": {
         "poisson": {
-          "n": 66,
-          "brier": 0.5856,
-          "log_loss": 0.9794
+          "n": 67,
+          "brier": 0.5855,
+          "log_loss": 0.9793
         },
         "dc": {
-          "n": 66,
-          "brier": 0.5888,
-          "log_loss": 0.9857
+          "n": 67,
+          "brier": 0.5889,
+          "log_loss": 0.9858
         },
         "blend": {
-          "n": 66,
-          "brier": 0.5861,
-          "log_loss": 0.9814
+          "n": 67,
+          "brier": 0.5865,
+          "log_loss": 0.9818
         }
       },
       "selected": "poisson",
       "predictions": {
-        "2514035": {
-          "p1": 0.35204,
-          "px": 0.26895,
-          "p2": 0.37901,
-          "over": 0.46012,
-          "btts": 0.51964,
-          "markets": {
-            "over_0_5": 0.9115,
-            "under_0_5": 0.0885,
-            "over_1_5": 0.7235,
-            "under_1_5": 0.2765,
-            "over_2_5": 0.46012,
-            "under_2_5": 0.53988,
-            "over_3_5": 0.24571,
-            "under_3_5": 0.75429,
-            "home_over_0_5": 0.7075,
-            "home_over_1_5": 0.34794,
-            "home_over_2_5": 0.12693,
-            "away_over_0_5": 0.72364,
-            "away_over_1_5": 0.36822,
-            "away_over_2_5": 0.13968,
-            "btts_yes": 0.51964,
-            "btts_no": 0.48036,
-            "double_1x": 0.62099,
-            "double_x2": 0.64796,
-            "double_12": 0.73105
-          },
-          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
-          "lambdaH": 1.229,
-          "lambdaA": 1.286,
-          "leagueMatches": 98,
-          "model": "poisson",
-          "note": "Modelo experimental: sem validação independente fora da amostra."
-        },
         "2514036": {
           "p1": 0.22337,
           "px": 0.25558,
@@ -15994,57 +15960,23 @@
       "played": 90,
       "evaluations": {
         "poisson": {
-          "n": 57,
-          "brier": 0.6481,
-          "log_loss": 1.0714
+          "n": 58,
+          "brier": 0.6523,
+          "log_loss": 1.0784
         },
         "dc": {
-          "n": 57,
-          "brier": 0.6473,
-          "log_loss": 1.0703
+          "n": 58,
+          "brier": 0.6511,
+          "log_loss": 1.0764
         },
         "blend": {
-          "n": 57,
-          "brier": 0.6427,
-          "log_loss": 1.0628
+          "n": 58,
+          "brier": 0.6464,
+          "log_loss": 1.0688
         }
       },
       "selected": "blend",
       "predictions": {
-        "2481882": {
-          "p1": 0.37625,
-          "px": 0.24451,
-          "p2": 0.37924,
-          "over": 0.65251,
-          "btts": 0.66789,
-          "markets": {
-            "over_0_5": 0.95939,
-            "under_0_5": 0.04061,
-            "over_1_5": 0.85446,
-            "under_1_5": 0.14554,
-            "over_2_5": 0.65251,
-            "under_2_5": 0.34749,
-            "over_3_5": 0.43291,
-            "under_3_5": 0.56709,
-            "home_over_0_5": 0.81342,
-            "home_over_1_5": 0.50017,
-            "home_over_2_5": 0.23721,
-            "away_over_0_5": 0.81386,
-            "away_over_1_5": 0.50092,
-            "away_over_2_5": 0.23784,
-            "btts_yes": 0.66789,
-            "btts_no": 0.33211,
-            "double_1x": 0.62076,
-            "double_x2": 0.62375,
-            "double_12": 0.75549
-          },
-          "markets_source": "Dixon-Coles: golos; modelo selecionado: dupla oportunidade",
-          "lambdaH": 1.679,
-          "lambdaA": 1.681,
-          "leagueMatches": 90,
-          "model": "blend",
-          "note": "Modelo experimental: sem validação independente fora da amostra."
-        },
         "2481884": {
           "p1": 0.27267,
           "px": 0.22934,
